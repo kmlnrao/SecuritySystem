@@ -1,6 +1,6 @@
-const express = require('express');
-const cors = require('cors');
-const { PrismaClient } = require('@prisma/client');
+import express from 'express';
+import cors from 'cors';
+import { PrismaClient } from '@prisma/client';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -186,10 +186,10 @@ app.get('/health', (req, res) => {
   res.json({ service: 'user-service', status: 'healthy', port: PORT });
 });
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   app.listen(PORT, () => {
     console.log(`👥 User Service running on port ${PORT}`);
   });
 }
 
-module.exports = app;
+export default app;

@@ -1,8 +1,8 @@
-const express = require('express');
-const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
+import express from 'express';
+import cors from 'cors';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -277,7 +277,7 @@ async function initializeSuperAdmin() {
   }
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   app.listen(PORT, async () => {
     console.log(`🔐 Auth Service running on port ${PORT}`);
     
@@ -286,4 +286,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { app, authenticateToken };
+export { app, authenticateToken };
