@@ -83,8 +83,22 @@ export function setupAuth(app: Express) {
     });
   });
 
-  app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    res.status(200).json(req.user);
+  app.post("/api/login", passport.authenticate("local"), async (req, res) => {
+    // Generate JWT token for the authenticated user
+    const jwt = await import('jsonwebtoken');
+    const token = jwt.sign(
+      { 
+        userId: req.user!.id, 
+        username: req.user!.username 
+      },
+      process.env.SESSION_SECRET || 'fallback-secret',
+      { expiresIn: '24h' }
+    );
+
+    res.status(200).json({
+      user: req.user,
+      token: token
+    });
   });
 
   app.post("/api/logout", (req, res, next) => {
@@ -92,6 +106,28 @@ export function setupAuth(app: Express) {
       if (err) return next(err);
       res.sendStatus(200);
     });
+  });
+
+  app.post("/api/verify-token", async (req, res) => {
+    try {
+      const { token } = req.body;
+      if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+      }
+
+      const jwt = await import('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'fallback-secret') as any;
+      
+      // Get updated user data
+      const user = await storage.getUser(decoded.userId);
+      if (!user || !user.isActive) {
+        return res.status(401).json({ message: 'Invalid or inactive user' });
+      }
+
+      res.json({ user, valid: true });
+    } catch (error) {
+      res.status(401).json({ message: 'Invalid token', valid: false });
+    }
   });
 
   app.get("/api/user", (req, res) => {
