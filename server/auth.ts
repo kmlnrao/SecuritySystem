@@ -22,10 +22,18 @@ async function hashPassword(password: string) {
 }
 
 async function comparePasswords(supplied: string, stored: string) {
-  const [hashed, salt] = stored.split(".");
-  const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
+  // Handle bcrypt hashes (from seeded data) vs scrypt hashes (from registration)
+  if (stored.startsWith('$2')) {
+    // This is a bcrypt hash from our seeded data
+    const bcrypt = await import('bcryptjs');
+    return bcrypt.compare(supplied, stored);
+  } else {
+    // This is a scrypt hash from our registration system
+    const [hashed, salt] = stored.split(".");
+    const hashedBuf = Buffer.from(hashed, "hex");
+    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    return timingSafeEqual(hashedBuf, suppliedBuf);
+  }
 }
 
 export function setupAuth(app: Express) {
