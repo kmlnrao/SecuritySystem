@@ -192,9 +192,97 @@ app.get('/health', (req, res) => {
   res.json({ service: 'auth-service', status: 'healthy', port: PORT });
 });
 
+// Super Admin initialization function
+async function initializeSuperAdmin() {
+  try {
+    console.log('🔐 Initializing Super Admin user...');
+
+    // Check if Super Admin role exists, create if not
+    let superAdminRole = await prisma.role.findUnique({
+      where: { name: 'Super Admin' }
+    });
+
+    if (!superAdminRole) {
+      superAdminRole = await prisma.role.create({
+        data: { name: 'Super Admin' }
+      });
+      console.log('✅ Created Super Admin role');
+    }
+
+    // Check if super admin user exists
+    const existingSuperAdmin = await prisma.user.findUnique({
+      where: { username: 'superadmin' }
+    });
+
+    if (existingSuperAdmin) {
+      console.log('ℹ️  Super Admin user already exists');
+      return;
+    }
+
+    // Create super admin user
+    const hashedPassword = await bcrypt.hash('SuperAdmin@2024', 12);
+    const superAdminUser = await prisma.user.create({
+      data: {
+        username: 'superadmin',
+        email: 'superadmin@hospital.com',
+        password: hashedPassword,
+        isActive: true
+      }
+    });
+
+    console.log('✅ Created Super Admin user');
+
+    // Assign Super Admin role to user
+    await prisma.userRole.create({
+      data: {
+        userId: superAdminUser.id,
+        roleId: superAdminRole.id
+      }
+    });
+
+    console.log('✅ Assigned Super Admin role');
+
+    // Get all documents in the system
+    const allDocuments = await prisma.document.findMany();
+
+    if (allDocuments.length > 0) {
+      // Create full permissions for Super Admin role on all documents
+      const superAdminPermissions = allDocuments.map(doc => ({
+        roleId: superAdminRole.id,
+        documentId: doc.id,
+        canAdd: true,
+        canModify: true,
+        canDelete: true,
+        canQuery: true
+      }));
+
+      // Delete existing permissions for Super Admin role to avoid duplicates
+      await prisma.permission.deleteMany({
+        where: { roleId: superAdminRole.id }
+      });
+
+      // Create new permissions
+      await prisma.permission.createMany({
+        data: superAdminPermissions
+      });
+
+      console.log(`✅ Granted full permissions to ${allDocuments.length} documents`);
+    }
+
+    console.log('\n🎉 Super Admin setup completed!');
+    console.log('📋 Super Admin Credentials: superadmin / SuperAdmin@2024');
+
+  } catch (error) {
+    console.error('❌ Error initializing Super Admin:', error);
+  }
+}
+
 if (require.main === module) {
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log(`🔐 Auth Service running on port ${PORT}`);
+    
+    // Initialize Super Admin user on startup
+    await initializeSuperAdmin();
   });
 }
 
