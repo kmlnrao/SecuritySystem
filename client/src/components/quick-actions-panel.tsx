@@ -9,16 +9,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { insertUserSchema, type InsertUser } from "@shared/schema";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { userService } from "@/lib/api-client";
 import { Plus, UserPlus, Edit, LogIn, UserX, ArrowRight } from "lucide-react";
 import { z } from "zod";
 
-const createUserSchema = insertUserSchema.extend({
-  email: z.string().email("Please enter a valid email address"),
+const createUserSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  isActive: z.boolean().default(true),
 });
 
 type CreateUserData = z.infer<typeof createUserSchema>;

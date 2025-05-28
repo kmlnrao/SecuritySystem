@@ -7,34 +7,38 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, Eye, Edit, Trash2, ArrowRight } from "lucide-react";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { User } from "@shared/schema";
+import { userService } from "@/lib/api-client";
 
 export function UserManagementTable() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const { toast } = useToast();
 
-  const { data: users = [], isLoading } = useQuery<User[]>({ 
-    queryKey: ["/api/users"] 
+  const { data: users = [], isLoading } = useQuery({ 
+    queryKey: ["users"],
+    queryFn: async () => {
+      const response = await userService.getUsers();
+      return response.data;
+    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (userId: string) => {
-      await apiRequest("DELETE", `/api/users/${userId}`);
+      await userService.deleteUser(userId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
       toast({
         title: "Success",
         description: "User deleted successfully",
       });
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message,
+        description: error.response?.data?.message || "Failed to delete user",
         variant: "destructive",
       });
     },
