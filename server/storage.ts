@@ -52,11 +52,15 @@ export interface IStorage {
   getUserPermissions(userId: string): Promise<Permission[]>;
   getRolePermissions(roleId: string): Promise<Permission[]>;
 
-  sessionStore: session.SessionStore;
+  // Module-Document operations
+  assignModuleDocument(moduleId: string, documentId: string): Promise<boolean>;
+  removeModuleDocument(moduleId: string, documentId: string): Promise<boolean>;
+
+  sessionStore: any;
 }
 
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.SessionStore;
+  sessionStore: any;
 
   constructor() {
     this.sessionStore = new PostgresSessionStore({ 
@@ -100,7 +104,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUser(id: string): Promise<boolean> {
     const result = await db.delete(users).where(eq(users.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async getAllUsers(): Promise<User[]> {
@@ -137,7 +141,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteRole(id: string): Promise<boolean> {
     const result = await db.delete(roles).where(eq(roles.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async getAllRoles(): Promise<Role[]> {
@@ -158,7 +162,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(userRoles)
       .where(and(eq(userRoles.userId, userId), eq(userRoles.roleId, roleId)));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async getUserRoles(userId: string): Promise<Role[]> {
@@ -195,7 +199,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteModule(id: string): Promise<boolean> {
     const result = await db.delete(modules).where(eq(modules.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async getAllModules(): Promise<Module[]> {
@@ -227,7 +231,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDocument(id: string): Promise<boolean> {
     const result = await db.delete(documents).where(eq(documents.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async getAllDocuments(): Promise<Document[]> {
@@ -259,7 +263,7 @@ export class DatabaseStorage implements IStorage {
 
   async deletePermission(id: string): Promise<boolean> {
     const result = await db.delete(permissions).where(eq(permissions.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async getUserPermissions(userId: string): Promise<Permission[]> {
@@ -268,6 +272,23 @@ export class DatabaseStorage implements IStorage {
 
   async getRolePermissions(roleId: string): Promise<Permission[]> {
     return await db.select().from(permissions).where(eq(permissions.roleId, roleId));
+  }
+
+  // Module-Document operations
+  async assignModuleDocument(moduleId: string, documentId: string): Promise<boolean> {
+    try {
+      await db.insert(moduleDocuments).values({ moduleId, documentId });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async removeModuleDocument(moduleId: string, documentId: string): Promise<boolean> {
+    const result = await db
+      .delete(moduleDocuments)
+      .where(and(eq(moduleDocuments.moduleId, moduleId), eq(moduleDocuments.documentId, documentId)));
+    return (result.rowCount || 0) > 0;
   }
 }
 

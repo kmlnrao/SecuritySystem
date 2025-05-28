@@ -322,6 +322,182 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Seed database endpoint
+  app.post("/api/seed", async (req, res) => {
+    try {
+      // Create roles
+      const adminRole = await storage.createRole({ name: "Administrator" });
+      const doctorRole = await storage.createRole({ name: "Doctor" });
+      const nurseRole = await storage.createRole({ name: "Nurse" });
+      const staffRole = await storage.createRole({ name: "Staff" });
+      const receptionistRole = await storage.createRole({ name: "Receptionist" });
+
+      // Create modules
+      const patientModule = await storage.createModule({ name: "Patient Management" });
+      const appointmentModule = await storage.createModule({ name: "Appointment Scheduling" });
+      const medicalModule = await storage.createModule({ name: "Medical Records" });
+      const billingModule = await storage.createModule({ name: "Billing & Insurance" });
+      const inventoryModule = await storage.createModule({ name: "Inventory Management" });
+
+      // Create documents
+      const patientRegDoc = await storage.createDocument({ 
+        name: "Patient Registration Form", 
+        path: "/patient/register" 
+      });
+      const medicalHistoryDoc = await storage.createDocument({ 
+        name: "Medical History", 
+        path: "/patient/history" 
+      });
+      const prescriptionDoc = await storage.createDocument({ 
+        name: "Prescription Form", 
+        path: "/medical/prescription" 
+      });
+      const appointmentDoc = await storage.createDocument({ 
+        name: "Appointment Schedule", 
+        path: "/appointment/schedule" 
+      });
+      const billingDoc = await storage.createDocument({ 
+        name: "Billing Statement", 
+        path: "/billing/statement" 
+      });
+      const inventoryDoc = await storage.createDocument({ 
+        name: "Inventory Report", 
+        path: "/inventory/report" 
+      });
+
+      // Create module-document relationships
+      await storage.assignModuleDocument(patientModule.id, patientRegDoc.id);
+      await storage.assignModuleDocument(patientModule.id, medicalHistoryDoc.id);
+      await storage.assignModuleDocument(medicalModule.id, medicalHistoryDoc.id);
+      await storage.assignModuleDocument(medicalModule.id, prescriptionDoc.id);
+      await storage.assignModuleDocument(appointmentModule.id, appointmentDoc.id);
+      await storage.assignModuleDocument(billingModule.id, billingDoc.id);
+      await storage.assignModuleDocument(inventoryModule.id, inventoryDoc.id);
+
+      // Create permissions for Administrator role (full access)
+      const documents = [patientRegDoc, medicalHistoryDoc, prescriptionDoc, appointmentDoc, billingDoc, inventoryDoc];
+      for (const doc of documents) {
+        await storage.createPermission({
+          roleId: adminRole.id,
+          documentId: doc.id,
+          canAdd: true,
+          canModify: true,
+          canDelete: true,
+          canQuery: true,
+        });
+      }
+
+      // Create permissions for Doctor role
+      await storage.createPermission({
+        roleId: doctorRole.id,
+        documentId: patientRegDoc.id,
+        canAdd: true,
+        canModify: true,
+        canDelete: false,
+        canQuery: true,
+      });
+      await storage.createPermission({
+        roleId: doctorRole.id,
+        documentId: medicalHistoryDoc.id,
+        canAdd: true,
+        canModify: true,
+        canDelete: false,
+        canQuery: true,
+      });
+      await storage.createPermission({
+        roleId: doctorRole.id,
+        documentId: prescriptionDoc.id,
+        canAdd: true,
+        canModify: true,
+        canDelete: true,
+        canQuery: true,
+      });
+      await storage.createPermission({
+        roleId: doctorRole.id,
+        documentId: appointmentDoc.id,
+        canAdd: false,
+        canModify: true,
+        canDelete: false,
+        canQuery: true,
+      });
+
+      // Create permissions for Nurse role
+      await storage.createPermission({
+        roleId: nurseRole.id,
+        documentId: patientRegDoc.id,
+        canAdd: true,
+        canModify: true,
+        canDelete: false,
+        canQuery: true,
+      });
+      await storage.createPermission({
+        roleId: nurseRole.id,
+        documentId: medicalHistoryDoc.id,
+        canAdd: true,
+        canModify: false,
+        canDelete: false,
+        canQuery: true,
+      });
+      await storage.createPermission({
+        roleId: nurseRole.id,
+        documentId: appointmentDoc.id,
+        canAdd: true,
+        canModify: true,
+        canDelete: false,
+        canQuery: true,
+      });
+
+      // Create permissions for Staff role
+      await storage.createPermission({
+        roleId: staffRole.id,
+        documentId: billingDoc.id,
+        canAdd: true,
+        canModify: true,
+        canDelete: false,
+        canQuery: true,
+      });
+      await storage.createPermission({
+        roleId: staffRole.id,
+        documentId: inventoryDoc.id,
+        canAdd: true,
+        canModify: true,
+        canDelete: false,
+        canQuery: true,
+      });
+
+      // Create permissions for Receptionist role
+      await storage.createPermission({
+        roleId: receptionistRole.id,
+        documentId: patientRegDoc.id,
+        canAdd: true,
+        canModify: true,
+        canDelete: false,
+        canQuery: true,
+      });
+      await storage.createPermission({
+        roleId: receptionistRole.id,
+        documentId: appointmentDoc.id,
+        canAdd: true,
+        canModify: true,
+        canDelete: true,
+        canQuery: true,
+      });
+
+      res.json({ 
+        message: "Database seeded successfully",
+        summary: {
+          roles: 5,
+          modules: 5,
+          documents: 6,
+          permissions: 19
+        }
+      });
+    } catch (error) {
+      console.error("Seed error:", error);
+      res.status(500).json({ message: "Failed to seed database", error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
