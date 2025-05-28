@@ -39,21 +39,21 @@ export function QuickActionsPanel() {
 
   const createUserMutation = useMutation({
     mutationFn: async (userData: CreateUserData) => {
-      const res = await apiRequest("POST", "/api/users", userData);
-      return await res.json();
+      const response = await userService.createUser(userData);
+      return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
       toast({
         title: "Success",
         description: "User created successfully",
       });
       form.reset();
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message,
+        description: error.response?.data?.message || "Failed to create user",
         variant: "destructive",
       });
     },
