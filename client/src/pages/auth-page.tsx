@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { insertUserSchema, type InsertUser } from "@shared/schema";
 import { z } from "zod";
-import { Hospital, Users, Shield, Settings } from "lucide-react";
+import { Hospital, Users, Shield, Settings, UserCheck, Stethoscope, Heart, Pill, TestTube, Crown } from "lucide-react";
 
 const loginSchema = insertUserSchema.pick({ username: true, password: true });
 const registerSchema = insertUserSchema.extend({
@@ -131,6 +131,89 @@ export default function AuthPage() {
                       </Button>
                     </form>
                   </Form>
+                </CardContent>
+              </Card>
+
+              {/* Sample Login Credentials */}
+              <Card className="mt-4 border-blue-200 bg-blue-50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm text-blue-800 flex items-center">
+                    <UserCheck className="h-4 w-4 mr-2" />
+                    Sample Hospital Accounts
+                  </CardTitle>
+                  <CardDescription className="text-xs text-blue-600">
+                    Click any account below to auto-fill login credentials
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-2">
+                    {[
+                      { 
+                        username: "superadmin", 
+                        password: "SuperAdmin@2024!", 
+                        role: "Super Admin", 
+                        icon: Crown,
+                        color: "text-purple-600 bg-purple-100"
+                      },
+                      { 
+                        username: "admin", 
+                        password: "password123", 
+                        role: "Admin", 
+                        icon: Shield,
+                        color: "text-red-600 bg-red-100"
+                      },
+                      { 
+                        username: "dr.smith", 
+                        password: "password123", 
+                        role: "Doctor", 
+                        icon: Stethoscope,
+                        color: "text-green-600 bg-green-100"
+                      },
+                      { 
+                        username: "nurse.jane", 
+                        password: "password123", 
+                        role: "Nurse", 
+                        icon: Heart,
+                        color: "text-blue-600 bg-blue-100"
+                      },
+                      { 
+                        username: "staff.john", 
+                        password: "password123", 
+                        role: "Staff", 
+                        icon: Pill,
+                        color: "text-orange-600 bg-orange-100"
+                      },
+                      { 
+                        username: "reception.mary", 
+                        password: "password123", 
+                        role: "Reception", 
+                        icon: Users,
+                        color: "text-indigo-600 bg-indigo-100"
+                      }
+                    ].map((account, index) => {
+                      const Icon = account.icon;
+                      return (
+                        <Button
+                          key={index}
+                          variant="ghost"
+                          size="sm"
+                          className="w-full justify-start h-auto p-2 text-left hover:bg-blue-100"
+                          onClick={() => {
+                            loginForm.setValue("username", account.username);
+                            loginForm.setValue("password", account.password);
+                          }}
+                        >
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-3 ${account.color}`}>
+                            <Icon className="h-3 w-3" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-medium text-slate-900">{account.username}</div>
+                            <div className="text-xs text-slate-500">{account.role}</div>
+                          </div>
+                        </Button>
+                      );
+                    })}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
