@@ -4,6 +4,7 @@ import { Express } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
+import jwt from "jsonwebtoken";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
 
@@ -85,7 +86,6 @@ export function setupAuth(app: Express) {
 
   app.post("/api/login", passport.authenticate("local"), async (req, res) => {
     // Generate JWT token for the authenticated user
-    const jwt = await import('jsonwebtoken');
     const token = jwt.sign(
       { 
         userId: req.user!.id, 
@@ -115,7 +115,6 @@ export function setupAuth(app: Express) {
         return res.status(401).json({ message: 'No token provided' });
       }
 
-      const jwt = await import('jsonwebtoken');
       const decoded = jwt.verify(token, process.env.SESSION_SECRET || 'fallback-secret') as any;
       
       // Get updated user data
