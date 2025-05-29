@@ -160,6 +160,20 @@ app.get('/users/:userId/navigation', async (req, res) => {
   try {
     const { userId } = req.params;
     
+    // Check if user is Super Admin
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        userRoles: {
+          include: {
+            role: true
+          }
+        }
+      }
+    });
+
+    const isSuperAdmin = user?.userRoles.some(ur => ur.role.name === 'Super Admin') || false;
+    
     // Get user permissions
     const userPermissions = await fetch(`http://localhost:${PORT}/users/${userId}/permissions`);
     const permissions = await userPermissions.json();
@@ -180,7 +194,10 @@ app.get('/users/:userId/navigation', async (req, res) => {
       const moduleDocuments = module.moduleDocuments
         .map(md => md.document)
         .filter(doc => {
-          // Only include documents the user has at least query permission for
+          // Super Admin gets access to everything
+          if (isSuperAdmin) return true;
+          
+          // Regular users need explicit permissions
           const permission = permissions.find(p => p.documentId === doc.id);
           return permission && permission.canQuery;
         })
@@ -189,10 +206,11 @@ app.get('/users/:userId/navigation', async (req, res) => {
           return {
             ...doc,
             permissions: {
-              canAdd: permission.canAdd,
-              canModify: permission.canModify,
-              canDelete: permission.canDelete,
-              canQuery: permission.canQuery
+              // Super Admin gets full permissions
+              canAdd: isSuperAdmin || (permission && permission.canAdd),
+              canModify: isSuperAdmin || (permission && permission.canModify),
+              canDelete: isSuperAdmin || (permission && permission.canDelete),
+              canQuery: isSuperAdmin || (permission && permission.canQuery)
             }
           };
         });
