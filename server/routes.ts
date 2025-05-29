@@ -518,10 +518,25 @@ export function registerRoutes(app: Express): Server {
       
       // Build navigation structure
       const navigation = modules.map(module => {
-        // Get documents for this module
-        const moduleDocuments = documents.filter(doc => {
-          // For now, include all documents since we don't have module-document mapping in storage
-          return true;
+        // Get documents for this module (for now, filter by module association)
+        let moduleDocuments = documents.filter(doc => {
+          // Simple mapping based on module and document names
+          if (module.name === 'Patient Management') {
+            return doc.name.includes('Patient') || doc.name.includes('Register');
+          }
+          if (module.name === 'Medical Records') {
+            return doc.name.includes('Medical') || doc.name.includes('Records');
+          }
+          if (module.name === 'Appointments') {
+            return doc.name.includes('Appointment') || doc.name.includes('Schedule');
+          }
+          if (module.name === 'Pharmacy') {
+            return doc.name.includes('Pharmacy') || doc.name.includes('Prescription');
+          }
+          if (module.name === 'Laboratory') {
+            return doc.name.includes('Lab') || doc.name.includes('Test');
+          }
+          return false;
         }).map(doc => ({
           id: doc.id,
           name: doc.name,
@@ -534,12 +549,42 @@ export function registerRoutes(app: Express): Server {
           }
         }));
 
+        // If no documents found for this module, add some default ones for Super Admin
+        if (moduleDocuments.length === 0 && isSuperAdmin) {
+          if (module.name === 'Patient Management') {
+            moduleDocuments = [
+              { id: 'pm1', name: 'Register Patient', path: '/patients/register', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } },
+              { id: 'pm2', name: 'View Patients', path: '/patients', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } }
+            ];
+          } else if (module.name === 'Medical Records') {
+            moduleDocuments = [
+              { id: 'mr1', name: 'Patient Records', path: '/medical-records', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } },
+              { id: 'mr2', name: 'Medical History', path: '/medical-history', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } }
+            ];
+          } else if (module.name === 'Appointments') {
+            moduleDocuments = [
+              { id: 'ap1', name: 'Schedule Appointment', path: '/appointments/schedule', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } },
+              { id: 'ap2', name: 'View Appointments', path: '/appointments', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } }
+            ];
+          } else if (module.name === 'Pharmacy') {
+            moduleDocuments = [
+              { id: 'ph1', name: 'Prescriptions', path: '/pharmacy/prescriptions', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } },
+              { id: 'ph2', name: 'Medicine Inventory', path: '/pharmacy/inventory', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } }
+            ];
+          } else if (module.name === 'Laboratory') {
+            moduleDocuments = [
+              { id: 'lb1', name: 'Lab Tests', path: '/laboratory/tests', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } },
+              { id: 'lb2', name: 'Test Results', path: '/laboratory/results', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } }
+            ];
+          }
+        }
+
         return {
           id: module.id,
           name: module.name,
           documents: moduleDocuments
         };
-      });
+      }).filter(module => module.documents.length > 0);
 
       res.json(navigation);
     } catch (error) {

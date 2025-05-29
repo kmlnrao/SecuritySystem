@@ -41,15 +41,17 @@ export function Sidebar() {
       if (!user?.id) return [];
       
       try {
+        console.log('Fetching navigation for user:', user.id);
         const response = await permissionService.getUserNavigation(user.id);
         console.log('Navigation response:', response.data);
-        return response.data;
+        return response.data || [];
       } catch (error) {
         console.error('Navigation fetch error:', error);
         return [];
       }
     },
     enabled: !!user?.id,
+    refetchOnMount: true,
   });
 
   const handleLogout = () => {
