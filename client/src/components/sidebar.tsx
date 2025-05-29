@@ -103,7 +103,7 @@ export function Sidebar() {
           </div>
 
           {/* Security Module - Always visible for admins */}
-          {user?.userRoles?.some(ur => ur.role.name === 'Super Admin' || ur.role.name === 'Admin') && (
+          {(user?.username === 'superadmin' || user?.userRoles?.some(ur => ur.role.name === 'Super Admin' || ur.role.name === 'Admin')) && (
             <div className="px-6">
               <div className="flex items-center text-sm font-medium text-slate-300 mb-2">
                 <Shield className="h-4 w-4 mr-2" />
@@ -225,23 +225,6 @@ export function Sidebar() {
               </div>
             );
           })}
-        </div>
-
-        {/* Default Dashboard Link */}
-        <div className="px-6 mt-6">
-          <Link href="/">
-            <Button
-              variant="ghost"
-              className={`w-full justify-start px-0 py-3 text-left font-medium transition-colors ${
-                location === "/"
-                  ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                  : "text-slate-300 hover:text-white hover:bg-slate-700/50"
-              }`}
-            >
-              <BarChart3 className="h-5 w-5 mr-3" />
-              Dashboard
-            </Button>
-          </Link>
         </div>
       </nav>
 
