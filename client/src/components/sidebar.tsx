@@ -130,80 +130,23 @@ export function Sidebar() {
             </Link>
           </div>
 
-          {/* Security Module - Always visible for admins */}
+          {/* System Administration - Always visible for admins */}
           {(user?.username === 'superadmin' || user?.userRoles?.some(ur => ur.role.name === 'Super Admin' || ur.role.name === 'Admin')) && (
             <div className="px-6">
-              <div className="flex items-center text-sm font-medium text-slate-300 mb-2">
-                <Shield className="h-4 w-4 mr-2" />
-                Security
-              </div>
-              <div className="ml-6 space-y-1">
-                <Link href="/users">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`w-full justify-start text-xs transition-colors ${
-                      location === "/users"
-                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                    }`}
-                  >
-                    User Management
-                  </Button>
-                </Link>
-                <Link href="/roles">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`w-full justify-start text-xs transition-colors ${
-                      location === "/roles"
-                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                    }`}
-                  >
-                    Role Management
-                  </Button>
-                </Link>
-                <Link href="/modules">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`w-full justify-start text-xs transition-colors ${
-                      location === "/modules"
-                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                    }`}
-                  >
-                    Module Management
-                  </Button>
-                </Link>
-                <Link href="/documents">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`w-full justify-start text-xs transition-colors ${
-                      location === "/documents"
-                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                    }`}
-                  >
-                    Document Management
-                  </Button>
-                </Link>
-                <Link href="/system">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`w-full justify-start text-xs transition-colors ${
-                      location === "/system"
-                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                    }`}
-                  >
-                    System Administration
-                  </Button>
-                </Link>
-              </div>
+              <Link href="/admin">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`w-full justify-start text-sm transition-colors ${
+                    location === "/admin"
+                      ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
+                      : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+                  }`}
+                >
+                  <Shield className="h-4 w-4 mr-2" />
+                  System Administration
+                </Button>
+              </Link>
             </div>
           )}
 
