@@ -1,0 +1,113 @@
+Security Module (Always Visible for Admins)
+User Management – Create, edit, delete users
+
+Role Management – Assign and manage roles
+
+Module Management – Configure hospital departments/modules
+
+Document Management – Manage document/screen mappings
+
+System Administration – Super admin settings
+
+🏥 Hospital Modules (Dynamic Based on Role/User Permissions)
+These modules will have dynamically mapped documents/screens:
+
+Patient Management
+
+Medical Records
+
+Appointments
+
+Pharmacy
+
+Laboratory
+
+Administration
+
+Each of these modules can contain mapped documents/screens like:
+
+“Register Patient”
+
+“View Prescriptions”
+
+“Schedule Appointment”
+
+“Lab Test Results”
+
+🧩 How This Works End-to-End
+Admin creates modules (/modules)
+
+E.g., Patient Management, Appointments
+
+Admin creates documents/screens (/documents)
+
+E.g., Register Patient, View Appointments
+
+Admin maps documents to modules (/module-documents)
+
+E.g., Register Patient → Patient Management
+
+Admin assigns document-level permissions to users or roles
+
+E.g., Doctor can view and modify “Medical Records”
+
+Frontend fetches user’s permissions and navigation tree
+
+GET /user/navigation/:userId
+
+🎯 Prompt for Replit (React Sidebar)
+Here’s the Replit Ghostwriter prompt for the dynamic sidebar:
+
+plaintext
+Copy
+Edit
+Create a React sidebar component for a hospital management dashboard.
+
+The sidebar must:
+- Fetch navigation data from `/user/navigation/:userId`
+- Render modules like:
+  - Patient Management
+  - Medical Records
+  - Appointments
+  - Pharmacy
+  - Laboratory
+  - Administration
+- Under the "Security" section, always show:
+  - User Management
+  - Role Management
+  - Module Management
+  - Document Management
+  - System Administration
+
+The navigation data will contain:
+```json
+[
+  {
+    "module": "Patient Management",
+    "documents": [
+      { "name": "Register Patient", "path": "/patient/register" },
+      { "name": "View Patients", "path": "/patient/list" }
+    ]
+  },
+  {
+    "module": "Appointments",
+    "documents": [
+      { "name": "Schedule Appointment", "path": "/appointments/schedule" }
+    ]
+  }
+]
+Use Tailwind CSS for styling. Highlight active route. Make it collapsible for mobile screens.
+
+yaml
+Copy
+Edit
+
+---
+
+Let me know if you'd like a working React sidebar component generated based on this prompt, or if you want the full working UI skeleton!
+
+
+
+
+
+

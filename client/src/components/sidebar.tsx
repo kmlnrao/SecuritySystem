@@ -42,6 +42,7 @@ export function Sidebar() {
       
       try {
         const response = await permissionService.getUserNavigation(user.id);
+        console.log('Navigation response:', response.data);
         return response.data;
       } catch (error) {
         console.error('Navigation fetch error:', error);
