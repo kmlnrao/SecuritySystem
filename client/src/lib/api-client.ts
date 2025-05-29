@@ -39,11 +39,11 @@ const createApiClient = (baseURL: string) => {
   return client;
 };
 
-// Microservice API clients
-export const authApi = createApiClient('http://localhost:3001');
-export const userApi = createApiClient('http://localhost:3002');
-export const docApi = createApiClient('http://localhost:3003');
-export const permApi = createApiClient('http://localhost:3004');
+// Main server API client (all services consolidated)
+export const authApi = createApiClient('http://localhost:5000/api');
+export const userApi = createApiClient('http://localhost:5000/api');
+export const docApi = createApiClient('http://localhost:5000/api');
+export const permApi = createApiClient('http://localhost:5000/api');
 
 // API service functions
 export const userService = {
