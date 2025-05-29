@@ -10,8 +10,24 @@ export default function ModulesPage() {
   const { data: modules = [], isLoading } = useQuery({
     queryKey: ["modules"],
     queryFn: async () => {
-      const response = await documentService.getModules();
-      return response.data;
+      try {
+        const response = await fetch('/api/modules', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Modules fetch failed: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data || [];
+      } catch (error) {
+        console.error('Modules fetch error:', error);
+        return [];
+      }
     }
   });
 

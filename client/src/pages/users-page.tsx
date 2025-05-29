@@ -9,8 +9,24 @@ export default function UsersPage() {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const response = await userService.getUsers();
-      return response.data;
+      try {
+        const response = await fetch('/api/users', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Users fetch failed: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data || [];
+      } catch (error) {
+        console.error('Users fetch error:', error);
+        return [];
+      }
     }
   });
 

@@ -10,8 +10,24 @@ export default function RolesPage() {
   const { data: roles = [], isLoading } = useQuery({
     queryKey: ["roles"],
     queryFn: async () => {
-      const response = await userService.getRoles();
-      return response.data;
+      try {
+        const response = await fetch('/api/roles', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Roles fetch failed: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data || [];
+      } catch (error) {
+        console.error('Roles fetch error:', error);
+        return [];
+      }
     }
   });
 

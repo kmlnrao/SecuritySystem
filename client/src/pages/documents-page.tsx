@@ -10,8 +10,24 @@ export default function DocumentsPage() {
   const { data: documents = [], isLoading } = useQuery({
     queryKey: ["documents"],
     queryFn: async () => {
-      const response = await documentService.getDocuments();
-      return response.data;
+      try {
+        const response = await fetch('/api/documents', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Documents fetch failed: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data || [];
+      } catch (error) {
+        console.error('Documents fetch error:', error);
+        return [];
+      }
     }
   });
 
