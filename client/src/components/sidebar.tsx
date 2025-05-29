@@ -42,9 +42,21 @@ export function Sidebar() {
       
       try {
         console.log('Fetching navigation for user:', user.id);
-        const response = await permissionService.getUserNavigation(user.id);
-        console.log('Navigation response:', response.data);
-        return response.data || [];
+        // Use fetch directly to bypass any axios interceptor issues
+        const response = await fetch(`http://localhost:5000/api/users/${user.id}/navigation`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Navigation fetch failed: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Navigation response:', data);
+        return data || [];
       } catch (error) {
         console.error('Navigation fetch error:', error);
         return [];
@@ -52,6 +64,7 @@ export function Sidebar() {
     },
     enabled: !!user?.id,
     refetchOnMount: true,
+    staleTime: 0,
   });
 
   const handleLogout = () => {
