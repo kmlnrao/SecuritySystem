@@ -498,6 +498,56 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Navigation endpoint for sidebar
+  app.get("/api/users/:userId/navigation", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      // Get user with roles
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const userRoles = await storage.getUserRoles(userId);
+      const isSuperAdmin = userRoles.some(role => role.name === 'Super Admin');
+      
+      // Get all modules and documents
+      const modules = await storage.getAllModules();
+      const documents = await storage.getAllDocuments();
+      
+      // Build navigation structure
+      const navigation = modules.map(module => {
+        // Get documents for this module
+        const moduleDocuments = documents.filter(doc => {
+          // For now, include all documents since we don't have module-document mapping in storage
+          return true;
+        }).map(doc => ({
+          id: doc.id,
+          name: doc.name,
+          path: doc.path,
+          permissions: {
+            canAdd: isSuperAdmin,
+            canModify: isSuperAdmin,
+            canDelete: isSuperAdmin,
+            canQuery: isSuperAdmin
+          }
+        }));
+
+        return {
+          id: module.id,
+          name: module.name,
+          documents: moduleDocuments
+        };
+      });
+
+      res.json(navigation);
+    } catch (error) {
+      console.error('Navigation error:', error);
+      res.status(500).json({ message: "Failed to fetch navigation" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -88,7 +88,7 @@ export const permissionService = {
   
   getUserPermissions: (userId: string) => permApi.get(`/users/${userId}/permissions`),
   getRolePermissions: (roleId: string) => permApi.get(`/roles/${roleId}/permissions`),
-  getUserNavigation: (userId: string) => permApi.get(`/users/${userId}/navigation`),
+  getUserNavigation: (userId: string) => authApi.get(`/users/${userId}/navigation`),
   checkPermission: (userId: string, documentId: string, action: string) => 
     permApi.get(`/users/${userId}/permissions/${documentId}/${action}`),
 };
