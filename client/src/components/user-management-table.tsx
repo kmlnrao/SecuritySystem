@@ -13,7 +13,7 @@ import { userService } from "@/lib/api-client";
 
 export function UserManagementTable() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
   const { toast } = useToast();
 
   const { data: users = [], isLoading } = useQuery({ 
@@ -112,7 +112,7 @@ export function UserManagementTable() {
               <SelectValue placeholder="All Roles" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Roles</SelectItem>
+              <SelectItem value="all">All Roles</SelectItem>
               <SelectItem value="admin">Administrator</SelectItem>
               <SelectItem value="doctor">Doctor</SelectItem>
               <SelectItem value="nurse">Nurse</SelectItem>
