@@ -34,16 +34,12 @@ export function Sidebar() {
   const { user, logoutMutation } = useAuth();
   const [location] = useLocation();
 
-  // Fetch user navigation structure from permission service
-  const { data: navigation = [] } = useQuery<NavigationItem[]>({
-    queryKey: ["navigation", user?.id],
+  // Fetch modules from the working API
+  const { data: modules = [] } = useQuery({
+    queryKey: ["modules"],
     queryFn: async () => {
-      if (!user?.id) return [];
-      
       try {
-        console.log('Fetching navigation for user:', user.id);
-        // Use fetch directly to bypass any axios interceptor issues
-        const response = await fetch(`http://localhost:5000/api/users/${user.id}/navigation`, {
+        const response = await fetch('http://localhost:5000/api/modules', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
             'Content-Type': 'application/json'
@@ -51,21 +47,38 @@ export function Sidebar() {
         });
         
         if (!response.ok) {
-          throw new Error(`Navigation fetch failed: ${response.status}`);
+          throw new Error(`Modules fetch failed: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('Navigation response:', data);
         return data || [];
       } catch (error) {
-        console.error('Navigation fetch error:', error);
+        console.error('Modules fetch error:', error);
         return [];
       }
     },
     enabled: !!user?.id,
-    refetchOnMount: true,
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  // Transform modules into navigation structure
+  const navigation = modules.filter(module => module.isActive).map(module => ({
+    id: module.id,
+    name: module.name,
+    documents: [
+      {
+        id: `${module.id}-main`,
+        name: `${module.name} Dashboard`,
+        path: `/${module.name.toLowerCase().replace(/\s+/g, '-')}`,
+        permissions: {
+          canAdd: true,
+          canModify: true,
+          canDelete: false,
+          canQuery: true
+        }
+      }
+    ]
+  }));
 
   const handleLogout = () => {
     if (confirm("Are you sure you want to logout?")) {

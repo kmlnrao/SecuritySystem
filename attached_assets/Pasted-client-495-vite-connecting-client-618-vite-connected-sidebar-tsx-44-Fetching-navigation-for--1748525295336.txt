@@ -1,0 +1,165 @@
+client:495 [vite] connecting...
+client:618 [vite] connected.
+sidebar.tsx:44 Fetching navigation for user: 7c463141-7c6e-4feb-9391-77f46f799bcc
+62d54db3-3170-4ce7-9483-97a0d198eea5-00-3ty2vg26umjyu.picard.replit.dev/:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) null
+localhost:5000/api/users/7c463141-7c6e-4feb-9391-77f46f799bcc/navigation:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+hook.js:608 Navigation fetch error: TypeError: Failed to fetch
+    at queryFn (sidebar.tsx:46:32)
+    at Object.fetchFn [as fn] (@tanstack_react-query.js?v=b51a32fe:840:14)
+    at run (@tanstack_react-query.js?v=b51a32fe:494:49)
+    at Object.start (@tanstack_react-query.js?v=b51a32fe:536:9)
+    at _a4.fetch (@tanstack_react-query.js?v=b51a32fe:926:41)
+    at _a9.executeFetch_fn (@tanstack_react-query.js?v=b51a32fe:2211:51)
+    at _a9.onSubscribe (@tanstack_react-query.js?v=b51a32fe:1898:74)
+    at _a9.subscribe (@tanstack_react-query.js?v=b51a32fe:24:10)
+    at @tanstack_react-query.js?v=b51a32fe:3022:60
+    at subscribeToStore (chunk-RPCDYKBN.js?v=b51a32fe:11984:18)
+overrideMethod @ hook.js:608Understand this error
+localhost:5000/api/users:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+sidebar.tsx:44 Fetching navigation for user: 7c463141-7c6e-4feb-9391-77f46f799bcc
+62d54db3-3170-4ce7-9483-97a0d198eea5-00-3ty2vg26umjyu.picard.replit.dev/:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) null
+localhost:5000/api/users/7c463141-7c6e-4feb-9391-77f46f799bcc/navigation:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+hook.js:608 Navigation fetch error: TypeError: Failed to fetch
+    at queryFn (sidebar.tsx:46:32)
+    at Object.fetchFn [as fn] (@tanstack_react-query.js?v=b51a32fe:840:14)
+    at run (@tanstack_react-query.js?v=b51a32fe:494:49)
+    at Object.start (@tanstack_react-query.js?v=b51a32fe:536:9)
+    at _a4.fetch (@tanstack_react-query.js?v=b51a32fe:926:41)
+    at _a9.executeFetch_fn (@tanstack_react-query.js?v=b51a32fe:2211:51)
+    at _a9.onSubscribe (@tanstack_react-query.js?v=b51a32fe:1898:74)
+    at _a9.subscribe (@tanstack_react-query.js?v=b51a32fe:24:10)
+    at @tanstack_react-query.js?v=b51a32fe:3022:60
+    at subscribeToStore (chunk-RPCDYKBN.js?v=b51a32fe:11984:18)
+overrideMethod @ hook.js:608Understand this error
+localhost:5000/api/users:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+sidebar.tsx:44 Fetching navigation for user: 7c463141-7c6e-4feb-9391-77f46f799bcc
+62d54db3-3170-4ce7-9483-97a0d198eea5-00-3ty2vg26umjyu.picard.replit.dev/:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) null
+localhost:5000/api/users/7c463141-7c6e-4feb-9391-77f46f799bcc/navigation:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+hook.js:608 Navigation fetch error: TypeError: Failed to fetch
+    at queryFn (sidebar.tsx:46:32)
+    at Object.fetchFn [as fn] (@tanstack_react-query.js?v=b51a32fe:840:14)
+    at run (@tanstack_react-query.js?v=b51a32fe:494:49)
+    at Object.start (@tanstack_react-query.js?v=b51a32fe:536:9)
+    at _a4.fetch (@tanstack_react-query.js?v=b51a32fe:926:41)
+    at _a9.executeFetch_fn (@tanstack_react-query.js?v=b51a32fe:2211:51)
+    at _a9.onSubscribe (@tanstack_react-query.js?v=b51a32fe:1898:74)
+    at _a9.subscribe (@tanstack_react-query.js?v=b51a32fe:24:10)
+    at @tanstack_react-query.js?v=b51a32fe:3022:60
+    at subscribeToStore (chunk-RPCDYKBN.js?v=b51a32fe:11984:18)
+overrideMethod @ hook.js:608Understand this error
+localhost:5000/api/users:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+localhost:5000/api/modules:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+sidebar.tsx:44 Fetching navigation for user: 7c463141-7c6e-4feb-9391-77f46f799bcc
+62d54db3-3170-4ce7-9483-97a0d198eea5-00-3ty2vg26umjyu.picard.replit.dev/:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) null
+localhost:5000/api/users/7c463141-7c6e-4feb-9391-77f46f799bcc/navigation:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+hook.js:608 Navigation fetch error: TypeError: Failed to fetch
+    at queryFn (sidebar.tsx:46:32)
+    at Object.fetchFn [as fn] (@tanstack_react-query.js?v=b51a32fe:840:14)
+    at run (@tanstack_react-query.js?v=b51a32fe:494:49)
+    at Object.start (@tanstack_react-query.js?v=b51a32fe:536:9)
+    at _a4.fetch (@tanstack_react-query.js?v=b51a32fe:926:41)
+    at _a9.executeFetch_fn (@tanstack_react-query.js?v=b51a32fe:2211:51)
+    at _a9.onSubscribe (@tanstack_react-query.js?v=b51a32fe:1898:74)
+    at _a9.subscribe (@tanstack_react-query.js?v=b51a32fe:24:10)
+    at @tanstack_react-query.js?v=b51a32fe:3022:60
+    at subscribeToStore (chunk-RPCDYKBN.js?v=b51a32fe:11984:18)
+overrideMethod @ hook.js:608Understand this error
+localhost:5000/api/users:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+localhost:5000/api/documents:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+sidebar.tsx:44 Fetching navigation for user: 7c463141-7c6e-4feb-9391-77f46f799bcc
+62d54db3-3170-4ce7-9483-97a0d198eea5-00-3ty2vg26umjyu.picard.replit.dev/:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input data-replit-metadata=​"client/​src/​components/​quick-actions-panel.tsx:​150:​22" data-component-name=​"Input" type=​"password" class=​"flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:​border-0 file:​bg-transparent file:​text-sm file:​font-medium file:​text-foreground placeholder:​text-muted-foreground focus-visible:​outline-none focus-visible:​ring-2 focus-visible:​ring-ring focus-visible:​ring-offset-2 disabled:​cursor-not-allowed disabled:​opacity-50 md:​text-sm" placeholder=​"Enter password" name=​"password" id=​":​ru:​-form-item" aria-describedby=​":​ru:​-form-item-description" aria-invalid=​"false" value>​
+localhost:5000/api/users/7c463141-7c6e-4feb-9391-77f46f799bcc/navigation:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+hook.js:608 Navigation fetch error: TypeError: Failed to fetch
+    at queryFn (sidebar.tsx:46:32)
+    at Object.fetchFn [as fn] (@tanstack_react-query.js?v=b51a32fe:840:14)
+    at run (@tanstack_react-query.js?v=b51a32fe:494:49)
+    at Object.start (@tanstack_react-query.js?v=b51a32fe:536:9)
+    at _a4.fetch (@tanstack_react-query.js?v=b51a32fe:926:41)
+    at _a9.executeFetch_fn (@tanstack_react-query.js?v=b51a32fe:2211:51)
+    at _a9.onSubscribe (@tanstack_react-query.js?v=b51a32fe:1898:74)
+    at _a9.subscribe (@tanstack_react-query.js?v=b51a32fe:24:10)
+    at @tanstack_react-query.js?v=b51a32fe:3022:60
+    at subscribeToStore (chunk-RPCDYKBN.js?v=b51a32fe:11984:18)
+overrideMethod @ hook.js:608Understand this error
+localhost:5000/api/users:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+sidebar.tsx:44 Fetching navigation for user: 7c463141-7c6e-4feb-9391-77f46f799bcc
+62d54db3-3170-4ce7-9483-97a0d198eea5-00-3ty2vg26umjyu.picard.replit.dev/:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input data-replit-metadata=​"client/​src/​components/​quick-actions-panel.tsx:​150:​22" data-component-name=​"Input" type=​"password" class=​"flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:​border-0 file:​bg-transparent file:​text-sm file:​font-medium file:​text-foreground placeholder:​text-muted-foreground focus-visible:​outline-none focus-visible:​ring-2 focus-visible:​ring-ring focus-visible:​ring-offset-2 disabled:​cursor-not-allowed disabled:​opacity-50 md:​text-sm" placeholder=​"Enter password" name=​"password" id=​":​r18:​-form-item" aria-describedby=​":​r18:​-form-item-description" aria-invalid=​"false" value>​
+localhost:5000/api/users/7c463141-7c6e-4feb-9391-77f46f799bcc/navigation:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+hook.js:608 Navigation fetch error: TypeError: Failed to fetch
+    at queryFn (sidebar.tsx:46:32)
+    at Object.fetchFn [as fn] (@tanstack_react-query.js?v=b51a32fe:840:14)
+    at run (@tanstack_react-query.js?v=b51a32fe:494:49)
+    at Object.start (@tanstack_react-query.js?v=b51a32fe:536:9)
+    at _a4.fetch (@tanstack_react-query.js?v=b51a32fe:926:41)
+    at _a9.executeFetch_fn (@tanstack_react-query.js?v=b51a32fe:2211:51)
+    at _a9.onSubscribe (@tanstack_react-query.js?v=b51a32fe:1898:74)
+    at _a9.subscribe (@tanstack_react-query.js?v=b51a32fe:24:10)
+    at @tanstack_react-query.js?v=b51a32fe:3022:60
+    at subscribeToStore (chunk-RPCDYKBN.js?v=b51a32fe:11984:18)
+overrideMethod @ hook.js:608Understand this error
+localhost:5000/api/users:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+sidebar.tsx:44 Fetching navigation for user: 7c463141-7c6e-4feb-9391-77f46f799bcc
+62d54db3-3170-4ce7-9483-97a0d198eea5-00-3ty2vg26umjyu.picard.replit.dev/:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input data-replit-metadata=​"client/​src/​components/​quick-actions-panel.tsx:​150:​22" data-component-name=​"Input" type=​"password" class=​"flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:​border-0 file:​bg-transparent file:​text-sm file:​font-medium file:​text-foreground placeholder:​text-muted-foreground focus-visible:​outline-none focus-visible:​ring-2 focus-visible:​ring-ring focus-visible:​ring-offset-2 disabled:​cursor-not-allowed disabled:​opacity-50 md:​text-sm" placeholder=​"Enter password" name=​"password" id=​":​r1i:​-form-item" aria-describedby=​":​r1i:​-form-item-description" aria-invalid=​"false" value>​flex
+localhost:5000/api/users/7c463141-7c6e-4feb-9391-77f46f799bcc/navigation:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+hook.js:608 Navigation fetch error: TypeError: Failed to fetch
+    at queryFn (sidebar.tsx:46:32)
+    at Object.fetchFn [as fn] (@tanstack_react-query.js?v=b51a32fe:840:14)
+    at run (@tanstack_react-query.js?v=b51a32fe:494:49)
+    at Object.start (@tanstack_react-query.js?v=b51a32fe:536:9)
+    at _a4.fetch (@tanstack_react-query.js?v=b51a32fe:926:41)
+    at _a9.executeFetch_fn (@tanstack_react-query.js?v=b51a32fe:2211:51)
+    at _a9.onSubscribe (@tanstack_react-query.js?v=b51a32fe:1898:74)
+    at _a9.subscribe (@tanstack_react-query.js?v=b51a32fe:24:10)
+    at @tanstack_react-query.js?v=b51a32fe:3022:60
+    at subscribeToStore (chunk-RPCDYKBN.js?v=b51a32fe:11984:18)
+overrideMethod @ hook.js:608Understand this error
+localhost:5000/api/users:1 
+            
+            
+           Failed to load resource: net::ERR_CONNECTION_REFUSEDUnderstand this error
+Node cannot be found in the current page.
