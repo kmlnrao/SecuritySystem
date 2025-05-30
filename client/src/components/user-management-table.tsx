@@ -16,7 +16,7 @@ export function UserManagementTable() {
   const [roleFilter, setRoleFilter] = useState("all");
   const { toast } = useToast();
 
-  const { data: users = [], isLoading } = useQuery({ 
+  const { data: users = [], isLoading, error } = useQuery({ 
     queryKey: ["users"],
     queryFn: async () => {
       try {
@@ -24,21 +24,29 @@ export function UserManagementTable() {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
             'Content-Type': 'application/json'
-          }
+          },
+          cache: 'no-cache' // Force fresh fetch
         });
         
         if (!response.ok) {
           throw new Error(`Users fetch failed: ${response.status}`);
         }
         
-        const data = await response.json() || [];
-        console.log('User Management Table - Fetched users:', data);
-        return data;
+        const data = await response.json();
+        console.log('User Management Table - Raw response:', data);
+        console.log('User Management Table - Data type:', typeof data);
+        console.log('User Management Table - Is array:', Array.isArray(data));
+        if (Array.isArray(data) && data.length > 0) {
+          console.log('User Management Table - First user sample:', data[0]);
+        }
+        return Array.isArray(data) ? data : [];
       } catch (error) {
         console.error('Users fetch error:', error);
         return [];
       }
-    }
+    },
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0  // Don't cache the data
   });
 
   console.log('User Management Table - Current users state:', users, 'Loading:', isLoading);
