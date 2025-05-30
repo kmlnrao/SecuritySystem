@@ -27,7 +27,8 @@ const moduleIcons: Record<string, any> = {
   "Appointments": Calendar,
   "Pharmacy": Pill,
   "Laboratory": TestTube,
-  "Administration": Settings
+  "Administration": Settings,
+  "Security": Shield
 };
 
 export function Sidebar() {
