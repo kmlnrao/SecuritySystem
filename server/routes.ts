@@ -22,9 +22,20 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/users", async (req, res) => {
     try {
       const userData = insertUserSchema.parse(req.body);
-      const user = await storage.createUser(userData);
+      
+      // Hash the password before storing
+      const bcrypt = require('bcrypt');
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      
+      const userWithHashedPassword = {
+        ...userData,
+        password: hashedPassword
+      };
+      
+      const user = await storage.createUser(userWithHashedPassword);
       res.status(201).json(user);
     } catch (error) {
+      console.error('Create user error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid user data", errors: error.errors });
       }
