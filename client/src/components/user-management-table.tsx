@@ -19,8 +19,23 @@ export function UserManagementTable() {
   const { data: users = [], isLoading } = useQuery({ 
     queryKey: ["users"],
     queryFn: async () => {
-      const response = await userService.getUsers();
-      return response.data;
+      try {
+        const response = await fetch('/api/users', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Users fetch failed: ${response.status}`);
+        }
+        
+        return await response.json() || [];
+      } catch (error) {
+        console.error('Users fetch error:', error);
+        return [];
+      }
     }
   });
 

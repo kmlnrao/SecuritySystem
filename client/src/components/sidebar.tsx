@@ -97,20 +97,15 @@ export function Sidebar() {
         <div className="space-y-4">
           {/* Dashboard - Always visible */}
           <div className="px-6">
-            <Link href="/">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`w-full justify-start text-sm transition-colors ${
-                  location === "/"
-                    ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                    : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                }`}
-              >
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Dashboard
-              </Button>
-            </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-sm transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
+              onClick={() => (window as any).setDashboardView?.('dashboard')}
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Dashboard
+            </Button>
           </div>
 
           {/* System Administration - Always visible for admins */}
@@ -121,71 +116,46 @@ export function Sidebar() {
                 Security
               </div>
               <div className="ml-6 space-y-1">
-                <Link href="/users">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`w-full justify-start text-xs transition-colors ${
-                      location === "/users"
-                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                    }`}
-                  >
-                    User Management
-                  </Button>
-                </Link>
-                <Link href="/roles">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`w-full justify-start text-xs transition-colors ${
-                      location === "/roles"
-                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                    }`}
-                  >
-                    Role Management
-                  </Button>
-                </Link>
-                <Link href="/modules">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`w-full justify-start text-xs transition-colors ${
-                      location === "/modules"
-                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                    }`}
-                  >
-                    Module Management
-                  </Button>
-                </Link>
-                <Link href="/documents">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`w-full justify-start text-xs transition-colors ${
-                      location === "/documents"
-                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                    }`}
-                  >
-                    Document Management
-                  </Button>
-                </Link>
-                <Link href="/system">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`w-full justify-start text-xs transition-colors ${
-                      location === "/system"
-                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                    }`}
-                  >
-                    System Administration
-                  </Button>
-                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
+                  onClick={() => (window as any).setDashboardView?.('users')}
+                >
+                  User Management
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
+                  onClick={() => (window as any).setDashboardView?.('roles')}
+                >
+                  Role Management
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
+                  onClick={() => (window as any).setDashboardView?.('modules')}
+                >
+                  Module Management
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
+                  onClick={() => (window as any).setDashboardView?.('documents')}
+                >
+                  Document Management
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
+                  onClick={() => (window as any).setDashboardView?.('system')}
+                >
+                  System Administration
+                </Button>
               </div>
             </div>
           )}
@@ -203,33 +173,31 @@ export function Sidebar() {
                 
                 <div className="ml-6 space-y-1">
                   {module.documents.map((document) => {
-                    const isActive = location === document.path;
-                    
                     return (
-                      <Link key={document.id} href={document.path}>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className={`w-full justify-start text-xs transition-colors ${
-                            isActive
-                              ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                              : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                          }`}
-                        >
-                          {document.name}
-                          <div className="ml-auto flex space-x-1">
-                            {document.permissions.canAdd && (
-                              <span className="text-xs text-green-400">+</span>
-                            )}
-                            {document.permissions.canModify && (
-                              <span className="text-xs text-blue-400">✎</span>
-                            )}
-                            {document.permissions.canDelete && (
-                              <span className="text-xs text-red-400">×</span>
-                            )}
-                          </div>
-                        </Button>
-                      </Link>
+                      <Button
+                        key={document.id}
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
+                        onClick={() => {
+                          // For now, show the main dashboard with module info
+                          // Later you can create specific document views
+                          (window as any).setDashboardView?.('dashboard');
+                        }}
+                      >
+                        {document.name}
+                        <div className="ml-auto flex space-x-1">
+                          {document.permissions.canAdd && (
+                            <span className="text-xs text-green-400">+</span>
+                          )}
+                          {document.permissions.canModify && (
+                            <span className="text-xs text-blue-400">✎</span>
+                          )}
+                          {document.permissions.canDelete && (
+                            <span className="text-xs text-red-400">×</span>
+                          )}
+                        </div>
+                      </Button>
                     );
                   })}
                 </div>
