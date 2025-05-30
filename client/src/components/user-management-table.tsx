@@ -64,9 +64,17 @@ export function UserManagementTable() {
   });
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         user.email?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesSearch;
+  });
+
+  console.log('User filtering debug:', {
+    totalUsers: users.length,
+    filteredUsers: filteredUsers.length,
+    searchQuery,
+    sampleUser: users[0],
+    userStructure: users[0] ? Object.keys(users[0]) : 'no users'
   });
 
   const handleDelete = (userId: string) => {
@@ -152,10 +160,16 @@ export function UserManagementTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.length === 0 ? (
+            {isLoading ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8 text-slate-500">
-                  No users found
+                  Loading users...
+                </TableCell>
+              </TableRow>
+            ) : filteredUsers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-8 text-slate-500">
+                  No users found. Total users: {users.length}
                 </TableCell>
               </TableRow>
             ) : (
