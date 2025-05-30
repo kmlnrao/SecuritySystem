@@ -31,13 +31,17 @@ export function UserManagementTable() {
           throw new Error(`Users fetch failed: ${response.status}`);
         }
         
-        return await response.json() || [];
+        const data = await response.json() || [];
+        console.log('User Management Table - Fetched users:', data);
+        return data;
       } catch (error) {
         console.error('Users fetch error:', error);
         return [];
       }
     }
   });
+
+  console.log('User Management Table - Current users state:', users, 'Loading:', isLoading);
 
   const deleteMutation = useMutation({
     mutationFn: async (userId: string) => {
