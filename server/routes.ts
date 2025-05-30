@@ -215,6 +215,83 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // User navigation based on permissions
+  app.get("/api/users/:userId/navigation", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      // Get user and roles
+      const user = await storage.getUser(userId);
+      const userRoles = await storage.getUserRoles(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Get all modules and documents
+      const allModules = await storage.getAllModules();
+      const allDocuments = await storage.getAllDocuments();
+      
+      // Build navigation based on user permissions
+      const navigation = [];
+      
+      for (const module of allModules.filter(m => m.isActive)) {
+        const moduleDocuments = [];
+        
+        for (const document of allDocuments.filter(d => d.isActive)) {
+          // Get user permissions for this document
+          const permissions = await storage.getUserPermissions(userId);
+          const documentPermissions = permissions.filter(p => p.documentId === document.id);
+          
+          // If user has any permissions for this document, include it
+          if (documentPermissions.length > 0) {
+            const docPermission = documentPermissions[0];
+            moduleDocuments.push({
+              id: document.id,
+              name: document.name,
+              path: document.path,
+              permissions: {
+                canAdd: docPermission.canAdd || false,
+                canModify: docPermission.canModify || false,
+                canDelete: docPermission.canDelete || false,
+                canQuery: docPermission.canQuery || false
+              }
+            });
+          }
+          // Super Admin gets all permissions
+          else if (user.username === 'superadmin' || userRoles.some(role => role.name === 'Super Admin')) {
+            moduleDocuments.push({
+              id: document.id,
+              name: document.name,
+              path: document.path,
+              permissions: {
+                canAdd: true,
+                canModify: true,
+                canDelete: true,
+                canQuery: true
+              }
+            });
+          }
+        }
+        
+        // Only include module if it has accessible documents
+        if (moduleDocuments.length > 0) {
+          navigation.push({
+            id: module.id,
+            name: module.name,
+            description: module.description,
+            documents: moduleDocuments
+          });
+        }
+      }
+      
+      res.json(navigation);
+    } catch (error) {
+      console.error("Error fetching user navigation:", error);
+      res.status(500).json({ message: "Failed to fetch navigation" });
+    }
+  });
+
   app.post("/api/documents", async (req, res) => {
     try {
       const documentData = insertDocumentSchema.parse(req.body);

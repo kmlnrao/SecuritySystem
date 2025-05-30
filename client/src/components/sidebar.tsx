@@ -34,12 +34,14 @@ export function Sidebar() {
   const { user, logoutMutation } = useAuth();
   const [location] = useLocation();
 
-  // Fetch modules from the working API
-  const { data: modules = [] } = useQuery({
-    queryKey: ["modules"],
+  // Fetch user navigation structure based on permissions
+  const { data: navigation = [], isLoading } = useQuery<NavigationItem[]>({
+    queryKey: ["navigation", user?.id],
     queryFn: async () => {
+      if (!user?.id) return [];
+      
       try {
-        const response = await fetch('http://localhost:5000/api/modules', {
+        const response = await fetch(`/api/users/${user.id}/navigation`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
             'Content-Type': 'application/json'
@@ -47,38 +49,19 @@ export function Sidebar() {
         });
         
         if (!response.ok) {
-          throw new Error(`Modules fetch failed: ${response.status}`);
+          throw new Error(`Navigation fetch failed: ${response.status}`);
         }
         
         const data = await response.json();
         return data || [];
       } catch (error) {
-        console.error('Modules fetch error:', error);
+        console.error('Navigation fetch error:', error);
         return [];
       }
     },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
-
-  // Transform modules into navigation structure
-  const navigation = modules.filter(module => module.isActive).map(module => ({
-    id: module.id,
-    name: module.name,
-    documents: [
-      {
-        id: `${module.id}-main`,
-        name: `${module.name} Dashboard`,
-        path: `/${module.name.toLowerCase().replace(/\s+/g, '-')}`,
-        permissions: {
-          canAdd: true,
-          canModify: true,
-          canDelete: false,
-          canQuery: true
-        }
-      }
-    ]
-  }));
 
   const handleLogout = () => {
     if (confirm("Are you sure you want to logout?")) {
@@ -133,20 +116,77 @@ export function Sidebar() {
           {/* System Administration - Always visible for admins */}
           {(user?.username === 'superadmin' || user?.userRoles?.some(ur => ur.role.name === 'Super Admin' || ur.role.name === 'Admin')) && (
             <div className="px-6">
-              <Link href="/admin">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`w-full justify-start text-sm transition-colors ${
-                    location === "/admin"
-                      ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
-                      : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-                  }`}
-                >
-                  <Shield className="h-4 w-4 mr-2" />
-                  System Administration
-                </Button>
-              </Link>
+              <div className="flex items-center text-sm font-medium text-slate-300 mb-2">
+                <Shield className="h-4 w-4 mr-2" />
+                Security
+              </div>
+              <div className="ml-6 space-y-1">
+                <Link href="/users">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`w-full justify-start text-xs transition-colors ${
+                      location === "/users"
+                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
+                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+                    }`}
+                  >
+                    User Management
+                  </Button>
+                </Link>
+                <Link href="/roles">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`w-full justify-start text-xs transition-colors ${
+                      location === "/roles"
+                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
+                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+                    }`}
+                  >
+                    Role Management
+                  </Button>
+                </Link>
+                <Link href="/modules">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`w-full justify-start text-xs transition-colors ${
+                      location === "/modules"
+                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
+                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+                    }`}
+                  >
+                    Module Management
+                  </Button>
+                </Link>
+                <Link href="/documents">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`w-full justify-start text-xs transition-colors ${
+                      location === "/documents"
+                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
+                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+                    }`}
+                  >
+                    Document Management
+                  </Button>
+                </Link>
+                <Link href="/system">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`w-full justify-start text-xs transition-colors ${
+                      location === "/system"
+                        ? "text-white bg-accent/20 border-r-2 border-accent hover:bg-accent/30"
+                        : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+                    }`}
+                  >
+                    System Administration
+                  </Button>
+                </Link>
+              </div>
             </div>
           )}
 
