@@ -246,10 +246,10 @@ export function registerRoutes(app: Express): Server {
       // Build navigation based on user permissions
       const navigation = [];
       
-      for (const module of allModules.filter(m => m.isActive)) {
+      for (const module of allModules) {
         const moduleDocuments = [];
         
-        for (const document of allDocuments.filter(d => d.isActive)) {
+        for (const document of allDocuments) {
           // Get user permissions for this document
           const permissions = await storage.getUserPermissions(userId);
           const documentPermissions = permissions.filter(p => p.documentId === document.id);
@@ -290,7 +290,6 @@ export function registerRoutes(app: Express): Server {
           navigation.push({
             id: module.id,
             name: module.name,
-            description: module.description,
             documents: moduleDocuments
           });
         }
@@ -582,7 +581,7 @@ export function registerRoutes(app: Express): Server {
       });
     } catch (error) {
       console.error("Seed error:", error);
-      res.status(500).json({ message: "Failed to seed database", error: error.message });
+      res.status(500).json({ message: "Failed to seed database", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
