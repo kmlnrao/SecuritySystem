@@ -4,18 +4,75 @@ import { Sidebar } from "@/components/sidebar";
 import { DashboardStats } from "@/components/dashboard-stats";
 import { QuickActionsPanel } from "@/components/quick-actions-panel";
 import { UserManagementTable } from "@/components/user-management-table";
+import { AddRoleDialog, EditRoleDialog, ViewRoleDialog } from "@/components/role-dialogs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Users, Shield, Puzzle, FileText, Settings, Activity, Database, Link, Bell } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Plus, Users, Shield, Puzzle, FileText, Settings, Activity, Database, Link, Bell, Edit, Eye, Trash2 } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
 
 type ViewType = 'dashboard' | 'users' | 'roles' | 'modules' | 'documents' | 'system';
 
 export default function DashboardPage() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
+  const [addRoleOpen, setAddRoleOpen] = useState(false);
+  const [editRoleOpen, setEditRoleOpen] = useState(false);
+  const [viewRoleOpen, setViewRoleOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<any>(null);
   const { user } = useAuth();
+  const { toast } = useToast();
+
+  // Role deletion mutation
+  const deleteRoleMutation = useMutation({
+    mutationFn: async (roleId: string) => {
+      const response = await fetch(`/api/roles/${roleId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete role');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
+      toast({
+        title: "Success",
+        description: "Role deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Role handlers
+  const handleEditRole = (role: any) => {
+    setSelectedRole(role);
+    setEditRoleOpen(true);
+  };
+
+  const handleViewRole = (role: any) => {
+    setSelectedRole(role);
+    setViewRoleOpen(true);
+  };
+
+  const handleDeleteRole = (roleId: string) => {
+    if (confirm("Are you sure you want to delete this role?")) {
+      deleteRoleMutation.mutate(roleId);
+    }
+  };
 
   // Fetch all data
   const { data: users = [] } = useQuery({
@@ -159,7 +216,7 @@ export default function DashboardPage() {
                 <h2 className="text-3xl font-bold tracking-tight">Role Management</h2>
                 <p className="text-muted-foreground">Manage user roles and permissions</p>
               </div>
-              <Button>
+              <Button onClick={() => setAddRoleOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Role
               </Button>
@@ -222,8 +279,33 @@ export default function DashboardPage() {
                         </TableCell>
                         <TableCell>{new Date(role.createdAt).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="sm">Edit</Button>
-                          <Button variant="ghost" size="sm">Permissions</Button>
+                          <div className="flex items-center space-x-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-accent hover:text-blue-600"
+                              onClick={() => handleEditRole(role)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-slate-400 hover:text-slate-600"
+                              onClick={() => handleViewRole(role)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-red-400 hover:text-red-600"
+                              onClick={() => handleDeleteRole(role.id)}
+                              disabled={deleteRoleMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -469,6 +551,19 @@ export default function DashboardPage() {
           {renderContent()}
         </main>
       </div>
+
+      {/* Role Management Dialogs */}
+      <AddRoleDialog open={addRoleOpen} onOpenChange={setAddRoleOpen} />
+      <EditRoleDialog 
+        role={selectedRole} 
+        open={editRoleOpen} 
+        onOpenChange={setEditRoleOpen} 
+      />
+      <ViewRoleDialog 
+        role={selectedRole} 
+        open={viewRoleOpen} 
+        onOpenChange={setViewRoleOpen} 
+      />
     </div>
   );
 }
