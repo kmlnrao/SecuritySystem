@@ -5,6 +5,7 @@ import { DashboardStats } from "@/components/dashboard-stats";
 import { QuickActionsPanel } from "@/components/quick-actions-panel";
 import { UserManagementTable } from "@/components/user-management-table";
 import { AddRoleDialog, EditRoleDialog, ViewRoleDialog } from "@/components/role-dialogs";
+import { AddModuleDialog, EditModuleDialog, ViewModuleDialog } from "@/components/module-dialogs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,10 @@ export default function DashboardPage() {
   const [editRoleOpen, setEditRoleOpen] = useState(false);
   const [viewRoleOpen, setViewRoleOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<any>(null);
+  const [addModuleOpen, setAddModuleOpen] = useState(false);
+  const [editModuleOpen, setEditModuleOpen] = useState(false);
+  const [viewModuleOpen, setViewModuleOpen] = useState(false);
+  const [selectedModule, setSelectedModule] = useState<any>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -71,6 +76,55 @@ export default function DashboardPage() {
   const handleDeleteRole = (roleId: string) => {
     if (confirm("Are you sure you want to delete this role?")) {
       deleteRoleMutation.mutate(roleId);
+    }
+  };
+
+  // Module deletion mutation
+  const deleteModuleMutation = useMutation({
+    mutationFn: async (moduleId: string) => {
+      const response = await fetch(`/api/modules/${moduleId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete module');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["modules"] });
+      toast({
+        title: "Success",
+        description: "Module deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Module handlers
+  const handleEditModule = (module: any) => {
+    setSelectedModule(module);
+    setEditModuleOpen(true);
+  };
+
+  const handleViewModule = (module: any) => {
+    setSelectedModule(module);
+    setViewModuleOpen(true);
+  };
+
+  const handleDeleteModule = (moduleId: string) => {
+    if (confirm("Are you sure you want to delete this module?")) {
+      deleteModuleMutation.mutate(moduleId);
     }
   };
 
@@ -324,7 +378,7 @@ export default function DashboardPage() {
                 <h2 className="text-3xl font-bold tracking-tight">Module Management</h2>
                 <p className="text-muted-foreground">Configure hospital departments and modules</p>
               </div>
-              <Button>
+              <Button onClick={() => setAddModuleOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Module
               </Button>
@@ -387,8 +441,33 @@ export default function DashboardPage() {
                         </TableCell>
                         <TableCell>{new Date(module.createdAt).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="sm">Edit</Button>
-                          <Button variant="ghost" size="sm">Documents</Button>
+                          <div className="flex items-center space-x-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-accent hover:text-blue-600"
+                              onClick={() => handleEditModule(module)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-slate-400 hover:text-slate-600"
+                              onClick={() => handleViewModule(module)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-red-400 hover:text-red-600"
+                              onClick={() => handleDeleteModule(module.id)}
+                              disabled={deleteModuleMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -563,6 +642,19 @@ export default function DashboardPage() {
         role={selectedRole} 
         open={viewRoleOpen} 
         onOpenChange={setViewRoleOpen} 
+      />
+
+      {/* Module Management Dialogs */}
+      <AddModuleDialog open={addModuleOpen} onOpenChange={setAddModuleOpen} />
+      <EditModuleDialog 
+        module={selectedModule} 
+        open={editModuleOpen} 
+        onOpenChange={setEditModuleOpen} 
+      />
+      <ViewModuleDialog 
+        module={selectedModule} 
+        open={viewModuleOpen} 
+        onOpenChange={setViewModuleOpen} 
       />
     </div>
   );
