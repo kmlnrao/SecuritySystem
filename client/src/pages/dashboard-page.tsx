@@ -6,6 +6,7 @@ import { QuickActionsPanel } from "@/components/quick-actions-panel";
 import { UserManagementTable } from "@/components/user-management-table";
 import { AddRoleDialog, EditRoleDialog, ViewRoleDialog } from "@/components/role-dialogs";
 import { AddModuleDialog, EditModuleDialog, ViewModuleDialog } from "@/components/module-dialogs";
+import { AddDocumentDialog, EditDocumentDialog, ViewDocumentDialog } from "@/components/document-dialogs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,10 @@ export default function DashboardPage() {
   const [editModuleOpen, setEditModuleOpen] = useState(false);
   const [viewModuleOpen, setViewModuleOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState<any>(null);
+  const [addDocumentOpen, setAddDocumentOpen] = useState(false);
+  const [editDocumentOpen, setEditDocumentOpen] = useState(false);
+  const [viewDocumentOpen, setViewDocumentOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -125,6 +130,55 @@ export default function DashboardPage() {
   const handleDeleteModule = (moduleId: string) => {
     if (confirm("Are you sure you want to delete this module?")) {
       deleteModuleMutation.mutate(moduleId);
+    }
+  };
+
+  // Document deletion mutation
+  const deleteDocumentMutation = useMutation({
+    mutationFn: async (documentId: string) => {
+      const response = await fetch(`/api/documents/${documentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete document');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+      toast({
+        title: "Success",
+        description: "Document deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Document handlers
+  const handleEditDocument = (document: any) => {
+    setSelectedDocument(document);
+    setEditDocumentOpen(true);
+  };
+
+  const handleViewDocument = (document: any) => {
+    setSelectedDocument(document);
+    setViewDocumentOpen(true);
+  };
+
+  const handleDeleteDocument = (documentId: string) => {
+    if (confirm("Are you sure you want to delete this document?")) {
+      deleteDocumentMutation.mutate(documentId);
     }
   };
 
@@ -486,7 +540,7 @@ export default function DashboardPage() {
                 <h2 className="text-3xl font-bold tracking-tight">Document Management</h2>
                 <p className="text-muted-foreground">Manage document and screen mappings</p>
               </div>
-              <Button>
+              <Button onClick={() => setAddDocumentOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Document
               </Button>
@@ -551,8 +605,33 @@ export default function DashboardPage() {
                         </TableCell>
                         <TableCell>{new Date(document.createdAt).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="sm">Edit</Button>
-                          <Button variant="ghost" size="sm">Modules</Button>
+                          <div className="flex items-center space-x-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-accent hover:text-blue-600"
+                              onClick={() => handleEditDocument(document)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-slate-400 hover:text-slate-600"
+                              onClick={() => handleViewDocument(document)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-red-400 hover:text-red-600"
+                              onClick={() => handleDeleteDocument(document.id)}
+                              disabled={deleteDocumentMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -655,6 +734,19 @@ export default function DashboardPage() {
         module={selectedModule} 
         open={viewModuleOpen} 
         onOpenChange={setViewModuleOpen} 
+      />
+
+      {/* Document Management Dialogs */}
+      <AddDocumentDialog open={addDocumentOpen} onOpenChange={setAddDocumentOpen} />
+      <EditDocumentDialog 
+        document={selectedDocument} 
+        open={editDocumentOpen} 
+        onOpenChange={setEditDocumentOpen} 
+      />
+      <ViewDocumentDialog 
+        document={selectedDocument} 
+        open={viewDocumentOpen} 
+        onOpenChange={setViewDocumentOpen} 
       />
     </div>
   );
