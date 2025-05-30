@@ -5,14 +5,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, Eye, Trash2, Search } from "lucide-react";
+import { Edit, Eye, Trash2, Search, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { userService } from "@/lib/api-client";
 import { queryClient } from "@/lib/queryClient";
+import { AddUserDialog, EditUserDialog, ViewUserDialog } from "./user-dialogs";
+
+interface User {
+  id: string;
+  username: string;
+  email: string;
+  isActive: boolean;
+  createdAt: string;
+}
 
 export function UserManagementTable() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [addUserOpen, setAddUserOpen] = useState(false);
+  const [editUserOpen, setEditUserOpen] = useState(false);
+  const [viewUserOpen, setViewUserOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { toast } = useToast();
 
   const { data: users = [], isLoading } = useQuery({ 
@@ -42,7 +55,18 @@ export function UserManagementTable() {
 
   const deleteMutation = useMutation({
     mutationFn: async (userId: string) => {
-      await userService.deleteUser(userId);
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete user');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -51,10 +75,10 @@ export function UserManagementTable() {
         description: "User deleted successfully",
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: error.response?.data?.message || "Failed to delete user",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -70,6 +94,16 @@ export function UserManagementTable() {
     if (confirm("Are you sure you want to delete this user?")) {
       deleteMutation.mutate(userId);
     }
+  };
+
+  const handleEdit = (user: User) => {
+    setSelectedUser(user);
+    setEditUserOpen(true);
+  };
+
+  const handleView = (user: User) => {
+    setSelectedUser(user);
+    setViewUserOpen(true);
   };
 
   const getInitials = (email: string) => {
@@ -105,8 +139,12 @@ export function UserManagementTable() {
           <h2 className="text-xl font-semibold text-slate-900">Recent Users</h2>
           <p className="text-sm text-slate-500 mt-1">Manage user accounts and permissions</p>
         </div>
-        <Button className="bg-accent hover:bg-blue-600">
-          View All
+        <Button 
+          className="bg-accent hover:bg-blue-600"
+          onClick={() => setAddUserOpen(true)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add User
         </Button>
       </div>
 
@@ -184,10 +222,20 @@ export function UserManagementTable() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm" className="text-accent hover:text-blue-600">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-accent hover:text-blue-600"
+                          onClick={() => handleEdit(user)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-slate-400 hover:text-slate-600">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-slate-400 hover:text-slate-600"
+                          onClick={() => handleView(user)}
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button 
@@ -216,6 +264,19 @@ export function UserManagementTable() {
           </div>
         </div>
       </div>
+
+      {/* Dialogs */}
+      <AddUserDialog open={addUserOpen} onOpenChange={setAddUserOpen} />
+      <EditUserDialog 
+        user={selectedUser} 
+        open={editUserOpen} 
+        onOpenChange={setEditUserOpen} 
+      />
+      <ViewUserDialog 
+        user={selectedUser} 
+        open={viewUserOpen} 
+        onOpenChange={setViewUserOpen} 
+      />
     </div>
   );
 }
