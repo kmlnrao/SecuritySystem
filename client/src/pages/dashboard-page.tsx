@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { Sidebar } from "@/components/sidebar";
 import { DashboardStats } from "@/components/dashboard-stats";
 import { QuickActionsPanel } from "@/components/quick-actions-panel";
 import { UserManagementTable } from "@/components/user-management-table";
@@ -7,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Users, Shield, Puzzle, FileText, Settings, Activity, Database, Link } from "lucide-react";
+import { Plus, Users, Shield, Puzzle, FileText, Settings, Activity, Database, Link, Bell } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 type ViewType = 'dashboard' | 'users' | 'roles' | 'modules' | 'documents' | 'system';
@@ -415,8 +416,59 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex-1 p-8 pt-6">
-      {renderContent()}
+    <div className="flex h-screen bg-slate-50">
+      <Sidebar />
+      
+      <div className="flex-1 overflow-hidden">
+        {/* Header */}
+        <header className="bg-white border-b border-slate-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <nav className="flex items-center space-x-2 text-sm text-slate-500">
+                <span>Dashboard</span>
+                <span className="text-xs">/</span>
+                <span className="text-slate-900 font-medium">
+                  {currentView === 'dashboard' ? 'Overview' : 
+                   currentView === 'users' ? 'User Management' :
+                   currentView === 'roles' ? 'Role Management' :
+                   currentView === 'modules' ? 'Module Management' :
+                   currentView === 'documents' ? 'Document Management' :
+                   'System Administration'}
+                </span>
+              </nav>
+              <h1 className="text-2xl font-bold text-slate-900 mt-1">
+                {currentView === 'dashboard' ? 'Hospital Dashboard' : 
+                 currentView === 'users' ? 'User Management' :
+                 currentView === 'roles' ? 'Role Management' :
+                 currentView === 'modules' ? 'Module Management' :
+                 currentView === 'documents' ? 'Document Management' :
+                 'System Administration'}
+              </h1>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" size="icon" className="relative text-slate-400 hover:text-slate-600">
+                <Bell className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+              </Button>
+              
+              <Button className="bg-accent text-white hover:bg-blue-600">
+                <Plus className="h-4 w-4 mr-2" />
+                {currentView === 'users' ? 'Add User' :
+                 currentView === 'roles' ? 'Add Role' :
+                 currentView === 'modules' ? 'Add Module' :
+                 currentView === 'documents' ? 'Add Document' :
+                 'Add User'}
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto p-6">
+          {renderContent()}
+        </main>
+      </div>
     </div>
   );
 }
