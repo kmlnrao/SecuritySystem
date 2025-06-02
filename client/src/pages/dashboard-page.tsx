@@ -320,12 +320,6 @@ export default function DashboardPage() {
       case 'roles':
         return (
           <div className="space-y-6">
-            <div className="flex justify-end">
-              <Button onClick={() => setAddRoleOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Role
-              </Button>
-            </div>
             
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
@@ -424,12 +418,6 @@ export default function DashboardPage() {
       case 'modules':
         return (
           <div className="space-y-6">
-            <div className="flex justify-end">
-              <Button onClick={() => setAddModuleOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Module
-              </Button>
-            </div>
             
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
@@ -528,12 +516,6 @@ export default function DashboardPage() {
       case 'documents':
         return (
           <div className="space-y-6">
-            <div className="flex justify-end">
-              <Button onClick={() => setAddDocumentOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Document
-              </Button>
-            </div>
             
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
