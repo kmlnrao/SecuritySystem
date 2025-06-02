@@ -640,6 +640,23 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  app.put("/api/permissions/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertPermissionSchema.partial().parse(req.body);
+      const permission = await storage.updatePermission(id, validatedData);
+      if (!permission) {
+        return res.status(404).json({ message: "Permission not found" });
+      }
+      res.json(permission);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update permission" });
+    }
+  });
+
   app.delete("/api/permissions/:id", async (req, res) => {
     try {
       const { id } = req.params;

@@ -288,7 +288,7 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount || 0) > 0;
   }
 
-  async getAllPermissions(): Promise<Permission[]> {
+  async getAllPermissions(): Promise<any[]> {
     const results = await db
       .select({
         id: permissions.id,
@@ -302,6 +302,7 @@ export class DatabaseStorage implements IStorage {
         userName: users.username,
         roleName: roles.name,
         documentName: documents.name,
+        documentPath: documents.path,
       })
       .from(permissions)
       .leftJoin(users, eq(permissions.userId, users.id))
@@ -310,8 +311,8 @@ export class DatabaseStorage implements IStorage {
     
     return results.map(r => ({
       id: r.id,
-      userId: r.userId || undefined,
-      roleId: r.roleId || undefined,
+      userId: r.userId || null,
+      roleId: r.roleId || null,
       documentId: r.documentId,
       canAdd: r.canAdd,
       canModify: r.canModify,
@@ -320,6 +321,7 @@ export class DatabaseStorage implements IStorage {
       userName: r.userName || undefined,
       roleName: r.roleName || undefined,
       documentName: r.documentName,
+      documentPath: r.documentPath,
     }));
   }
 

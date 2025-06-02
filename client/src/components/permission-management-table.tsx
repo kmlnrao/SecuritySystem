@@ -3,9 +3,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Plus, Trash2, User, Users } from "lucide-react";
+import { Edit, Eye, Plus, Trash2, User, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { AddPermissionDialog, ViewPermissionDialog } from "./permission-dialogs";
+import { AddPermissionDialog, ViewPermissionDialog, EditPermissionDialog } from "./permission-dialogs";
 import { apiRequest } from "@/lib/queryClient";
 
 interface Permission {
@@ -20,6 +20,7 @@ interface Permission {
   userName?: string;
   roleName?: string;
   documentName: string;
+  documentPath?: string;
 }
 
 export function PermissionManagementTable() {
