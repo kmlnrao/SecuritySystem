@@ -10,6 +10,7 @@ import { AddRoleDialog, EditRoleDialog, ViewRoleDialog } from "@/components/role
 import { AddModuleDialog, EditModuleDialog, ViewModuleDialog } from "@/components/module-dialogs";
 import { AddDocumentDialog, EditDocumentDialog, ViewDocumentDialog } from "@/components/document-dialogs";
 import { AddPermissionDialog, ViewPermissionDialog } from "@/components/permission-dialogs";
+import { DynamicDocumentContent } from "@/components/dynamic-document-content";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,10 +20,12 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 
-type ViewType = 'dashboard' | 'users' | 'roles' | 'modules' | 'documents' | 'permissions' | 'system';
+type ViewType = 'dashboard' | 'users' | 'roles' | 'modules' | 'documents' | 'permissions' | 'system' | 'document-content';
 
 export default function DashboardPage() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
+  const [selectedDocumentPath, setSelectedDocumentPath] = useState<string>('');
+  const [selectedDocumentName, setSelectedDocumentName] = useState<string>('');
   const [addUserOpen, setAddUserOpen] = useState(false);
   const [addRoleOpen, setAddRoleOpen] = useState(false);
   const [editRoleOpen, setEditRoleOpen] = useState(false);
@@ -264,8 +267,13 @@ export default function DashboardPage() {
     }
   });
 
-  // Expose setCurrentView to global scope so sidebar can use it
+  // Expose functions to global scope so sidebar can use them
   (window as any).setDashboardView = setCurrentView;
+  (window as any).setDocumentContent = (documentName: string, documentPath: string) => {
+    setSelectedDocumentName(documentName);
+    setSelectedDocumentPath(documentPath);
+    setCurrentView('document-content');
+  };
 
   const renderContent = () => {
     switch (currentView) {
