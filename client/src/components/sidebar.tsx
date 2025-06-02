@@ -96,21 +96,6 @@ export function Sidebar() {
         </div>
         
         <div className="space-y-4">
-          {/* Dashboard - Always visible */}
-          <div className="px-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start text-sm transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
-              onClick={() => (window as any).setDashboardView?.('dashboard')}
-            >
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Dashboard
-            </Button>
-          </div>
-
-
-
           {/* Hospital Modules */}
           {navigation.map((module) => {
             const Icon = moduleIcons[module.name] || FileText;
