@@ -109,57 +109,7 @@ export function Sidebar() {
             </Button>
           </div>
 
-          {/* System Administration - Always visible for admins */}
-          {(user?.username === 'superadmin' || user?.userRoles?.some(ur => ur.role.name === 'Super Admin' || ur.role.name === 'Admin')) && (
-            <div className="px-6">
-              <div className="flex items-center text-sm font-medium text-slate-300 mb-2">
-                <Shield className="h-4 w-4 mr-2" />
-                Security
-              </div>
-              <div className="ml-6 space-y-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
-                  onClick={() => (window as any).setDashboardView?.('users')}
-                >
-                  User Management
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
-                  onClick={() => (window as any).setDashboardView?.('roles')}
-                >
-                  Role Management
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
-                  onClick={() => (window as any).setDashboardView?.('modules')}
-                >
-                  Module Management
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
-                  onClick={() => (window as any).setDashboardView?.('documents')}
-                >
-                  Document Management
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
-                  onClick={() => (window as any).setDashboardView?.('system')}
-                >
-                  System Administration
-                </Button>
-              </div>
-            </div>
-          )}
+
 
           {/* Hospital Modules */}
           {navigation.map((module) => {
@@ -181,9 +131,17 @@ export function Sidebar() {
                         size="sm"
                         className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
                         onClick={() => {
-                          // For now, show the main dashboard with module info
-                          // Later you can create specific document views
-                          (window as any).setDashboardView?.('dashboard');
+                          // Map document paths to dashboard views
+                          const pathToViewMap: Record<string, string> = {
+                            '/admin/users': 'users',
+                            '/admin/roles': 'roles',
+                            '/modules': 'modules',
+                            '/documents': 'documents',
+                            '/permissions': 'permissions',
+                          };
+                          
+                          const view = pathToViewMap[document.path] || 'dashboard';
+                          (window as any).setDashboardView?.(view);
                         }}
                       >
                         {document.name}
