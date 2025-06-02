@@ -263,7 +263,7 @@ export function registerRoutes(app: Express): Server {
           // Check if user has permissions for this document
           const documentPermissions = userPermissions.filter(p => p.documentId === document.id);
           
-          // If user has any permissions for this document, include it
+          // Check if user has explicit permissions for this document
           if (documentPermissions.length > 0) {
             const docPermission = documentPermissions[0];
             moduleDocsList.push({
@@ -278,8 +278,9 @@ export function registerRoutes(app: Express): Server {
               }
             });
           }
-          // Super Admin gets all permissions for all documents in all modules
-          else if (user.username === 'superadmin' || userRoles.some(role => role.name === 'Super Admin')) {
+          // If no explicit permissions exist and user is superadmin, grant access
+          // This is a fallback for when permissions haven't been set up yet
+          else if ((user.username === 'superadmin' || userRoles.some(role => role.name === 'Super Admin')) && userPermissions.length === 0) {
             moduleDocsList.push({
               id: document.id,
               name: document.name,
