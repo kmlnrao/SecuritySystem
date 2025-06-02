@@ -178,23 +178,27 @@ export function Sidebar() {
                           key={document.id}
                           variant="ghost"
                           size="sm"
-                          className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
+                          className={`w-full ${isCollapsed ? 'justify-center px-2' : 'justify-start'} text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50`}
                           onClick={() => {
                             (window as any).setDocumentContent?.(document.name, document.path);
                           }}
+                          title={isCollapsed ? document.name : undefined}
                         >
-                          {document.name}
-                          <div className="ml-auto flex space-x-1">
-                            {document.permissions.canAdd && (
-                              <span className="text-xs text-green-400">+</span>
-                            )}
-                            {document.permissions.canModify && (
-                              <span className="text-xs text-blue-400">✎</span>
-                            )}
-                            {document.permissions.canDelete && (
-                              <span className="text-xs text-red-400">×</span>
-                            )}
-                          </div>
+                          <FileText className={`h-4 w-4 ${isCollapsed ? '' : 'mr-2'}`} />
+                          {!isCollapsed && document.name}
+                          {!isCollapsed && (
+                            <div className="ml-auto flex space-x-1">
+                              {document.permissions.canAdd && (
+                                <span className="text-xs text-green-400">+</span>
+                              )}
+                              {document.permissions.canModify && (
+                                <span className="text-xs text-blue-400">✎</span>
+                              )}
+                              {document.permissions.canDelete && (
+                                <span className="text-xs text-red-400">×</span>
+                              )}
+                            </div>
+                          )}
                         </Button>
                       );
                     }
@@ -207,17 +211,19 @@ export function Sidebar() {
       </nav>
 
       {/* User Profile */}
-      <div className="p-6 border-t border-slate-700">
-        <div className="flex items-center space-x-3">
+      <div className={`${isCollapsed ? 'p-4' : 'p-6'} border-t border-slate-700`}>
+        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
           <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
             <span className="text-white text-sm font-medium">
               {getInitials(user?.email || "")}
             </span>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-sm truncate">{user?.username || "Admin"}</p>
-            <p className="text-slate-400 text-xs">System Administrator</p>
-          </div>
+          {!isCollapsed && (
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm truncate">{user?.username || "Admin"}</p>
+              <p className="text-slate-400 text-xs">System Administrator</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
