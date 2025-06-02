@@ -699,14 +699,6 @@ export default function DashboardPage() {
                    'System Administration'}
                 </span>
               </nav>
-              <h1 className="text-2xl font-bold text-slate-900 mt-1">
-                {currentView === 'dashboard' ? 'Hospital Dashboard' : 
-                 currentView === 'users' ? 'User Management' :
-                 currentView === 'roles' ? 'Role Management' :
-                 currentView === 'modules' ? 'Module Management' :
-                 currentView === 'documents' ? 'Document Management' :
-                 'System Administration'}
-              </h1>
             </div>
             
             <div className="flex items-center space-x-4">

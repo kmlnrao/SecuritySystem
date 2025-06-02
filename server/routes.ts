@@ -6,6 +6,7 @@ import { insertUserSchema, insertRoleSchema, insertModuleSchema, insertDocumentS
 import { z } from "zod";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 export function registerRoutes(app: Express): Server {
   // sets up /api/register, /api/login, /api/logout, /api/user
@@ -26,7 +27,6 @@ export function registerRoutes(app: Express): Server {
       const userData = insertUserSchema.parse(req.body);
       
       // Hash the password before storing
-      const bcrypt = require('bcrypt');
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       
       const userWithHashedPassword = {
