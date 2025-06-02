@@ -73,44 +73,30 @@ export function Sidebar() {
   };
 
   return (
-    <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-primary text-white flex-shrink-0 flex flex-col transition-all duration-300`}>
+    <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-primary text-white flex-shrink-0 flex flex-col transition-all duration-300 relative`}>
+      {/* Collapse/Expand Button - Always Visible */}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="absolute top-4 right-2 z-10 text-slate-400 hover:text-white p-1 h-8 w-8 bg-slate-700/50 hover:bg-slate-600"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
+        {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+      </Button>
+
       {/* Header */}
-      <div className={`${isCollapsed ? 'p-4' : 'p-6'} border-b border-slate-700`}>
-        <div className="flex items-center justify-between">
-          <div className={`flex items-center ${isCollapsed ? 'justify-center w-full' : 'space-x-3'}`}>
-            <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
-              <Stethoscope className="h-6 w-6 text-white" />
-            </div>
-            {!isCollapsed && (
-              <div>
-                <h1 className="font-bold text-lg">Hospital System</h1>
-                <p className="text-slate-400 text-sm">Management Portal</p>
-              </div>
-            )}
+      <div className={`${isCollapsed ? 'p-4 pt-16' : 'p-6 pt-16'} border-b border-slate-700`}>
+        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
+          <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
+            <Stethoscope className="h-6 w-6 text-white" />
           </div>
           {!isCollapsed && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-slate-400 hover:text-white p-1 h-8 w-8 flex-shrink-0"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
+            <div>
+              <h1 className="font-bold text-lg">Hospital System</h1>
+              <p className="text-slate-400 text-sm">Management Portal</p>
+            </div>
           )}
         </div>
-        {isCollapsed && (
-          <div className="mt-4 flex justify-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-slate-400 hover:text-white p-1 h-8 w-8"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
       </div>
 
       {/* Navigation */}
