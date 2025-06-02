@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Hospital, BarChart3, Users, Shield, Puzzle, FileText, Settings, LogOut, Stethoscope, Calendar, Activity, Database, TestTube, Pill } from "lucide-react";
+import { Hospital, BarChart3, Users, Shield, Puzzle, FileText, Settings, Stethoscope, Calendar, Activity, Database, TestTube, Pill, ChevronLeft, ChevronRight, Menu } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { permissionService } from "@/lib/api-client";
 import { Link, useLocation } from "wouter";
@@ -32,8 +33,9 @@ const moduleIcons: Record<string, any> = {
 };
 
 export function Sidebar() {
-  const { user, logoutMutation } = useAuth();
+  const { user } = useAuth();
   const [location] = useLocation();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Fetch user navigation structure based on permissions
   const { data: navigation = [], isLoading } = useQuery<NavigationItem[]>({
@@ -64,36 +66,46 @@ export function Sidebar() {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const handleLogout = () => {
-    if (confirm("Are you sure you want to logout?")) {
-      logoutMutation.mutate();
-    }
-  };
+
 
   const getInitials = (email: string) => {
     return email?.split("@")[0].substring(0, 2).toUpperCase() || "AD";
   };
 
   return (
-    <div className="w-64 bg-primary text-white flex-shrink-0 flex flex-col">
+    <div className={`${isCollapsed ? 'w-16' : 'w-64'} bg-primary text-white flex-shrink-0 flex flex-col transition-all duration-300`}>
       {/* Header */}
       <div className="p-6 border-b border-slate-700">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
-            <Stethoscope className="h-6 w-6 text-white" />
+        <div className="flex items-center justify-between">
+          <div className={`flex items-center space-x-3 ${isCollapsed ? 'justify-center' : ''}`}>
+            <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
+              <Stethoscope className="h-6 w-6 text-white" />
+            </div>
+            {!isCollapsed && (
+              <div>
+                <h1 className="font-bold text-lg">Hospital System</h1>
+                <p className="text-slate-400 text-sm">Management Portal</p>
+              </div>
+            )}
           </div>
-          <div>
-            <h1 className="font-bold text-lg">Hospital System</h1>
-            <p className="text-slate-400 text-sm">Management Portal</p>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-slate-400 hover:text-white p-1 h-8 w-8"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+          >
+            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </Button>
         </div>
       </div>
 
       {/* Navigation */}
       <nav className="mt-6 flex-1 overflow-y-auto">
-        <div className="px-6 mb-6">
-          <h3 className="text-slate-400 text-xs uppercase tracking-wider font-medium">Hospital Modules</h3>
-        </div>
+        {!isCollapsed && (
+          <div className="px-6 mb-6">
+            <h3 className="text-slate-400 text-xs uppercase tracking-wider font-medium">Hospital Modules</h3>
+          </div>
+        )}
         
         <div className="space-y-4">
           {/* Hospital Modules */}
@@ -101,13 +113,13 @@ export function Sidebar() {
             const Icon = moduleIcons[module.name] || FileText;
             
             return (
-              <div key={module.id} className="px-6">
-                <div className="flex items-center text-sm font-medium text-slate-300 mb-2">
-                  <Icon className="h-4 w-4 mr-2" />
-                  {module.name}
+              <div key={module.id} className={`${isCollapsed ? 'px-2' : 'px-6'}`}>
+                <div className={`flex items-center text-sm font-medium text-slate-300 mb-2 ${isCollapsed ? 'justify-center' : ''}`}>
+                  <Icon className={`h-4 w-4 ${isCollapsed ? '' : 'mr-2'}`} />
+                  {!isCollapsed && module.name}
                 </div>
                 
-                <div className="ml-6 space-y-1">
+                <div className={`${isCollapsed ? '' : 'ml-6'} space-y-1`}>
                   {module.documents.map((document) => {
                     // Map document paths to dashboard views for certain admin paths
                     const pathToViewMap: Record<string, string> = {
@@ -129,15 +141,22 @@ export function Sidebar() {
                           key={document.id}
                           variant="ghost"
                           size="sm"
-                          className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
+                          className={`w-full ${isCollapsed ? 'justify-center px-2' : 'justify-start'} text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50`}
                           onClick={() => {
                             const view = pathToViewMap[document.path];
                             (window as any).setDashboardView?.(view);
                           }}
+                          title={isCollapsed ? document.name : undefined}
                         >
-                          {document.name === 'Dashboard' && <BarChart3 className="h-4 w-4 mr-2" />}
-                          {document.name}
-                          {document.name !== 'Dashboard' && (
+                          {document.name === 'Dashboard' && <BarChart3 className={`h-4 w-4 ${isCollapsed ? '' : 'mr-2'}`} />}
+                          {document.name === 'User Management' && <Users className={`h-4 w-4 ${isCollapsed ? '' : 'mr-2'}`} />}
+                          {document.name === 'Role Management' && <Shield className={`h-4 w-4 ${isCollapsed ? '' : 'mr-2'}`} />}
+                          {document.name === 'Module Management' && <Puzzle className={`h-4 w-4 ${isCollapsed ? '' : 'mr-2'}`} />}
+                          {document.name === 'Document Management' && <FileText className={`h-4 w-4 ${isCollapsed ? '' : 'mr-2'}`} />}
+                          {document.name === 'Permission Management' && <Settings className={`h-4 w-4 ${isCollapsed ? '' : 'mr-2'}`} />}
+                          {document.name === 'Module-Document Management' && <Database className={`h-4 w-4 ${isCollapsed ? '' : 'mr-2'}`} />}
+                          {!isCollapsed && document.name}
+                          {!isCollapsed && document.name !== 'Dashboard' && (
                             <div className="ml-auto flex space-x-1">
                               {document.permissions.canAdd && (
                                 <span className="text-xs text-green-400">+</span>
