@@ -320,11 +320,7 @@ export default function DashboardPage() {
       case 'roles':
         return (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-3xl font-bold tracking-tight">Role Management</h2>
-                <p className="text-muted-foreground">Manage user roles and permissions</p>
-              </div>
+            <div className="flex justify-end">
               <Button onClick={() => setAddRoleOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Role
@@ -428,11 +424,7 @@ export default function DashboardPage() {
       case 'modules':
         return (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-3xl font-bold tracking-tight">Module Management</h2>
-                <p className="text-muted-foreground">Configure hospital departments and modules</p>
-              </div>
+            <div className="flex justify-end">
               <Button onClick={() => setAddModuleOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Module
@@ -536,11 +528,7 @@ export default function DashboardPage() {
       case 'documents':
         return (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-3xl font-bold tracking-tight">Document Management</h2>
-                <p className="text-muted-foreground">Manage document and screen mappings</p>
-              </div>
+            <div className="flex justify-end">
               <Button onClick={() => setAddDocumentOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Document
