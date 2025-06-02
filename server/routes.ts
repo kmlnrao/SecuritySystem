@@ -431,6 +431,37 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  app.get("/api/users/:userId/roles", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const roles = await storage.getUserRoles(userId);
+      res.json(roles);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch user roles" });
+    }
+  });
+
+  app.get("/api/dashboard/stats", async (req, res) => {
+    try {
+      const totalUsers = await storage.getAllUsers();
+      const totalRoles = await storage.getAllRoles();
+      const totalDocuments = await storage.getAllDocuments();
+      const totalModules = await storage.getAllModules();
+      
+      res.json({
+        totalUsers: totalUsers.length,
+        totalRoles: totalRoles.length,
+        totalDocuments: totalDocuments.length,
+        totalModules: totalModules.length,
+        activePatients: Math.floor(totalUsers.length * 0.7), // Simulated based on users
+        todayAppointments: Math.floor(Math.random() * 20) + 5, // Simulated
+        pendingTasks: Math.floor(Math.random() * 10) + 2 // Simulated
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch dashboard statistics" });
+    }
+  });
+
   app.get("/api/roles/:roleId/permissions", async (req, res) => {
     try {
       const { roleId } = req.params;

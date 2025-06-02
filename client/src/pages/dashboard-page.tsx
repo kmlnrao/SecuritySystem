@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Sidebar } from "@/components/sidebar";
 import { DashboardStats } from "@/components/dashboard-stats";
-import { QuickActionsPanel } from "@/components/quick-actions-panel";
+import { RoleBasedDashboard } from "@/components/role-based-dashboard";
 import { UserManagementTable } from "@/components/user-management-table";
 import { PermissionManagementTable } from "@/components/permission-management-table";
 import { AddUserDialog, EditUserDialog, ViewUserDialog } from "@/components/user-dialogs";
@@ -42,6 +42,17 @@ export default function DashboardPage() {
   const [addPermissionOpen, setAddPermissionOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Global functions for navigation
+  (window as any).setDocumentContent = (documentName: string, documentPath: string) => {
+    setSelectedDocumentName(documentName);
+    setSelectedDocumentPath(documentPath);
+    setCurrentView('document-content');
+  };
+
+  (window as any).setDashboardView = (view: string) => {
+    setCurrentView(view);
+  };
 
   // Role deletion mutation
   const deleteRoleMutation = useMutation({
@@ -681,15 +692,7 @@ export default function DashboardPage() {
         );
 
       default:
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between space-y-2">
-              <h2 className="text-3xl font-bold tracking-tight">Hospital Dashboard</h2>
-            </div>
-            <DashboardStats />
-            <QuickActionsPanel />
-          </div>
-        );
+        return <RoleBasedDashboard />;
     }
   };
 
