@@ -76,11 +76,7 @@ export function PermissionManagementTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Permission Management</h2>
-          <p className="text-gray-600">Manage user and role permissions for documents and screens</p>
-        </div>
+      <div className="flex justify-end items-center">
         <Button onClick={() => setAddDialogOpen(true)} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Add Permission

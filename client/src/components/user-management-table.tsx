@@ -119,26 +119,12 @@ export function UserManagementTable() {
   };
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-900">Recent Users</h2>
-            <p className="text-sm text-slate-500 mt-1">Manage user accounts and permissions</p>
-          </div>
-        </div>
-        <div className="text-center py-8">Loading users...</div>
-      </div>
-    );
+    return <div className="text-center py-8">Loading users...</div>;
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-semibold text-slate-900">Recent Users</h2>
-          <p className="text-sm text-slate-500 mt-1">Manage user accounts and permissions</p>
-        </div>
+      <div className="flex justify-end items-center">
         <Button 
           className="bg-accent hover:bg-blue-600"
           onClick={() => setAddUserOpen(true)}
