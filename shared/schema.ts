@@ -15,6 +15,9 @@ export const users = pgTable("users", {
 export const roles = pgTable("roles", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+  isActive: boolean("is_active").notNull().default(true),
 });
 
 export const userRoles = pgTable("user_roles", {
@@ -146,6 +149,7 @@ export const insertUserSchema = createInsertSchema(users).omit({
 
 export const insertRoleSchema = createInsertSchema(roles).omit({
   id: true,
+  createdAt: true,
 });
 
 export const insertModuleSchema = createInsertSchema(modules).omit({
