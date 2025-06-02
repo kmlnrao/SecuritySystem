@@ -5,6 +5,7 @@ import { DashboardStats } from "@/components/dashboard-stats";
 import { QuickActionsPanel } from "@/components/quick-actions-panel";
 import { UserManagementTable } from "@/components/user-management-table";
 import { PermissionManagementTable } from "@/components/permission-management-table";
+import { AddUserDialog, EditUserDialog, ViewUserDialog } from "@/components/user-dialogs";
 import { AddRoleDialog, EditRoleDialog, ViewRoleDialog } from "@/components/role-dialogs";
 import { AddModuleDialog, EditModuleDialog, ViewModuleDialog } from "@/components/module-dialogs";
 import { AddDocumentDialog, EditDocumentDialog, ViewDocumentDialog } from "@/components/document-dialogs";
@@ -21,6 +22,7 @@ type ViewType = 'dashboard' | 'users' | 'roles' | 'modules' | 'documents' | 'per
 
 export default function DashboardPage() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
+  const [addUserOpen, setAddUserOpen] = useState(false);
   const [addRoleOpen, setAddRoleOpen] = useState(false);
   const [editRoleOpen, setEditRoleOpen] = useState(false);
   const [viewRoleOpen, setViewRoleOpen] = useState(false);
@@ -273,7 +275,7 @@ export default function DashboardPage() {
                 <h2 className="text-3xl font-bold tracking-tight">User Management</h2>
                 <p className="text-muted-foreground">Manage hospital staff and user accounts</p>
               </div>
-              <Button>
+              <Button onClick={() => setAddUserOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add User
               </Button>
@@ -320,6 +322,16 @@ export default function DashboardPage() {
       case 'roles':
         return (
           <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold tracking-tight">Role Management</h2>
+                <p className="text-muted-foreground">Manage user roles and permissions</p>
+              </div>
+              <Button onClick={() => setAddRoleOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Role
+              </Button>
+            </div>
             
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
@@ -418,6 +430,16 @@ export default function DashboardPage() {
       case 'modules':
         return (
           <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold tracking-tight">Module Management</h2>
+                <p className="text-muted-foreground">Manage hospital departments and modules</p>
+              </div>
+              <Button onClick={() => setAddModuleOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Module
+              </Button>
+            </div>
             
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
