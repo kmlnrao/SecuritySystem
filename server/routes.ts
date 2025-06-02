@@ -251,20 +251,14 @@ export function registerRoutes(app: Express): Server {
       const navigation = [];
       
       for (const module of allModules) {
-        const moduleDocuments = [];
+        const moduleDocsList = [];
         
-        // Get documents that belong to this specific module
-        const moduleDocumentLinks = await db
-          .select({
-            documentId: moduleDocuments.documentId,
-            document: documents
-          })
-          .from(moduleDocuments)
-          .innerJoin(documents, eq(documents.id, moduleDocuments.documentId))
-          .where(eq(moduleDocuments.moduleId, module.id));
+        // Get documents that belong to this specific module using storage method
+        const moduleDocumentLinks = await storage.getModuleDocuments(module.id);
         
-        for (const link of moduleDocumentLinks) {
-          const document = link.document;
+        for (const documentId of moduleDocumentLinks) {
+          const document = await storage.getDocument(documentId);
+          if (!document) continue;
           
           // Check if user has permissions for this document
           const documentPermissions = userPermissions.filter(p => p.documentId === document.id);
@@ -272,7 +266,7 @@ export function registerRoutes(app: Express): Server {
           // If user has any permissions for this document, include it
           if (documentPermissions.length > 0) {
             const docPermission = documentPermissions[0];
-            moduleDocuments.push({
+            moduleDocsList.push({
               id: document.id,
               name: document.name,
               path: document.path,
@@ -286,7 +280,7 @@ export function registerRoutes(app: Express): Server {
           }
           // Super Admin gets all permissions for all documents in all modules
           else if (user.username === 'superadmin' || userRoles.some(role => role.name === 'Super Admin')) {
-            moduleDocuments.push({
+            moduleDocsList.push({
               id: document.id,
               name: document.name,
               path: document.path,
@@ -301,11 +295,11 @@ export function registerRoutes(app: Express): Server {
         }
         
         // Only include module if it has accessible documents
-        if (moduleDocuments.length > 0) {
+        if (moduleDocsList.length > 0) {
           navigation.push({
             id: module.id,
             name: module.name,
-            documents: moduleDocuments
+            documents: moduleDocsList
           });
         }
       }

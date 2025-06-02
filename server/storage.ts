@@ -55,6 +55,7 @@ export interface IStorage {
   // Module-Document operations
   assignModuleDocument(moduleId: string, documentId: string): Promise<boolean>;
   removeModuleDocument(moduleId: string, documentId: string): Promise<boolean>;
+  getModuleDocuments(moduleId: string): Promise<string[]>;
 
   sessionStore: any;
 }
@@ -289,6 +290,14 @@ export class DatabaseStorage implements IStorage {
       .delete(moduleDocuments)
       .where(and(eq(moduleDocuments.moduleId, moduleId), eq(moduleDocuments.documentId, documentId)));
     return (result.rowCount || 0) > 0;
+  }
+
+  async getModuleDocuments(moduleId: string): Promise<string[]> {
+    const results = await db
+      .select({ documentId: moduleDocuments.documentId })
+      .from(moduleDocuments)
+      .where(eq(moduleDocuments.moduleId, moduleId));
+    return results.map(r => r.documentId);
   }
 }
 
