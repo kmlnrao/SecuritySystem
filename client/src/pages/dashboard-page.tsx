@@ -51,7 +51,7 @@ export default function DashboardPage() {
   };
 
   (window as any).setDashboardView = (view: string) => {
-    setCurrentView(view);
+    setCurrentView(view as ViewType);
   };
 
   // Role deletion mutation

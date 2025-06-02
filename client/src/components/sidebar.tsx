@@ -111,6 +111,7 @@ export function Sidebar() {
                   {module.documents.map((document) => {
                     // Map document paths to dashboard views for certain admin paths
                     const pathToViewMap: Record<string, string> = {
+                      '/dashboard': 'dashboard',
                       '/admin/users': 'users',
                       '/admin/roles': 'roles',
                       '/modules': 'modules',
@@ -133,18 +134,21 @@ export function Sidebar() {
                             (window as any).setDashboardView?.(view);
                           }}
                         >
+                          {document.name === 'Dashboard' && <BarChart3 className="h-4 w-4 mr-2" />}
                           {document.name}
-                          <div className="ml-auto flex space-x-1">
-                            {document.permissions.canAdd && (
-                              <span className="text-xs text-green-400">+</span>
-                            )}
-                            {document.permissions.canModify && (
-                              <span className="text-xs text-blue-400">✎</span>
-                            )}
-                            {document.permissions.canDelete && (
-                              <span className="text-xs text-red-400">×</span>
-                            )}
-                          </div>
+                          {document.name !== 'Dashboard' && (
+                            <div className="ml-auto flex space-x-1">
+                              {document.permissions.canAdd && (
+                                <span className="text-xs text-green-400">+</span>
+                              )}
+                              {document.permissions.canModify && (
+                                <span className="text-xs text-blue-400">✎</span>
+                              )}
+                              {document.permissions.canDelete && (
+                                <span className="text-xs text-red-400">×</span>
+                              )}
+                            </div>
+                          )}
                         </Button>
                       );
                     } else {
