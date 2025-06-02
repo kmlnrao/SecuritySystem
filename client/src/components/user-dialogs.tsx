@@ -251,7 +251,15 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
 
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedUser) => {
+      // Update the cache directly with the new data
+      queryClient.setQueryData(["users"], (oldData: any) => {
+        if (!oldData) return [updatedUser];
+        return oldData.map((user: any) => 
+          user.id === updatedUser.id ? updatedUser : user
+        );
+      });
+      // Also invalidate to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["users"] });
       toast({
         title: "Success",

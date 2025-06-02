@@ -234,7 +234,15 @@ export function EditModuleDialog({ module, open, onOpenChange }: EditModuleDialo
 
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedModule) => {
+      // Update the cache directly with the new data
+      queryClient.setQueryData(["modules"], (oldData: any) => {
+        if (!oldData) return [updatedModule];
+        return oldData.map((module: any) => 
+          module.id === updatedModule.id ? updatedModule : module
+        );
+      });
+      // Also invalidate to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["modules"] });
       toast({
         title: "Success",

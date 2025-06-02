@@ -205,7 +205,15 @@ export function EditRoleDialog({ role, open, onOpenChange }: EditRoleDialogProps
 
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedRole) => {
+      // Update the cache directly with the new data
+      queryClient.setQueryData(["roles"], (oldData: any) => {
+        if (!oldData) return [updatedRole];
+        return oldData.map((role: any) => 
+          role.id === updatedRole.id ? updatedRole : role
+        );
+      });
+      // Also invalidate to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["roles"] });
       toast({
         title: "Success",

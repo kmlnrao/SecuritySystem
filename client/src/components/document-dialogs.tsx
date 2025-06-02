@@ -234,7 +234,15 @@ export function EditDocumentDialog({ document, open, onOpenChange }: EditDocumen
 
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedDocument) => {
+      // Update the cache directly with the new data
+      queryClient.setQueryData(["documents"], (oldData: any) => {
+        if (!oldData) return [updatedDocument];
+        return oldData.map((document: any) => 
+          document.id === updatedDocument.id ? updatedDocument : document
+        );
+      });
+      // Also invalidate to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       toast({
         title: "Success",
