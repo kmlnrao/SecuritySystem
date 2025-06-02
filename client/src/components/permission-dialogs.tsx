@@ -146,7 +146,7 @@ export function AddPermissionDialog({ open, onOpenChange }: AddPermissionDialogP
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>User</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a user" />
@@ -154,7 +154,7 @@ export function AddPermissionDialog({ open, onOpenChange }: AddPermissionDialogP
                       </FormControl>
                       <SelectContent>
                         {users.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
+                          <SelectItem key={user.id} value={user.id || ""}>
                             {user.username} ({user.email})
                           </SelectItem>
                         ))}
@@ -171,7 +171,7 @@ export function AddPermissionDialog({ open, onOpenChange }: AddPermissionDialogP
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Role</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a role" />
@@ -179,7 +179,7 @@ export function AddPermissionDialog({ open, onOpenChange }: AddPermissionDialogP
                       </FormControl>
                       <SelectContent>
                         {roles.map((role) => (
-                          <SelectItem key={role.id} value={role.id}>
+                          <SelectItem key={role.id} value={role.id || ""}>
                             {role.name}
                           </SelectItem>
                         ))}
@@ -197,7 +197,7 @@ export function AddPermissionDialog({ open, onOpenChange }: AddPermissionDialogP
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Document/Screen</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a document" />
@@ -205,7 +205,7 @@ export function AddPermissionDialog({ open, onOpenChange }: AddPermissionDialogP
                     </FormControl>
                     <SelectContent>
                       {documents.map((document) => (
-                        <SelectItem key={document.id} value={document.id}>
+                        <SelectItem key={document.id} value={document.id || ""}>
                           {document.name} ({document.path})
                         </SelectItem>
                       ))}
