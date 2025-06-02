@@ -117,6 +117,7 @@ export function Sidebar() {
                       '/modules': 'modules',
                       '/documents': 'documents',
                       '/permissions': 'permissions',
+                      '/module-documents': 'module-documents',
                     };
                     
                     const isDashboardView = pathToViewMap[document.path];
