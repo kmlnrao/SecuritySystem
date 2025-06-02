@@ -449,9 +449,9 @@ export function EditPermissionDialog({ permission, open, onOpenChange }: EditPer
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                           {roles.map((role) => (
-                            <SelectItem key={role.id} value={role.id}>
+                            <SelectItem key={role.id} value={role.id || ""}>
                               {role.name}
                             </SelectItem>
                           ))}
@@ -469,7 +469,7 @@ export function EditPermissionDialog({ permission, open, onOpenChange }: EditPer
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Document/Screen</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a document" />
@@ -477,7 +477,7 @@ export function EditPermissionDialog({ permission, open, onOpenChange }: EditPer
                       </FormControl>
                       <SelectContent>
                         {documents.map((document) => (
-                          <SelectItem key={document.id} value={document.id}>
+                          <SelectItem key={document.id} value={document.id || ""}>
                             {document.name} ({document.path})
                           </SelectItem>
                         ))}
