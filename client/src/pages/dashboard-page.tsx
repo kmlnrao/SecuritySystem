@@ -9,6 +9,7 @@ import { AddUserDialog, EditUserDialog, ViewUserDialog } from "@/components/user
 import { AddRoleDialog, EditRoleDialog, ViewRoleDialog } from "@/components/role-dialogs";
 import { AddModuleDialog, EditModuleDialog, ViewModuleDialog } from "@/components/module-dialogs";
 import { AddDocumentDialog, EditDocumentDialog, ViewDocumentDialog } from "@/components/document-dialogs";
+import { AddPermissionDialog, ViewPermissionDialog } from "@/components/permission-dialogs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +36,7 @@ export default function DashboardPage() {
   const [editDocumentOpen, setEditDocumentOpen] = useState(false);
   const [viewDocumentOpen, setViewDocumentOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [addPermissionOpen, setAddPermissionOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -538,6 +540,16 @@ export default function DashboardPage() {
       case 'documents':
         return (
           <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold tracking-tight">Document Management</h2>
+                <p className="text-muted-foreground">Manage system documents and screens</p>
+              </div>
+              <Button onClick={() => setAddDocumentOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Document
+              </Button>
+            </div>
             
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
@@ -636,7 +648,21 @@ export default function DashboardPage() {
         );
 
       case 'permissions':
-        return <PermissionManagementTable />;
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold tracking-tight">Permission Management</h2>
+                <p className="text-muted-foreground">Manage user and role permissions for documents</p>
+              </div>
+              <Button onClick={() => setAddPermissionOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Permission
+              </Button>
+            </div>
+            <PermissionManagementTable />
+          </div>
+        );
 
       default:
         return (
@@ -707,6 +733,9 @@ export default function DashboardPage() {
         </main>
       </div>
 
+      {/* User Management Dialogs */}
+      <AddUserDialog open={addUserOpen} onOpenChange={setAddUserOpen} />
+
       {/* Role Management Dialogs */}
       <AddRoleDialog open={addRoleOpen} onOpenChange={setAddRoleOpen} />
       <EditRoleDialog 
@@ -745,6 +774,9 @@ export default function DashboardPage() {
         open={viewDocumentOpen} 
         onOpenChange={setViewDocumentOpen} 
       />
+
+      {/* Permission Management Dialogs */}
+      <AddPermissionDialog open={addPermissionOpen} onOpenChange={setAddPermissionOpen} />
     </div>
   );
 }
