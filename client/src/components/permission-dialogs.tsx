@@ -38,6 +38,7 @@ interface Permission {
   userName?: string;
   roleName?: string;
   documentName: string;
+  documentPath?: string;
 }
 
 interface User {
@@ -305,6 +306,9 @@ export function AddPermissionDialog({ open, onOpenChange }: AddPermissionDialogP
 }
 
 const editPermissionSchema = z.object({
+  userId: z.string().optional(),
+  roleId: z.string().optional(),
+  documentId: z.string().min(1, "Document is required"),
   canAdd: z.boolean().optional(),
   canModify: z.boolean().optional(),
   canDelete: z.boolean().optional(),
@@ -323,9 +327,24 @@ export function EditPermissionDialog({ permission, open, onOpenChange }: EditPer
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const { data: users = [] } = useQuery<User[]>({
+    queryKey: ["/api/users"],
+  });
+
+  const { data: roles = [] } = useQuery<Role[]>({
+    queryKey: ["/api/roles"],
+  });
+
+  const { data: documents = [] } = useQuery<Document[]>({
+    queryKey: ["/api/documents"],
+  });
+
   const form = useForm<EditPermissionData>({
     resolver: zodResolver(editPermissionSchema),
     defaultValues: {
+      userId: "",
+      roleId: "",
+      documentId: "",
       canAdd: false,
       canModify: false,
       canDelete: false,
@@ -337,6 +356,9 @@ export function EditPermissionDialog({ permission, open, onOpenChange }: EditPer
   React.useEffect(() => {
     if (permission) {
       form.reset({
+        userId: permission.userId || "",
+        roleId: permission.roleId || "",
+        documentId: permission.documentId,
         canAdd: permission.canAdd,
         canModify: permission.canModify,
         canDelete: permission.canDelete,
@@ -381,12 +403,90 @@ export function EditPermissionDialog({ permission, open, onOpenChange }: EditPer
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-4">
               <div>
-                <strong>Assigned to:</strong>{" "}
-                {permission.userName ? `User: ${permission.userName}` : `Role: ${permission.roleName}`}
+                <strong>Current Document:</strong> {permission.documentName}
               </div>
               <div>
-                <strong>Document:</strong> {permission.documentName}
+                <strong>Current Path:</strong> {permission.documentPath || 'N/A'}
               </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="userId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assign to User</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a user" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          {users.map((user) => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.username}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="roleId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assign to Role</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          {roles.map((role) => (
+                            <SelectItem key={role.id} value={role.id}>
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="documentId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Document/Screen</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a document" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {documents.map((document) => (
+                          <SelectItem key={document.id} value={document.id}>
+                            {document.name} ({document.path})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
               <div className="space-y-3">
                 <FormField
@@ -497,6 +597,9 @@ export function ViewPermissionDialog({ permission, open, onOpenChange }: ViewPer
           </div>
           <div>
             <strong>Document:</strong> {permission.documentName}
+          </div>
+          <div>
+            <strong>Path:</strong> {permission.documentPath || 'N/A'}
           </div>
           <div>
             <strong>Permissions:</strong>
