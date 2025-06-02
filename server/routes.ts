@@ -595,6 +595,43 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Permission management routes
+  app.get("/api/permissions", async (req, res) => {
+    try {
+      const permissions = await storage.getAllPermissions();
+      res.json(permissions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch permissions" });
+    }
+  });
+
+  app.post("/api/permissions", async (req, res) => {
+    try {
+      const validatedData = insertPermissionSchema.parse(req.body);
+      const permission = await storage.createPermission(validatedData);
+      res.status(201).json(permission);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create permission" });
+    }
+  });
+
+  app.delete("/api/permissions/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deletePermission(id);
+      if (deleted) {
+        res.status(200).json({ message: "Permission deleted successfully" });
+      } else {
+        res.status(404).json({ message: "Permission not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete permission" });
+    }
+  });
+
   // Navigation endpoint for sidebar
   app.get("/api/users/:userId/navigation", async (req, res) => {
     try {

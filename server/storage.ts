@@ -49,6 +49,7 @@ export interface IStorage {
   createPermission(permission: InsertPermission): Promise<Permission>;
   updatePermission(id: string, permission: Partial<InsertPermission>): Promise<Permission | undefined>;
   deletePermission(id: string): Promise<boolean>;
+  getAllPermissions(): Promise<Permission[]>;
   getUserPermissions(userId: string): Promise<Permission[]>;
   getRolePermissions(roleId: string): Promise<Permission[]>;
 
@@ -265,6 +266,41 @@ export class DatabaseStorage implements IStorage {
   async deletePermission(id: string): Promise<boolean> {
     const result = await db.delete(permissions).where(eq(permissions.id, id));
     return (result.rowCount || 0) > 0;
+  }
+
+  async getAllPermissions(): Promise<Permission[]> {
+    const results = await db
+      .select({
+        id: permissions.id,
+        userId: permissions.userId,
+        roleId: permissions.roleId,
+        documentId: permissions.documentId,
+        canAdd: permissions.canAdd,
+        canModify: permissions.canModify,
+        canDelete: permissions.canDelete,
+        canQuery: permissions.canQuery,
+        userName: users.username,
+        roleName: roles.name,
+        documentName: documents.name,
+      })
+      .from(permissions)
+      .leftJoin(users, eq(permissions.userId, users.id))
+      .leftJoin(roles, eq(permissions.roleId, roles.id))
+      .innerJoin(documents, eq(permissions.documentId, documents.id));
+    
+    return results.map(r => ({
+      id: r.id,
+      userId: r.userId || undefined,
+      roleId: r.roleId || undefined,
+      documentId: r.documentId,
+      canAdd: r.canAdd,
+      canModify: r.canModify,
+      canDelete: r.canDelete,
+      canQuery: r.canQuery,
+      userName: r.userName || undefined,
+      roleName: r.roleName || undefined,
+      documentName: r.documentName,
+    }));
   }
 
   async getUserPermissions(userId: string): Promise<Permission[]> {

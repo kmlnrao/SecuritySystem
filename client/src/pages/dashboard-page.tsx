@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/sidebar";
 import { DashboardStats } from "@/components/dashboard-stats";
 import { QuickActionsPanel } from "@/components/quick-actions-panel";
 import { UserManagementTable } from "@/components/user-management-table";
+import { PermissionManagementTable } from "@/components/permission-management-table";
 import { AddRoleDialog, EditRoleDialog, ViewRoleDialog } from "@/components/role-dialogs";
 import { AddModuleDialog, EditModuleDialog, ViewModuleDialog } from "@/components/module-dialogs";
 import { AddDocumentDialog, EditDocumentDialog, ViewDocumentDialog } from "@/components/document-dialogs";
@@ -16,7 +17,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 
-type ViewType = 'dashboard' | 'users' | 'roles' | 'modules' | 'documents' | 'system';
+type ViewType = 'dashboard' | 'users' | 'roles' | 'modules' | 'documents' | 'permissions' | 'system';
 
 export default function DashboardPage() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -641,6 +642,9 @@ export default function DashboardPage() {
             </Card>
           </div>
         );
+
+      case 'permissions':
+        return <PermissionManagementTable />;
 
       default:
         return (
