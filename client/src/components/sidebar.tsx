@@ -199,15 +199,6 @@ export function Sidebar() {
             <p className="font-medium text-sm truncate">{user?.username || "Admin"}</p>
             <p className="text-slate-400 text-xs">System Administrator</p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-slate-400 hover:text-white p-1"
-            onClick={handleLogout}
-            disabled={logoutMutation.isPending}
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
         </div>
       </div>
     </div>

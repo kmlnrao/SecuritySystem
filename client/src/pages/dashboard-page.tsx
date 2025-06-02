@@ -41,7 +41,7 @@ export default function DashboardPage() {
   const [viewDocumentOpen, setViewDocumentOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [addPermissionOpen, setAddPermissionOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
 
   // Global functions for navigation
@@ -739,6 +739,22 @@ export default function DashboardPage() {
                 <Bell className="h-5 w-5" />
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
               </Button>
+              
+              <div className="flex items-center space-x-2">
+                <Badge variant="secondary">{user?.username}</Badge>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    if (confirm("Are you sure you want to logout?")) {
+                      logoutMutation.mutate();
+                    }
+                  }}
+                  disabled={logoutMutation.isPending}
+                >
+                  Logout
+                </Button>
+              </div>
             </div>
           </div>
         </header>
