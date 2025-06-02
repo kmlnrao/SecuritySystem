@@ -123,6 +123,9 @@ export function PermissionManagementTable() {
                     </div>
                   </TableCell>
                   <TableCell>{permission.documentName}</TableCell>
+                  <TableCell className="text-sm text-gray-500">
+                    {permission.documentPath || 'N/A'}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-1 flex-wrap">
                       {getPermissionBadges(permission)}
@@ -136,6 +139,13 @@ export function PermissionManagementTable() {
                         onClick={() => handleView(permission)}
                       >
                         <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(permission)}
+                      >
+                        <Edit className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="outline"
@@ -163,6 +173,12 @@ export function PermissionManagementTable() {
         permission={selectedPermission}
         open={viewDialogOpen}
         onOpenChange={setViewDialogOpen}
+      />
+
+      <EditPermissionDialog
+        permission={selectedPermission}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
       />
     </div>
   );
