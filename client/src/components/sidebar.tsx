@@ -210,22 +210,7 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* User Profile */}
-      <div className={`${isCollapsed ? 'p-4' : 'p-6'} border-t border-slate-700`}>
-        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
-          <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-medium">
-              {getInitials(user?.email || "")}
-            </span>
-          </div>
-          {!isCollapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm truncate">{user?.username || "Admin"}</p>
-              <p className="text-slate-400 text-xs">System Administrator</p>
-            </div>
-          )}
-        </div>
-      </div>
+
     </div>
   );
 }
