@@ -714,15 +714,6 @@ export default function DashboardPage() {
                 <Bell className="h-5 w-5" />
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
               </Button>
-              
-              <Button className="bg-accent text-white hover:bg-blue-600">
-                <Plus className="h-4 w-4 mr-2" />
-                {currentView === 'users' ? 'Add User' :
-                 currentView === 'roles' ? 'Add Role' :
-                 currentView === 'modules' ? 'Add Module' :
-                 currentView === 'documents' ? 'Add Document' :
-                 'Add User'}
-              </Button>
             </div>
           </div>
         </header>
