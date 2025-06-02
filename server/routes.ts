@@ -716,79 +716,89 @@ export function registerRoutes(app: Express): Server {
       const userRoles = await storage.getUserRoles(userId);
       const isSuperAdmin = userRoles.some(role => role.name === 'Super Admin');
       
-      // Get all modules and documents
+      // Get all modules
       const modules = await storage.getAllModules();
-      const documents = await storage.getAllDocuments();
       
-      // Build navigation structure
-      const navigation = modules.map(module => {
-        // Get documents for this module (for now, filter by module association)
-        let moduleDocuments = documents.filter(doc => {
-          // Simple mapping based on module and document names
-          if (module.name === 'Patient Management') {
-            return doc.name.includes('Patient') || doc.name.includes('Register');
+      // Build navigation structure using proper module-document relationships
+      const navigation = [];
+      
+      for (const module of modules) {
+        // Get documents for this module
+        const moduleDocumentIds = await storage.getModuleDocuments(module.id);
+        
+        if (moduleDocumentIds.length === 0) continue;
+        
+        const moduleDocuments = [];
+        
+        for (const documentId of moduleDocumentIds) {
+          const document = await storage.getDocument(documentId);
+          if (!document) continue;
+          
+          // Check permissions
+          let hasPermission = false;
+          let permissions = { canAdd: false, canModify: false, canDelete: false, canQuery: false };
+          
+          if (isSuperAdmin) {
+            hasPermission = true;
+            permissions = { canAdd: true, canModify: true, canDelete: true, canQuery: true };
+          } else {
+            // Check user permissions
+            const userPermissions = await storage.getUserPermissions(userId);
+            const userPermission = userPermissions.find(p => p.documentId === document.id);
+            
+            if (userPermission) {
+              hasPermission = userPermission.canQuery;
+              permissions = {
+                canAdd: userPermission.canAdd,
+                canModify: userPermission.canModify,
+                canDelete: userPermission.canDelete,
+                canQuery: userPermission.canQuery
+              };
+            } else {
+              // Check role permissions
+              for (const role of userRoles) {
+                const rolePermissions = await storage.getRolePermissions(role.id);
+                const rolePermission = rolePermissions.find(p => p.documentId === document.id);
+                
+                if (rolePermission && rolePermission.canQuery) {
+                  hasPermission = true;
+                  permissions = {
+                    canAdd: permissions.canAdd || rolePermission.canAdd,
+                    canModify: permissions.canModify || rolePermission.canModify,
+                    canDelete: permissions.canDelete || rolePermission.canDelete,
+                    canQuery: permissions.canQuery || rolePermission.canQuery
+                  };
+                  break;
+                }
+              }
+            }
           }
-          if (module.name === 'Medical Records') {
-            return doc.name.includes('Medical') || doc.name.includes('Records');
-          }
-          if (module.name === 'Appointments') {
-            return doc.name.includes('Appointment') || doc.name.includes('Schedule');
-          }
-          if (module.name === 'Pharmacy') {
-            return doc.name.includes('Pharmacy') || doc.name.includes('Prescription');
-          }
-          if (module.name === 'Laboratory') {
-            return doc.name.includes('Lab') || doc.name.includes('Test');
-          }
-          return false;
-        }).map(doc => ({
-          id: doc.id,
-          name: doc.name,
-          path: doc.path,
-          permissions: {
-            canAdd: isSuperAdmin,
-            canModify: isSuperAdmin,
-            canDelete: isSuperAdmin,
-            canQuery: isSuperAdmin
-          }
-        }));
-
-        // If no documents found for this module, add some default ones for Super Admin
-        if (moduleDocuments.length === 0 && isSuperAdmin) {
-          if (module.name === 'Patient Management') {
-            moduleDocuments = [
-              { id: 'pm1', name: 'Register Patient', path: '/patients/register', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } },
-              { id: 'pm2', name: 'View Patients', path: '/patients', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } }
-            ];
-          } else if (module.name === 'Medical Records') {
-            moduleDocuments = [
-              { id: 'mr1', name: 'Patient Records', path: '/medical-records', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } },
-              { id: 'mr2', name: 'Medical History', path: '/medical-history', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } }
-            ];
-          } else if (module.name === 'Appointments') {
-            moduleDocuments = [
-              { id: 'ap1', name: 'Schedule Appointment', path: '/appointments/schedule', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } },
-              { id: 'ap2', name: 'View Appointments', path: '/appointments', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } }
-            ];
-          } else if (module.name === 'Pharmacy') {
-            moduleDocuments = [
-              { id: 'ph1', name: 'Prescriptions', path: '/pharmacy/prescriptions', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } },
-              { id: 'ph2', name: 'Medicine Inventory', path: '/pharmacy/inventory', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } }
-            ];
-          } else if (module.name === 'Laboratory') {
-            moduleDocuments = [
-              { id: 'lb1', name: 'Lab Tests', path: '/laboratory/tests', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } },
-              { id: 'lb2', name: 'Test Results', path: '/laboratory/results', permissions: { canAdd: true, canModify: true, canDelete: true, canQuery: true } }
-            ];
+          
+          if (hasPermission) {
+            moduleDocuments.push({
+              id: document.id,
+              name: document.name,
+              path: document.path,
+              permissions
+            });
           }
         }
-
-        return {
-          id: module.id,
-          name: module.name,
-          documents: moduleDocuments
-        };
-      }).filter(module => module.documents.length > 0);
+        
+        if (moduleDocuments.length > 0) {
+          navigation.push({
+            id: module.id,
+            name: module.name,
+            documents: moduleDocuments
+          });
+        }
+      }
+      
+      // Sort navigation to ensure Dashboard appears first
+      navigation.sort((a, b) => {
+        if (a.name === 'Dashboard') return -1;
+        if (b.name === 'Dashboard') return 1;
+        return a.name.localeCompare(b.name);
+      });
 
       res.json(navigation);
     } catch (error) {
