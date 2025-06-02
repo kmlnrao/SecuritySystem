@@ -272,11 +272,29 @@ export function registerRoutes(app: Express): Server {
           const document = await storage.getDocument(documentId);
           if (!document) continue;
           
+          // Check if user is superadmin first
+          const isSuperAdmin = user.username === 'superadmin' || userRoles.some(role => role.name === 'Super Admin');
+          
           // Check if user has permissions for this document
           const documentPermissions = userPermissions.filter(p => p.documentId === document.id);
           
+          // If user is superadmin, grant access to all documents
+          if (isSuperAdmin) {
+            const docPermission = documentPermissions.length > 0 ? documentPermissions[0] : null;
+            moduleDocsList.push({
+              id: document.id,
+              name: document.name,
+              path: document.path,
+              permissions: {
+                canAdd: docPermission?.canAdd ?? true,
+                canModify: docPermission?.canModify ?? true,
+                canDelete: docPermission?.canDelete ?? true,
+                canQuery: docPermission?.canQuery ?? true
+              }
+            });
+          }
           // Check if user has explicit permissions for this document
-          if (documentPermissions.length > 0) {
+          else if (documentPermissions.length > 0) {
             const docPermission = documentPermissions[0];
             moduleDocsList.push({
               id: document.id,
@@ -287,21 +305,6 @@ export function registerRoutes(app: Express): Server {
                 canModify: docPermission.canModify || false,
                 canDelete: docPermission.canDelete || false,
                 canQuery: docPermission.canQuery || false
-              }
-            });
-          }
-          // If no explicit permissions exist and user is superadmin, grant access
-          // This is a fallback for when permissions haven't been set up yet
-          else if ((user.username === 'superadmin' || userRoles.some(role => role.name === 'Super Admin')) && userPermissions.length === 0) {
-            moduleDocsList.push({
-              id: document.id,
-              name: document.name,
-              path: document.path,
-              permissions: {
-                canAdd: true,
-                canModify: true,
-                canDelete: true,
-                canQuery: true
               }
             });
           }
