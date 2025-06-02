@@ -88,9 +88,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
+    const userWithId = {
+      ...insertUser,
+      id: crypto.randomUUID()
+    };
     const [user] = await db
       .insert(users)
-      .values(insertUser)
+      .values(userWithId)
       .returning();
     return user;
   }
@@ -125,9 +129,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createRole(insertRole: InsertRole): Promise<Role> {
+    const roleWithId = {
+      ...insertRole,
+      id: crypto.randomUUID()
+    };
     const [role] = await db
       .insert(roles)
-      .values(insertRole)
+      .values(roleWithId)
       .returning();
     return role;
   }
@@ -183,9 +191,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createModule(insertModule: InsertModule): Promise<Module> {
+    const moduleWithId = {
+      ...insertModule,
+      id: crypto.randomUUID()
+    };
     const [module] = await db
       .insert(modules)
-      .values(insertModule)
+      .values(moduleWithId)
       .returning();
     return module;
   }
@@ -215,9 +227,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createDocument(insertDocument: InsertDocument): Promise<Document> {
+    const documentWithId = {
+      ...insertDocument,
+      id: crypto.randomUUID()
+    };
     const [document] = await db
       .insert(documents)
-      .values(insertDocument)
+      .values(documentWithId)
       .returning();
     return document;
   }
@@ -247,9 +263,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createPermission(insertPermission: InsertPermission): Promise<Permission> {
+    const permissionWithId = {
+      ...insertPermission,
+      id: crypto.randomUUID()
+    };
     const [permission] = await db
       .insert(permissions)
-      .values(insertPermission)
+      .values(permissionWithId)
       .returning();
     return permission;
   }
