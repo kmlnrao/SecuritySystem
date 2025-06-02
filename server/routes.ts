@@ -716,7 +716,7 @@ export function registerRoutes(app: Express): Server {
       const userRoles = await storage.getUserRoles(userId);
       const isSuperAdmin = userRoles.some(role => role.name === 'Super Admin');
       
-      // Get all modules
+      // Get all modules ordered by display_order
       const modules = await storage.getAllModules();
       
       // Build navigation structure using proper module-document relationships
@@ -793,14 +793,7 @@ export function registerRoutes(app: Express): Server {
         }
       }
       
-      // Sort navigation to ensure Dashboard appears first
-      navigation.sort((a, b) => {
-        if (a.name === 'Dashboard') return -1;
-        if (b.name === 'Dashboard') return 1;
-        return a.name.localeCompare(b.name);
-      });
-      
-      console.log('Navigation order after sorting:', navigation.map(n => n.name));
+      // Navigation is already sorted by display_order from the database query
 
       res.json(navigation);
     } catch (error) {

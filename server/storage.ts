@@ -217,7 +217,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllModules(): Promise<Module[]> {
-    return await db.select().from(modules);
+    return await db.select().from(modules).orderBy(modules.displayOrder, modules.name);
   }
 
   // Document operations
@@ -253,7 +253,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllDocuments(): Promise<Document[]> {
-    return await db.select().from(documents);
+    return await db.select().from(documents).orderBy(documents.displayOrder, documents.name);
   }
 
   // Permission operations
