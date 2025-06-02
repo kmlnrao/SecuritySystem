@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -295,6 +295,177 @@ export function AddPermissionDialog({ open, onOpenChange }: AddPermissionDialogP
               </Button>
               <Button type="submit" disabled={createMutation.isPending}>
                 {createMutation.isPending ? "Creating..." : "Create Permission"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const editPermissionSchema = z.object({
+  canAdd: z.boolean().optional(),
+  canModify: z.boolean().optional(),
+  canDelete: z.boolean().optional(),
+  canQuery: z.boolean().optional(),
+});
+
+type EditPermissionData = z.infer<typeof editPermissionSchema>;
+
+interface EditPermissionDialogProps {
+  permission: Permission | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function EditPermissionDialog({ permission, open, onOpenChange }: EditPermissionDialogProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const form = useForm<EditPermissionData>({
+    resolver: zodResolver(editPermissionSchema),
+    defaultValues: {
+      canAdd: false,
+      canModify: false,
+      canDelete: false,
+      canQuery: false,
+    },
+  });
+
+  // Reset form when permission changes
+  React.useEffect(() => {
+    if (permission) {
+      form.reset({
+        canAdd: permission.canAdd,
+        canModify: permission.canModify,
+        canDelete: permission.canDelete,
+        canQuery: permission.canQuery,
+      });
+    }
+  }, [permission, form]);
+
+  const updateMutation = useMutation({
+    mutationFn: async (permissionData: EditPermissionData) => {
+      if (!permission) throw new Error("No permission selected");
+      const response = await apiRequest("PUT", `/api/permissions/${permission.id}`, permissionData);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/permissions"] });
+      toast({ title: "Permission updated successfully" });
+      onOpenChange(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update permission",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (data: EditPermissionData) => {
+    updateMutation.mutate(data);
+  };
+
+  if (!permission) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Permission</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-4">
+              <div>
+                <strong>Assigned to:</strong>{" "}
+                {permission.userName ? `User: ${permission.userName}` : `Role: ${permission.roleName}`}
+              </div>
+              <div>
+                <strong>Document:</strong> {permission.documentName}
+              </div>
+              
+              <div className="space-y-3">
+                <FormField
+                  control={form.control}
+                  name="canQuery"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Can View/Query</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="canAdd"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Can Add</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="canModify"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Can Modify</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="canDelete"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Can Delete</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? "Updating..." : "Update Permission"}
               </Button>
             </div>
           </form>

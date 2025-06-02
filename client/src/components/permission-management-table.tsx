@@ -28,6 +28,7 @@ export function PermissionManagementTable() {
   const queryClient = useQueryClient();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedPermission, setSelectedPermission] = useState<Permission | null>(null);
 
   const { data: permissions = [], isLoading } = useQuery<Permission[]>({
@@ -62,6 +63,11 @@ export function PermissionManagementTable() {
     setViewDialogOpen(true);
   };
 
+  const handleEdit = (permission: Permission) => {
+    setSelectedPermission(permission);
+    setEditDialogOpen(true);
+  };
+
   const getPermissionBadges = (permission: Permission) => {
     const badges = [];
     if (permission.canQuery) badges.push(<Badge key="query" variant="secondary">View</Badge>);
@@ -90,6 +96,7 @@ export function PermissionManagementTable() {
                 <TableHead>Assigned To</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Document/Screen</TableHead>
+                <TableHead>Path</TableHead>
                 <TableHead>Permissions</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
