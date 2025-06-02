@@ -37,7 +37,7 @@ export function Sidebar() {
 
   // Fetch user navigation structure based on permissions
   const { data: navigation = [], isLoading } = useQuery<NavigationItem[]>({
-    queryKey: ["navigation", user?.id],
+    queryKey: ["navigation", user?.id, "v2"],
     queryFn: async () => {
       if (!user?.id) return [];
       

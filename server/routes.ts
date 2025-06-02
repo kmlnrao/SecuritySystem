@@ -799,6 +799,8 @@ export function registerRoutes(app: Express): Server {
         if (b.name === 'Dashboard') return 1;
         return a.name.localeCompare(b.name);
       });
+      
+      console.log('Navigation order after sorting:', navigation.map(n => n.name));
 
       res.json(navigation);
     } catch (error) {
