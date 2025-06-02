@@ -124,40 +124,69 @@ export function Sidebar() {
                 
                 <div className="ml-6 space-y-1">
                   {module.documents.map((document) => {
-                    return (
-                      <Button
-                        key={document.id}
-                        variant="ghost"
-                        size="sm"
-                        className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
-                        onClick={() => {
-                          // Map document paths to dashboard views
-                          const pathToViewMap: Record<string, string> = {
-                            '/admin/users': 'users',
-                            '/admin/roles': 'roles',
-                            '/modules': 'modules',
-                            '/documents': 'documents',
-                            '/permissions': 'permissions',
-                          };
-                          
-                          const view = pathToViewMap[document.path] || 'dashboard';
-                          (window as any).setDashboardView?.(view);
-                        }}
-                      >
-                        {document.name}
-                        <div className="ml-auto flex space-x-1">
-                          {document.permissions.canAdd && (
-                            <span className="text-xs text-green-400">+</span>
-                          )}
-                          {document.permissions.canModify && (
-                            <span className="text-xs text-blue-400">✎</span>
-                          )}
-                          {document.permissions.canDelete && (
-                            <span className="text-xs text-red-400">×</span>
-                          )}
-                        </div>
-                      </Button>
-                    );
+                    // Map document paths to dashboard views for certain admin paths
+                    const pathToViewMap: Record<string, string> = {
+                      '/admin/users': 'users',
+                      '/admin/roles': 'roles',
+                      '/modules': 'modules',
+                      '/documents': 'documents',
+                      '/permissions': 'permissions',
+                    };
+                    
+                    const isDashboardView = pathToViewMap[document.path];
+                    
+                    if (isDashboardView) {
+                      // For dashboard views (admin sections)
+                      return (
+                        <Button
+                          key={document.id}
+                          variant="ghost"
+                          size="sm"
+                          className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
+                          onClick={() => {
+                            const view = pathToViewMap[document.path];
+                            (window as any).setDashboardView?.(view);
+                          }}
+                        >
+                          {document.name}
+                          <div className="ml-auto flex space-x-1">
+                            {document.permissions.canAdd && (
+                              <span className="text-xs text-green-400">+</span>
+                            )}
+                            {document.permissions.canModify && (
+                              <span className="text-xs text-blue-400">✎</span>
+                            )}
+                            {document.permissions.canDelete && (
+                              <span className="text-xs text-red-400">×</span>
+                            )}
+                          </div>
+                        </Button>
+                      );
+                    } else {
+                      // For regular navigation to dedicated pages
+                      return (
+                        <Link key={document.id} href={document.path}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
+                          >
+                            {document.name}
+                            <div className="ml-auto flex space-x-1">
+                              {document.permissions.canAdd && (
+                                <span className="text-xs text-green-400">+</span>
+                              )}
+                              {document.permissions.canModify && (
+                                <span className="text-xs text-blue-400">✎</span>
+                              )}
+                              {document.permissions.canDelete && (
+                                <span className="text-xs text-red-400">×</span>
+                              )}
+                            </div>
+                          </Button>
+                        </Link>
+                      );
+                    }
                   })}
                 </div>
               </div>

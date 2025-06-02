@@ -30,7 +30,38 @@ function Router() {
   return (
     <Switch>
       <ProtectedRoute path="/" component={DashboardPage} />
+      
+      {/* Appointment Routes */}
+      <ProtectedRoute path="/appointments/history" component={AppointmentHistoryPage} />
+      <ProtectedRoute path="/appointments/schedule" component={ScheduleAppointmentPage} />
+      <ProtectedRoute path="/appointments/view" component={ViewAppointmentsPage} />
+      
+      {/* Patient Routes */}
+      <ProtectedRoute path="/patients/details" component={PatientDetailsPage} />
+      <ProtectedRoute path="/patients/list" component={PatientListPage} />
+      <ProtectedRoute path="/patients/register" component={PatientRegistrationPage} />
+      
+      {/* Medical Records Routes */}
+      <ProtectedRoute path="/records/history" component={MedicalHistoryPage} />
+      <ProtectedRoute path="/records/prescriptions" component={PrescriptionsPage} />
+      <ProtectedRoute path="/records/tests" component={TestResultsPage} />
+      
+      {/* Laboratory Routes */}
+      <ProtectedRoute path="/lab/tests" component={LabTestsPage} />
+      <ProtectedRoute path="/lab/reports" component={LabReportsPage} />
+      
+      {/* Pharmacy Routes */}
+      <ProtectedRoute path="/pharmacy/dispense" component={DispenseMedicinePage} />
+      <ProtectedRoute path="/pharmacy/inventory" component={MedicineInventoryPage} />
+      
+      {/* Administration Routes */}
+      <ProtectedRoute path="/admin/settings" component={SystemSettingsPage} />
+      <ProtectedRoute path="/admin/TestDoc" component={TestDocumentPage} />
+      
+      {/* Auth Route */}
       <Route path="/auth" component={AuthPage} />
+      
+      {/* 404 Route */}
       <Route component={NotFound} />
     </Switch>
   );
