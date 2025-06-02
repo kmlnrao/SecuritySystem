@@ -1,4 +1,4 @@
-import { pgTable, text, serial, boolean, uuid, timestamp, foreignKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, boolean, uuid, timestamp, foreignKey, integer } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -38,6 +38,7 @@ export const modules = pgTable("modules", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
   description: text("description"),
+  displayOrder: integer("display_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   isActive: boolean("is_active").notNull().default(true),
 });
@@ -46,6 +47,7 @@ export const documents = pgTable("documents", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   path: text("path").notNull(),
+  displayOrder: integer("display_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   isActive: boolean("is_active").notNull().default(true),
 });
