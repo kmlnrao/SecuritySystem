@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -221,7 +221,7 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
   });
 
   // Update form when user prop changes
-  useState(() => {
+  useEffect(() => {
     if (user) {
       form.reset({
         username: user.username,
@@ -229,7 +229,7 @@ export function EditUserDialog({ user, open, onOpenChange }: EditUserDialogProps
         isActive: user.isActive,
       });
     }
-  });
+  }, [user, form]);
 
   const updateMutation = useMutation({
     mutationFn: async (userData: EditUserData) => {

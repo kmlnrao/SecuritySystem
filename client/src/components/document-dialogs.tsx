@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -204,7 +204,7 @@ export function EditDocumentDialog({ document, open, onOpenChange }: EditDocumen
     },
   });
 
-  useState(() => {
+  useEffect(() => {
     if (document) {
       form.reset({
         name: document.name,
@@ -212,7 +212,7 @@ export function EditDocumentDialog({ document, open, onOpenChange }: EditDocumen
         isActive: document.isActive,
       });
     }
-  });
+  }, [document, form]);
 
   const updateMutation = useMutation({
     mutationFn: async (documentData: EditDocumentData) => {

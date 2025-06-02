@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -176,14 +176,14 @@ export function EditRoleDialog({ role, open, onOpenChange }: EditRoleDialogProps
     },
   });
 
-  useState(() => {
+  useEffect(() => {
     if (role) {
       form.reset({
         name: role.name,
         description: role.description,
       });
     }
-  });
+  }, [role, form]);
 
   const updateMutation = useMutation({
     mutationFn: async (roleData: EditRoleData) => {
