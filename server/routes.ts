@@ -24,7 +24,9 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/users", async (req, res) => {
     try {
+      console.log('Create user request body:', req.body);
       const userData = insertUserSchema.parse(req.body);
+      console.log('Parsed user data:', userData);
       
       // Hash the password before storing
       const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -34,7 +36,9 @@ export function registerRoutes(app: Express): Server {
         password: hashedPassword
       };
       
+      console.log('User data with hashed password:', { ...userWithHashedPassword, password: '[HASHED]' });
       const user = await storage.createUser(userWithHashedPassword);
+      console.log('Created user:', { ...user, password: '[HIDDEN]' });
       res.status(201).json(user);
     } catch (error) {
       console.error('Create user error:', error);
@@ -87,10 +91,14 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/roles", async (req, res) => {
     try {
+      console.log('Create role request body:', req.body);
       const roleData = insertRoleSchema.parse(req.body);
+      console.log('Parsed role data:', roleData);
       const role = await storage.createRole(roleData);
+      console.log('Created role:', role);
       res.status(201).json(role);
     } catch (error) {
+      console.error('Create role error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid role data", errors: error.errors });
       }
