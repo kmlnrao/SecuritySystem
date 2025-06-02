@@ -677,6 +677,7 @@ export default function DashboardPage() {
                    currentView === 'roles' ? 'Role Management' :
                    currentView === 'modules' ? 'Module Management' :
                    currentView === 'documents' ? 'Document Management' :
+                   currentView === 'permissions' ? 'Permission Management' :
                    'System Administration'}
                 </span>
               </nav>
