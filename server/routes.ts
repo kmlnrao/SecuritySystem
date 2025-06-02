@@ -109,13 +109,17 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/roles/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      console.log('Update role request - ID:', id, 'Body:', req.body);
       const roleData = insertRoleSchema.partial().parse(req.body);
+      console.log('Parsed role data for update:', roleData);
       const role = await storage.updateRole(id, roleData);
+      console.log('Updated role result:', role);
       if (!role) {
         return res.status(404).json({ message: "Role not found" });
       }
       res.json(role);
     } catch (error) {
+      console.error('Update role error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid role data", errors: error.errors });
       }
