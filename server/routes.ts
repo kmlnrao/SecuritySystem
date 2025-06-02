@@ -256,8 +256,15 @@ export function registerRoutes(app: Express): Server {
       // Get all modules
       const allModules = await storage.getAllModules();
       
-      // Get user permissions once
+      // Get user permissions (direct + role-based)
       const userPermissions = await storage.getUserPermissions(userId);
+      let allPermissions = [...userPermissions];
+      
+      // Add role-based permissions
+      for (const role of userRoles) {
+        const rolePermissions = await storage.getRolePermissions(role.id);
+        allPermissions = [...allPermissions, ...rolePermissions];
+      }
       
       // Build navigation based on user permissions and module-document relationships
       const navigation = [];
@@ -275,8 +282,8 @@ export function registerRoutes(app: Express): Server {
           // Check if user is superadmin first
           const isSuperAdmin = user.username === 'superadmin' || userRoles.some(role => role.name === 'Super Admin');
           
-          // Check if user has permissions for this document
-          const documentPermissions = userPermissions.filter(p => p.documentId === document.id);
+          // Check if user has permissions for this document (direct or role-based)
+          const documentPermissions = allPermissions.filter(p => p.documentId === document.id);
           
           // If user is superadmin, grant access to all documents
           if (isSuperAdmin) {
