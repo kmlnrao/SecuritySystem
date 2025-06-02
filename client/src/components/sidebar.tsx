@@ -163,28 +163,30 @@ export function Sidebar() {
                         </Button>
                       );
                     } else {
-                      // For regular navigation to dedicated pages
+                      // For regular navigation to document content within dashboard
                       return (
-                        <Link key={document.id} href={document.path}>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
-                          >
-                            {document.name}
-                            <div className="ml-auto flex space-x-1">
-                              {document.permissions.canAdd && (
-                                <span className="text-xs text-green-400">+</span>
-                              )}
-                              {document.permissions.canModify && (
-                                <span className="text-xs text-blue-400">✎</span>
-                              )}
-                              {document.permissions.canDelete && (
-                                <span className="text-xs text-red-400">×</span>
-                              )}
-                            </div>
-                          </Button>
-                        </Link>
+                        <Button
+                          key={document.id}
+                          variant="ghost"
+                          size="sm"
+                          className="w-full justify-start text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"
+                          onClick={() => {
+                            (window as any).setDocumentContent?.(document.name, document.path);
+                          }}
+                        >
+                          {document.name}
+                          <div className="ml-auto flex space-x-1">
+                            {document.permissions.canAdd && (
+                              <span className="text-xs text-green-400">+</span>
+                            )}
+                            {document.permissions.canModify && (
+                              <span className="text-xs text-blue-400">✎</span>
+                            )}
+                            {document.permissions.canDelete && (
+                              <span className="text-xs text-red-400">×</span>
+                            )}
+                          </div>
+                        </Button>
                       );
                     }
                   })}

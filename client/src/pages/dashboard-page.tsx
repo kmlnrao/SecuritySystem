@@ -672,6 +672,14 @@ export default function DashboardPage() {
           </div>
         );
 
+      case 'document-content':
+        return (
+          <DynamicDocumentContent 
+            documentName={selectedDocumentName}
+            documentPath={selectedDocumentPath}
+          />
+        );
+
       default:
         return (
           <div className="space-y-6">
