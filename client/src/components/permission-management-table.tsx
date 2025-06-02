@@ -76,20 +76,10 @@ export function PermissionManagementTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end items-center">
-        <Button onClick={() => setAddDialogOpen(true)} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Add Permission
-        </Button>
-      </div>
 
       {permissions.length === 0 ? (
         <div className="text-center py-8">
           <div className="text-gray-500 mb-4">No permissions found</div>
-          <Button onClick={() => setAddDialogOpen(true)} variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            Create First Permission
-          </Button>
         </div>
       ) : (
         <div className="border rounded-lg">

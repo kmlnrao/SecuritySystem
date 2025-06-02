@@ -124,15 +124,6 @@ export function UserManagementTable() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end items-center">
-        <Button 
-          className="bg-accent hover:bg-blue-600"
-          onClick={() => setAddUserOpen(true)}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add User
-        </Button>
-      </div>
 
       <div className="bg-white rounded-lg border border-slate-200">
         <div className="px-6 py-4 border-b border-slate-200">
