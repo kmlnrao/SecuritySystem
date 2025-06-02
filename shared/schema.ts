@@ -37,12 +37,17 @@ export const userRoles = pgTable("user_roles", {
 export const modules = pgTable("modules", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+  isActive: boolean("is_active").notNull().default(true),
 });
 
 export const documents = pgTable("documents", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   path: text("path").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  isActive: boolean("is_active").notNull().default(true),
 });
 
 export const moduleDocuments = pgTable("module_documents", {
@@ -154,10 +159,12 @@ export const insertRoleSchema = createInsertSchema(roles).omit({
 
 export const insertModuleSchema = createInsertSchema(modules).omit({
   id: true,
+  createdAt: true,
 });
 
 export const insertDocumentSchema = createInsertSchema(documents).omit({
   id: true,
+  createdAt: true,
 });
 
 export const insertPermissionSchema = createInsertSchema(permissions).omit({
