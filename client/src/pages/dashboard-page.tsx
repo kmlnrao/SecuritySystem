@@ -11,6 +11,7 @@ import { AddModuleDialog, EditModuleDialog, ViewModuleDialog } from "@/component
 import { AddDocumentDialog, EditDocumentDialog, ViewDocumentDialog } from "@/components/document-dialogs";
 import { AddPermissionDialog, ViewPermissionDialog } from "@/components/permission-dialogs";
 import { DynamicDocumentContent } from "@/components/dynamic-document-content";
+import { ModuleDocumentTable } from "@/components/module-document-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 
-type ViewType = 'dashboard' | 'users' | 'roles' | 'modules' | 'documents' | 'permissions' | 'system' | 'document-content';
+type ViewType = 'dashboard' | 'users' | 'roles' | 'modules' | 'documents' | 'permissions' | 'module-documents' | 'system' | 'document-content';
 
 export default function DashboardPage() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -680,6 +681,19 @@ export default function DashboardPage() {
               </Button>
             </div>
             <PermissionManagementTable />
+          </div>
+        );
+
+      case 'module-documents':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold tracking-tight">Module-Document Management</h2>
+                <p className="text-muted-foreground">Control which documents appear in which modules and their display order</p>
+              </div>
+            </div>
+            <ModuleDocumentTable />
           </div>
         );
 

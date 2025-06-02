@@ -472,6 +472,69 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Module-Document mapping routes
+  app.get("/api/module-documents", async (req, res) => {
+    try {
+      const modules = await storage.getAllModules();
+      const documents = await storage.getAllDocuments();
+      const mappings = [];
+
+      for (const module of modules) {
+        const documentIds = await storage.getModuleDocuments(module.id);
+        for (const documentId of documentIds) {
+          const document = documents.find(d => d.id === documentId);
+          if (document) {
+            mappings.push({
+              moduleId: module.id,
+              documentId: document.id,
+              moduleName: module.name,
+              documentName: document.name,
+              documentPath: document.path
+            });
+          }
+        }
+      }
+
+      res.json(mappings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch module-document mappings" });
+    }
+  });
+
+  app.post("/api/module-documents", async (req, res) => {
+    try {
+      const { moduleId, documentId } = req.body;
+      
+      if (!moduleId || !documentId) {
+        return res.status(400).json({ message: "Module ID and Document ID are required" });
+      }
+
+      const success = await storage.assignModuleDocument(moduleId, documentId);
+      if (success) {
+        res.status(201).json({ message: "Document assigned to module successfully" });
+      } else {
+        res.status(400).json({ message: "Failed to assign document to module" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create module-document mapping" });
+    }
+  });
+
+  app.delete("/api/module-documents/:moduleId/:documentId", async (req, res) => {
+    try {
+      const { moduleId, documentId } = req.params;
+      const success = await storage.removeModuleDocument(moduleId, documentId);
+      
+      if (success) {
+        res.json({ message: "Document removed from module successfully" });
+      } else {
+        res.status(404).json({ message: "Mapping not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to remove module-document mapping" });
+    }
+  });
+
   // Seed database endpoint
   app.post("/api/seed", async (req, res) => {
     try {
