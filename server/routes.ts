@@ -2,8 +2,10 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
-import { insertUserSchema, insertRoleSchema, insertModuleSchema, insertDocumentSchema, insertPermissionSchema } from "@shared/schema";
+import { insertUserSchema, insertRoleSchema, insertModuleSchema, insertDocumentSchema, insertPermissionSchema, moduleDocuments, documents } from "@shared/schema";
 import { z } from "zod";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export function registerRoutes(app: Express): Server {
   // sets up /api/register, /api/login, /api/logout, /api/user
@@ -239,20 +241,33 @@ export function registerRoutes(app: Express): Server {
         return res.status(404).json({ message: "User not found" });
       }
       
-      // Get all modules and documents
+      // Get all modules
       const allModules = await storage.getAllModules();
-      const allDocuments = await storage.getAllDocuments();
       
-      // Build navigation based on user permissions
+      // Get user permissions once
+      const userPermissions = await storage.getUserPermissions(userId);
+      
+      // Build navigation based on user permissions and module-document relationships
       const navigation = [];
       
       for (const module of allModules) {
         const moduleDocuments = [];
         
-        for (const document of allDocuments) {
-          // Get user permissions for this document
-          const permissions = await storage.getUserPermissions(userId);
-          const documentPermissions = permissions.filter(p => p.documentId === document.id);
+        // Get documents that belong to this specific module
+        const moduleDocumentLinks = await db
+          .select({
+            documentId: moduleDocuments.documentId,
+            document: documents
+          })
+          .from(moduleDocuments)
+          .innerJoin(documents, eq(documents.id, moduleDocuments.documentId))
+          .where(eq(moduleDocuments.moduleId, module.id));
+        
+        for (const link of moduleDocumentLinks) {
+          const document = link.document;
+          
+          // Check if user has permissions for this document
+          const documentPermissions = userPermissions.filter(p => p.documentId === document.id);
           
           // If user has any permissions for this document, include it
           if (documentPermissions.length > 0) {
@@ -269,7 +284,7 @@ export function registerRoutes(app: Express): Server {
               }
             });
           }
-          // Super Admin gets all permissions
+          // Super Admin gets all permissions for all documents in all modules
           else if (user.username === 'superadmin' || userRoles.some(role => role.name === 'Super Admin')) {
             moduleDocuments.push({
               id: document.id,
