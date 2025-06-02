@@ -49,6 +49,71 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Update user profile
+  app.patch("/api/users/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { username, email } = req.body;
+
+      // Check if user exists
+      const existingUser = await storage.getUser(id);
+      if (!existingUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Check if username/email already exists for other users
+      if (username && username !== existingUser.username) {
+        const userWithUsername = await storage.getUserByUsername(username);
+        if (userWithUsername && userWithUsername.id !== id) {
+          return res.status(400).json({ message: "Username already exists" });
+        }
+      }
+
+      if (email && email !== existingUser.email) {
+        const userWithEmail = await storage.getUserByEmail(email);
+        if (userWithEmail && userWithEmail.id !== id) {
+          return res.status(400).json({ message: "Email already exists" });
+        }
+      }
+
+      const updatedUser = await storage.updateUser(id, { username, email });
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
+  // Change user password
+  app.patch("/api/users/:id/change-password", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { currentPassword, newPassword } = req.body;
+
+      // Get user
+      const user = await storage.getUser(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Verify current password
+      const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isCurrentPasswordValid) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+
+      // Hash new password
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update password
+      await storage.updateUser(id, { password: hashedNewPassword });
+      res.json({ message: "Password changed successfully" });
+    } catch (error) {
+      console.error("Error changing password:", error);
+      res.status(500).json({ message: "Failed to change password" });
+    }
+  });
+
   app.put("/api/users/:id", async (req, res) => {
     try {
       const { id } = req.params;

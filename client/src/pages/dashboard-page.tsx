@@ -12,11 +12,13 @@ import { AddDocumentDialog, EditDocumentDialog, ViewDocumentDialog } from "@/com
 import { AddPermissionDialog, ViewPermissionDialog } from "@/components/permission-dialogs";
 import { DynamicDocumentContent } from "@/components/dynamic-document-content";
 import { ModuleDocumentTable } from "@/components/module-document-table";
+import { UpdateProfileDialog, ChangePasswordDialog } from "@/components/profile-dialogs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Users, Shield, Puzzle, FileText, Settings, Activity, Database, Link, Bell, Edit, Eye, Trash2 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Users, Shield, Puzzle, FileText, Settings, Activity, Database, Link, Bell, Edit, Eye, Trash2, User, Lock, ChevronDown } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
@@ -41,6 +43,8 @@ export default function DashboardPage() {
   const [viewDocumentOpen, setViewDocumentOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [addPermissionOpen, setAddPermissionOpen] = useState(false);
+  const [updateProfileOpen, setUpdateProfileOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const { user, logoutMutation } = useAuth();
   const { toast } = useToast();
 
@@ -742,18 +746,36 @@ export default function DashboardPage() {
               
               <div className="flex items-center space-x-2">
                 <Badge variant="secondary">{user?.username}</Badge>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => {
-                    if (confirm("Are you sure you want to logout?")) {
-                      logoutMutation.mutate();
-                    }
-                  }}
-                  disabled={logoutMutation.isPending}
-                >
-                  Logout
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="flex items-center space-x-1">
+                      <User className="h-4 w-4" />
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => setUpdateProfileOpen(true)}>
+                      <User className="h-4 w-4 mr-2" />
+                      Update Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setChangePasswordOpen(true)}>
+                      <Lock className="h-4 w-4 mr-2" />
+                      Change Password
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        if (confirm("Are you sure you want to logout?")) {
+                          logoutMutation.mutate();
+                        }
+                      }}
+                      disabled={logoutMutation.isPending}
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
@@ -809,6 +831,10 @@ export default function DashboardPage() {
 
       {/* Permission Management Dialogs */}
       <AddPermissionDialog open={addPermissionOpen} onOpenChange={setAddPermissionOpen} />
+
+      {/* Profile Management Dialogs */}
+      <UpdateProfileDialog open={updateProfileOpen} onOpenChange={setUpdateProfileOpen} />
+      <ChangePasswordDialog open={changePasswordOpen} onOpenChange={setChangePasswordOpen} />
     </div>
   );
 }
