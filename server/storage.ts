@@ -348,7 +348,13 @@ export class DatabaseStorage implements IStorage {
         return true;
       }
       
-      await db.insert(moduleDocuments).values({ moduleId, documentId });
+      // Generate a new UUID for the id field
+      const { randomUUID } = await import('crypto');
+      await db.insert(moduleDocuments).values({ 
+        id: randomUUID(),
+        moduleId, 
+        documentId 
+      });
       return true;
     } catch (error) {
       console.error('Error assigning module document:', error);
