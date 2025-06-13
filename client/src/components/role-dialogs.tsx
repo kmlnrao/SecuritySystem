@@ -179,8 +179,8 @@ export function EditRoleDialog({ role, open, onOpenChange }: EditRoleDialogProps
   useEffect(() => {
     if (role) {
       form.reset({
-        name: role.name,
-        description: role.description,
+        name: role.name || "",
+        description: role.description || "",
       });
     }
   }, [role, form]);

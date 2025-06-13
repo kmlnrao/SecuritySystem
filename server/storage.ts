@@ -336,9 +336,22 @@ export class DatabaseStorage implements IStorage {
   // Module-Document operations
   async assignModuleDocument(moduleId: string, documentId: string): Promise<boolean> {
     try {
+      // Check if the mapping already exists
+      const existing = await db
+        .select()
+        .from(moduleDocuments)
+        .where(and(eq(moduleDocuments.moduleId, moduleId), eq(moduleDocuments.documentId, documentId)))
+        .limit(1);
+      
+      if (existing.length > 0) {
+        // Mapping already exists, return true as it's effectively successful
+        return true;
+      }
+      
       await db.insert(moduleDocuments).values({ moduleId, documentId });
       return true;
-    } catch {
+    } catch (error) {
+      console.error('Error assigning module document:', error);
       return false;
     }
   }
