@@ -201,7 +201,16 @@ export function registerRoutes(app: Express): Server {
       console.log('Create role request body:', req.body);
       const roleData = insertRoleSchema.parse(req.body);
       console.log('Parsed role data:', roleData);
-      const role = await storage.createRole(roleData);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const role = await storage.createRole(roleData, auditInfo);
       console.log('Created role:', role);
       res.status(201).json(role);
     } catch (error) {
@@ -219,7 +228,16 @@ export function registerRoutes(app: Express): Server {
       console.log('Update role request - ID:', id, 'Body:', req.body);
       const roleData = insertRoleSchema.partial().parse(req.body);
       console.log('Parsed role data for update:', roleData);
-      const role = await storage.updateRole(id, roleData);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const role = await storage.updateRole(id, roleData, auditInfo);
       console.log('Updated role result:', role);
       if (!role) {
         return res.status(404).json({ message: "Role not found" });
@@ -237,7 +255,16 @@ export function registerRoutes(app: Express): Server {
   app.delete("/api/roles/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const deleted = await storage.deleteRole(id);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const deleted = await storage.deleteRole(id, auditInfo);
       if (!deleted) {
         return res.status(404).json({ message: "Role not found" });
       }
@@ -297,7 +324,16 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/modules", async (req, res) => {
     try {
       const moduleData = insertModuleSchema.parse(req.body);
-      const module = await storage.createModule(moduleData);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const module = await storage.createModule(moduleData, auditInfo);
       res.status(201).json(module);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -311,7 +347,16 @@ export function registerRoutes(app: Express): Server {
     try {
       const { id } = req.params;
       const moduleData = insertModuleSchema.partial().parse(req.body);
-      const module = await storage.updateModule(id, moduleData);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const module = await storage.updateModule(id, moduleData, auditInfo);
       if (!module) {
         return res.status(404).json({ message: "Module not found" });
       }
@@ -327,7 +372,16 @@ export function registerRoutes(app: Express): Server {
   app.delete("/api/modules/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const deleted = await storage.deleteModule(id);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const deleted = await storage.deleteModule(id, auditInfo);
       if (!deleted) {
         return res.status(404).json({ message: "Module not found" });
       }
@@ -444,7 +498,16 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/documents", async (req, res) => {
     try {
       const documentData = insertDocumentSchema.parse(req.body);
-      const document = await storage.createDocument(documentData);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const document = await storage.createDocument(documentData, auditInfo);
       res.status(201).json(document);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -458,7 +521,16 @@ export function registerRoutes(app: Express): Server {
     try {
       const { id } = req.params;
       const documentData = insertDocumentSchema.partial().parse(req.body);
-      const document = await storage.updateDocument(id, documentData);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const document = await storage.updateDocument(id, documentData, auditInfo);
       if (!document) {
         return res.status(404).json({ message: "Document not found" });
       }
@@ -474,7 +546,16 @@ export function registerRoutes(app: Express): Server {
   app.delete("/api/documents/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const deleted = await storage.deleteDocument(id);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const deleted = await storage.deleteDocument(id, auditInfo);
       if (!deleted) {
         return res.status(404).json({ message: "Document not found" });
       }
