@@ -118,6 +118,27 @@ export const masterDataRecords = pgTable("master_data_records", {
   }),
 }));
 
+// Audit Log Table
+export const auditLogs = pgTable("audit_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tableName: text("table_name").notNull(), // master_table_configs, master_data_records, etc.
+  recordId: uuid("record_id").notNull(), // ID of the affected record
+  operation: text("operation").notNull(), // CREATE, UPDATE, DELETE
+  operationType: text("operation_type").notNull(), // MASTER_TABLE_CONFIG, MASTER_DATA_RECORD
+  oldValues: text("old_values"), // JSON string of previous values (for UPDATE/DELETE)
+  newValues: text("new_values"), // JSON string of new values (for CREATE/UPDATE)
+  userId: uuid("user_id").notNull(),
+  username: text("username").notNull(),
+  ipAddress: text("ip_address").notNull(),
+  userAgent: text("user_agent"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => ({
+  userIdFk: foreignKey({
+    columns: [table.userId],
+    foreignColumns: [users.id],
+  }),
+}));
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   userRoles: many(userRoles),
@@ -186,6 +207,13 @@ export const masterDataRecordsRelations = relations(masterDataRecords, ({ one })
   }),
 }));
 
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [auditLogs.userId],
+    references: [users.id],
+  }),
+}));
+
 // Schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -223,6 +251,11 @@ export const insertMasterDataRecordSchema = createInsertSchema(masterDataRecords
   updatedAt: true,
 });
 
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
+  id: true,
+  timestamp: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -240,3 +273,5 @@ export type MasterTableConfig = typeof masterTableConfigs.$inferSelect;
 export type InsertMasterTableConfig = z.infer<typeof insertMasterTableConfigSchema>;
 export type MasterDataRecord = typeof masterDataRecords.$inferSelect;
 export type InsertMasterDataRecord = z.infer<typeof insertMasterDataRecordSchema>;
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
