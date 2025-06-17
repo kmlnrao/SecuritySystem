@@ -616,6 +616,7 @@ export function registerRoutes(app: Express): Server {
       const medicalModule = await storage.createModule({ name: "Medical Records" });
       const billingModule = await storage.createModule({ name: "Billing & Insurance" });
       const inventoryModule = await storage.createModule({ name: "Inventory Management" });
+      const mastersModule = await storage.createModule({ name: "Masters" });
 
       // Create documents
       const patientRegDoc = await storage.createDocument({ 

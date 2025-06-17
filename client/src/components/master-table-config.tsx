@@ -46,7 +46,7 @@ export function MasterTableConfigurationPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingConfig, setEditingConfig] = useState<MasterTableConfig | null>(null);
 
-  const { data: configs = [], isLoading } = useQuery({
+  const { data: configs = [], isLoading } = useQuery<MasterTableConfig[]>({
     queryKey: ["/api/master-tables"],
   });
 

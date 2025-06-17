@@ -25,6 +25,7 @@ import DispenseMedicinePage from "@/pages/dispense-medicine-page";
 import MedicineInventoryPage from "@/pages/medicine-inventory-page";
 import SystemSettingsPage from "@/pages/system-settings-page";
 import TestDocumentPage from "@/pages/test-document-page";
+import MasterTablesPage from "@/pages/master-tables-page";
 
 function Router() {
   return (
@@ -57,6 +58,10 @@ function Router() {
       {/* Administration Routes */}
       <ProtectedRoute path="/admin/settings" component={SystemSettingsPage} />
       <ProtectedRoute path="/admin/TestDoc" component={TestDocumentPage} />
+      
+      {/* Master Tables Routes */}
+      <ProtectedRoute path="/masters" component={MasterTablesPage} />
+      <ProtectedRoute path="/masters/tables" component={MasterTablesPage} />
       
       {/* Auth Route */}
       <Route path="/auth" component={AuthPage} />
