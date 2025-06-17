@@ -12,17 +12,17 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
-  deleteUser(id: string): Promise<boolean>;
+  createUser(user: InsertUser, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<User>;
+  updateUser(id: string, user: Partial<InsertUser>, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<User | undefined>;
+  deleteUser(id: string, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<boolean>;
   getAllUsers(): Promise<User[]>;
 
   // Role operations
   getRole(id: string): Promise<Role | undefined>;
   getRoleByName(name: string): Promise<Role | undefined>;
-  createRole(role: InsertRole): Promise<Role>;
-  updateRole(id: string, role: Partial<InsertRole>): Promise<Role | undefined>;
-  deleteRole(id: string): Promise<boolean>;
+  createRole(role: InsertRole, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Role>;
+  updateRole(id: string, role: Partial<InsertRole>, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Role | undefined>;
+  deleteRole(id: string, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<boolean>;
   getAllRoles(): Promise<Role[]>;
 
   // User-Role operations
@@ -32,23 +32,23 @@ export interface IStorage {
 
   // Module operations
   getModule(id: string): Promise<Module | undefined>;
-  createModule(module: InsertModule): Promise<Module>;
-  updateModule(id: string, module: Partial<InsertModule>): Promise<Module | undefined>;
-  deleteModule(id: string): Promise<boolean>;
+  createModule(module: InsertModule, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Module>;
+  updateModule(id: string, module: Partial<InsertModule>, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Module | undefined>;
+  deleteModule(id: string, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<boolean>;
   getAllModules(): Promise<Module[]>;
 
   // Document operations
   getDocument(id: string): Promise<Document | undefined>;
-  createDocument(document: InsertDocument): Promise<Document>;
-  updateDocument(id: string, document: Partial<InsertDocument>): Promise<Document | undefined>;
-  deleteDocument(id: string): Promise<boolean>;
+  createDocument(document: InsertDocument, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Document>;
+  updateDocument(id: string, document: Partial<InsertDocument>, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Document | undefined>;
+  deleteDocument(id: string, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<boolean>;
   getAllDocuments(): Promise<Document[]>;
 
   // Permission operations
   getPermission(id: string): Promise<Permission | undefined>;
-  createPermission(permission: InsertPermission): Promise<Permission>;
-  updatePermission(id: string, permission: Partial<InsertPermission>): Promise<Permission | undefined>;
-  deletePermission(id: string): Promise<boolean>;
+  createPermission(permission: InsertPermission, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Permission>;
+  updatePermission(id: string, permission: Partial<InsertPermission>, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Permission | undefined>;
+  deletePermission(id: string, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<boolean>;
   getAllPermissions(): Promise<Permission[]>;
   getUserPermissions(userId: string): Promise<Permission[]>;
   getRolePermissions(roleId: string): Promise<Permission[]>;
@@ -106,7 +106,7 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createUser(insertUser: InsertUser, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<User> {
     const userWithId = {
       ...insertUser,
       id: crypto.randomUUID()
@@ -115,21 +115,79 @@ export class DatabaseStorage implements IStorage {
       .insert(users)
       .values(userWithId)
       .returning();
+
+    // Log the creation
+    if (auditInfo) {
+      await this.logMasterTableOperation(
+        'CREATE',
+        'USER',
+        'users',
+        user.id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        undefined,
+        user
+      );
+    }
+
     return user;
   }
 
-  async updateUser(id: string, updateData: Partial<InsertUser>): Promise<User | undefined> {
+  async updateUser(id: string, updateData: Partial<InsertUser>, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<User | undefined> {
+    // Get old values for audit log
+    const oldUser = await this.getUser(id);
+    
     const [user] = await db
       .update(users)
       .set(updateData)
       .where(eq(users.id, id))
       .returning();
+
+    // Log the update
+    if (user && auditInfo) {
+      await this.logMasterTableOperation(
+        'UPDATE',
+        'USER',
+        'users',
+        user.id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        oldUser,
+        user
+      );
+    }
+
     return user || undefined;
   }
 
-  async deleteUser(id: string): Promise<boolean> {
+  async deleteUser(id: string, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<boolean> {
+    // Get old values for audit log
+    const oldUser = await this.getUser(id);
+    
     const result = await db.delete(users).where(eq(users.id, id));
-    return (result.rowCount || 0) > 0;
+    const deleted = (result.rowCount || 0) > 0;
+
+    // Log the deletion
+    if (deleted && oldUser && auditInfo) {
+      await this.logMasterTableOperation(
+        'DELETE',
+        'USER',
+        'users',
+        id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        oldUser,
+        undefined
+      );
+    }
+
+    return deleted;
   }
 
   async getAllUsers(): Promise<User[]> {
@@ -147,7 +205,7 @@ export class DatabaseStorage implements IStorage {
     return role || undefined;
   }
 
-  async createRole(insertRole: InsertRole): Promise<Role> {
+  async createRole(insertRole: InsertRole, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Role> {
     const roleWithId = {
       ...insertRole,
       id: crypto.randomUUID()
@@ -156,6 +214,23 @@ export class DatabaseStorage implements IStorage {
       .insert(roles)
       .values(roleWithId)
       .returning();
+
+    // Log the creation
+    if (auditInfo) {
+      await this.logMasterTableOperation(
+        'CREATE',
+        'ROLE',
+        'roles',
+        role.id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        undefined,
+        role
+      );
+    }
+
     return role;
   }
 
@@ -563,10 +638,10 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(auditLogs).orderBy(desc(auditLogs.timestamp));
   }
 
-  // Helper function to create audit logs for master table operations
+  // Helper function to create audit logs for all operations
   private async logMasterTableOperation(
     operation: 'CREATE' | 'UPDATE' | 'DELETE',
-    operationType: 'MASTER_TABLE_CONFIG' | 'MASTER_DATA_RECORD',
+    operationType: 'MASTER_TABLE_CONFIG' | 'MASTER_DATA_RECORD' | 'USER' | 'ROLE' | 'MODULE' | 'DOCUMENT' | 'PERMISSION' | 'MODULE_DOCUMENT',
     tableName: string,
     recordId: string,
     userId: string,
