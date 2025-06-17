@@ -569,7 +569,16 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/permissions", async (req, res) => {
     try {
       const permissionData = insertPermissionSchema.parse(req.body);
-      const permission = await storage.createPermission(permissionData);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const permission = await storage.createPermission(permissionData, auditInfo);
       res.status(201).json(permission);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -583,7 +592,16 @@ export function registerRoutes(app: Express): Server {
     try {
       const { id } = req.params;
       const permissionData = insertPermissionSchema.partial().parse(req.body);
-      const permission = await storage.updatePermission(id, permissionData);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const permission = await storage.updatePermission(id, permissionData, auditInfo);
       if (!permission) {
         return res.status(404).json({ message: "Permission not found" });
       }
@@ -599,7 +617,16 @@ export function registerRoutes(app: Express): Server {
   app.delete("/api/permissions/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const deleted = await storage.deletePermission(id);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const deleted = await storage.deletePermission(id, auditInfo);
       if (!deleted) {
         return res.status(404).json({ message: "Permission not found" });
       }
@@ -720,6 +747,36 @@ export function registerRoutes(app: Express): Server {
       }
     } catch (error) {
       res.status(500).json({ message: "Failed to remove module-document mapping" });
+    }
+  });
+
+  // Audit log retrieval endpoints
+  app.get("/api/audit-logs", async (req, res) => {
+    try {
+      const { tableName, recordId } = req.query;
+      const auditLogs = await storage.getAuditLogs(
+        tableName as string, 
+        recordId as string
+      );
+      res.json(auditLogs);
+    } catch (error) {
+      console.error("Error fetching audit logs:", error);
+      res.status(500).json({ message: "Failed to fetch audit logs" });
+    }
+  });
+
+  app.get("/api/audit-logs/:tableName", async (req, res) => {
+    try {
+      const { tableName } = req.params;
+      const { recordId } = req.query;
+      const auditLogs = await storage.getAuditLogs(
+        tableName, 
+        recordId as string
+      );
+      res.json(auditLogs);
+    } catch (error) {
+      console.error("Error fetching audit logs:", error);
+      res.status(500).json({ message: "Failed to fetch audit logs" });
     }
   });
 
