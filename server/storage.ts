@@ -234,18 +234,59 @@ export class DatabaseStorage implements IStorage {
     return role;
   }
 
-  async updateRole(id: string, updateData: Partial<InsertRole>): Promise<Role | undefined> {
+  async updateRole(id: string, updateData: Partial<InsertRole>, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Role | undefined> {
+    // Get old values for audit log
+    const oldRole = await this.getRole(id);
+    
     const [role] = await db
       .update(roles)
       .set(updateData)
       .where(eq(roles.id, id))
       .returning();
+
+    // Log the update
+    if (role && auditInfo) {
+      await this.logMasterTableOperation(
+        'UPDATE',
+        'ROLE',
+        'roles',
+        role.id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        oldRole,
+        role
+      );
+    }
+
     return role || undefined;
   }
 
-  async deleteRole(id: string): Promise<boolean> {
+  async deleteRole(id: string, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<boolean> {
+    // Get old values for audit log
+    const oldRole = await this.getRole(id);
+    
     const result = await db.delete(roles).where(eq(roles.id, id));
-    return (result.rowCount || 0) > 0;
+    const deleted = (result.rowCount || 0) > 0;
+
+    // Log the deletion
+    if (deleted && oldRole && auditInfo) {
+      await this.logMasterTableOperation(
+        'DELETE',
+        'ROLE',
+        'roles',
+        id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        oldRole,
+        undefined
+      );
+    }
+
+    return deleted;
   }
 
   async getAllRoles(): Promise<Role[]> {
@@ -284,7 +325,7 @@ export class DatabaseStorage implements IStorage {
     return module || undefined;
   }
 
-  async createModule(insertModule: InsertModule): Promise<Module> {
+  async createModule(insertModule: InsertModule, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Module> {
     const moduleWithId = {
       ...insertModule,
       id: crypto.randomUUID()
@@ -293,21 +334,79 @@ export class DatabaseStorage implements IStorage {
       .insert(modules)
       .values(moduleWithId)
       .returning();
+
+    // Log the creation
+    if (auditInfo) {
+      await this.logMasterTableOperation(
+        'CREATE',
+        'MODULE',
+        'modules',
+        module.id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        undefined,
+        module
+      );
+    }
+
     return module;
   }
 
-  async updateModule(id: string, updateData: Partial<InsertModule>): Promise<Module | undefined> {
+  async updateModule(id: string, updateData: Partial<InsertModule>, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Module | undefined> {
+    // Get old values for audit log
+    const oldModule = await this.getModule(id);
+    
     const [module] = await db
       .update(modules)
       .set(updateData)
       .where(eq(modules.id, id))
       .returning();
+
+    // Log the update
+    if (module && auditInfo) {
+      await this.logMasterTableOperation(
+        'UPDATE',
+        'MODULE',
+        'modules',
+        module.id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        oldModule,
+        module
+      );
+    }
+
     return module || undefined;
   }
 
-  async deleteModule(id: string): Promise<boolean> {
+  async deleteModule(id: string, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<boolean> {
+    // Get old values for audit log
+    const oldModule = await this.getModule(id);
+    
     const result = await db.delete(modules).where(eq(modules.id, id));
-    return (result.rowCount || 0) > 0;
+    const deleted = (result.rowCount || 0) > 0;
+
+    // Log the deletion
+    if (deleted && oldModule && auditInfo) {
+      await this.logMasterTableOperation(
+        'DELETE',
+        'MODULE',
+        'modules',
+        id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        oldModule,
+        undefined
+      );
+    }
+
+    return deleted;
   }
 
   async getAllModules(): Promise<Module[]> {
@@ -320,7 +419,7 @@ export class DatabaseStorage implements IStorage {
     return document || undefined;
   }
 
-  async createDocument(insertDocument: InsertDocument): Promise<Document> {
+  async createDocument(insertDocument: InsertDocument, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Document> {
     const documentWithId = {
       ...insertDocument,
       id: crypto.randomUUID()
@@ -329,21 +428,79 @@ export class DatabaseStorage implements IStorage {
       .insert(documents)
       .values(documentWithId)
       .returning();
+
+    // Log the creation
+    if (auditInfo) {
+      await this.logMasterTableOperation(
+        'CREATE',
+        'DOCUMENT',
+        'documents',
+        document.id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        undefined,
+        document
+      );
+    }
+
     return document;
   }
 
-  async updateDocument(id: string, updateData: Partial<InsertDocument>): Promise<Document | undefined> {
+  async updateDocument(id: string, updateData: Partial<InsertDocument>, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Document | undefined> {
+    // Get old values for audit log
+    const oldDocument = await this.getDocument(id);
+    
     const [document] = await db
       .update(documents)
       .set(updateData)
       .where(eq(documents.id, id))
       .returning();
+
+    // Log the update
+    if (document && auditInfo) {
+      await this.logMasterTableOperation(
+        'UPDATE',
+        'DOCUMENT',
+        'documents',
+        document.id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        oldDocument,
+        document
+      );
+    }
+
     return document || undefined;
   }
 
-  async deleteDocument(id: string): Promise<boolean> {
+  async deleteDocument(id: string, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<boolean> {
+    // Get old values for audit log
+    const oldDocument = await this.getDocument(id);
+    
     const result = await db.delete(documents).where(eq(documents.id, id));
-    return (result.rowCount || 0) > 0;
+    const deleted = (result.rowCount || 0) > 0;
+
+    // Log the deletion
+    if (deleted && oldDocument && auditInfo) {
+      await this.logMasterTableOperation(
+        'DELETE',
+        'DOCUMENT',
+        'documents',
+        id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        oldDocument,
+        undefined
+      );
+    }
+
+    return deleted;
   }
 
   async getAllDocuments(): Promise<Document[]> {
@@ -356,7 +513,7 @@ export class DatabaseStorage implements IStorage {
     return permission || undefined;
   }
 
-  async createPermission(insertPermission: InsertPermission): Promise<Permission> {
+  async createPermission(insertPermission: InsertPermission, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Permission> {
     const permissionWithId = {
       ...insertPermission,
       id: crypto.randomUUID()
@@ -365,15 +522,52 @@ export class DatabaseStorage implements IStorage {
       .insert(permissions)
       .values(permissionWithId)
       .returning();
+
+    // Log the creation
+    if (auditInfo) {
+      await this.logMasterTableOperation(
+        'CREATE',
+        'PERMISSION',
+        'permissions',
+        permission.id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        undefined,
+        permission
+      );
+    }
+
     return permission;
   }
 
-  async updatePermission(id: string, updateData: Partial<InsertPermission>): Promise<Permission | undefined> {
+  async updatePermission(id: string, updateData: Partial<InsertPermission>, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<Permission | undefined> {
+    // Get old values for audit log
+    const oldPermission = await this.getPermission(id);
+    
     const [permission] = await db
       .update(permissions)
       .set(updateData)
       .where(eq(permissions.id, id))
       .returning();
+
+    // Log the update
+    if (permission && auditInfo) {
+      await this.logMasterTableOperation(
+        'UPDATE',
+        'PERMISSION',
+        'permissions',
+        permission.id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        oldPermission,
+        permission
+      );
+    }
+
     return permission || undefined;
   }
 
