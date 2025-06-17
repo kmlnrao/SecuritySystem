@@ -1,4 +1,4 @@
-import { users, roles, modules, documents, permissions, userRoles, moduleDocuments, masterTableConfigs, masterDataRecords, type User, type InsertUser, type Role, type InsertRole, type Module, type InsertModule, type Document, type InsertDocument, type Permission, type InsertPermission, type MasterTableConfig, type InsertMasterTableConfig, type MasterDataRecord, type InsertMasterDataRecord } from "@shared/schema";
+import { users, roles, modules, documents, permissions, userRoles, moduleDocuments, masterTableConfigs, masterDataRecords, auditLogs, type User, type InsertUser, type Role, type InsertRole, type Module, type InsertModule, type Document, type InsertDocument, type Permission, type InsertPermission, type MasterTableConfig, type InsertMasterTableConfig, type MasterDataRecord, type InsertMasterDataRecord, type AuditLog, type InsertAuditLog } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
 import session from "express-session";
@@ -72,6 +72,10 @@ export interface IStorage {
   updateMasterDataRecord(id: string, record: Partial<InsertMasterDataRecord>): Promise<MasterDataRecord | undefined>;
   deleteMasterDataRecord(id: string): Promise<boolean>;
   getMasterDataRecordsByTableId(tableId: string): Promise<MasterDataRecord[]>;
+
+  // Audit Log operations
+  createAuditLog(auditData: InsertAuditLog): Promise<AuditLog>;
+  getAuditLogs(tableName?: string, recordId?: string): Promise<AuditLog[]>;
 
   sessionStore: any;
 }
@@ -403,7 +407,7 @@ export class DatabaseStorage implements IStorage {
     return config || undefined;
   }
 
-  async createMasterTableConfig(insertConfig: InsertMasterTableConfig): Promise<MasterTableConfig> {
+  async createMasterTableConfig(insertConfig: InsertMasterTableConfig, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<MasterTableConfig> {
     const { randomUUID } = await import('crypto');
     const [config] = await db
       .insert(masterTableConfigs)
@@ -412,6 +416,23 @@ export class DatabaseStorage implements IStorage {
         ...insertConfig 
       })
       .returning();
+
+    // Log the creation
+    if (auditInfo) {
+      await this.logMasterTableOperation(
+        'CREATE',
+        'MASTER_TABLE_CONFIG',
+        'master_table_configs',
+        config.id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        undefined,
+        config
+      );
+    }
+
     return config;
   }
 
@@ -468,6 +489,65 @@ export class DatabaseStorage implements IStorage {
   async getMasterDataRecordsByTableId(tableId: string): Promise<MasterDataRecord[]> {
     return await db.select().from(masterDataRecords)
       .where(and(eq(masterDataRecords.tableId, tableId), eq(masterDataRecords.isActive, true)));
+  }
+
+  // Audit Log operations
+  async createAuditLog(auditData: InsertAuditLog): Promise<AuditLog> {
+    const { randomUUID } = await import('crypto');
+    const [auditLog] = await db
+      .insert(auditLogs)
+      .values({ 
+        id: randomUUID(),
+        ...auditData 
+      })
+      .returning();
+    return auditLog;
+  }
+
+  async getAuditLogs(tableName?: string, recordId?: string): Promise<AuditLog[]> {
+    let query = db.select().from(auditLogs);
+    
+    if (tableName && recordId) {
+      query = query.where(and(eq(auditLogs.tableName, tableName), eq(auditLogs.recordId, recordId)));
+    } else if (tableName) {
+      query = query.where(eq(auditLogs.tableName, tableName));
+    } else if (recordId) {
+      query = query.where(eq(auditLogs.recordId, recordId));
+    }
+    
+    return await query.orderBy(auditLogs.timestamp);
+  }
+
+  // Helper function to create audit logs for master table operations
+  private async logMasterTableOperation(
+    operation: 'CREATE' | 'UPDATE' | 'DELETE',
+    operationType: 'MASTER_TABLE_CONFIG' | 'MASTER_DATA_RECORD',
+    tableName: string,
+    recordId: string,
+    userId: string,
+    username: string,
+    ipAddress: string,
+    userAgent?: string,
+    oldValues?: any,
+    newValues?: any
+  ): Promise<void> {
+    try {
+      await this.createAuditLog({
+        tableName,
+        recordId,
+        operation,
+        operationType,
+        oldValues: oldValues ? JSON.stringify(oldValues) : undefined,
+        newValues: newValues ? JSON.stringify(newValues) : undefined,
+        userId,
+        username,
+        ipAddress,
+        userAgent
+      });
+    } catch (error) {
+      console.error('Failed to create audit log:', error);
+      // Don't throw error to avoid breaking the main operation
+    }
   }
 }
 

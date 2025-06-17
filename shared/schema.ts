@@ -122,12 +122,12 @@ export const masterDataRecords = pgTable("master_data_records", {
 export const auditLogs = pgTable("audit_logs", {
   id: uuid("id").primaryKey().defaultRandom(),
   tableName: text("table_name").notNull(), // master_table_configs, master_data_records, etc.
-  recordId: uuid("record_id").notNull(), // ID of the affected record
+  recordId: text("record_id").notNull(), // ID of the affected record
   operation: text("operation").notNull(), // CREATE, UPDATE, DELETE
   operationType: text("operation_type").notNull(), // MASTER_TABLE_CONFIG, MASTER_DATA_RECORD
   oldValues: text("old_values"), // JSON string of previous values (for UPDATE/DELETE)
   newValues: text("new_values"), // JSON string of new values (for CREATE/UPDATE)
-  userId: uuid("user_id").notNull(),
+  userId: text("user_id").notNull(),
   username: text("username").notNull(),
   ipAddress: text("ip_address").notNull(),
   userAgent: text("user_agent"),
