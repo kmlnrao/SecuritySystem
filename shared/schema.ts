@@ -1,4 +1,4 @@
-import { pgTable, text, serial, boolean, uuid, timestamp, foreignKey, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, boolean, uuid, timestamp, foreignKey, integer, varchar, json } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -91,6 +91,33 @@ export const permissions = pgTable("permissions", {
   }),
 }));
 
+// Master Table Configuration
+export const masterTableConfigs = pgTable("master_table_configs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tableName: text("table_name").notNull().unique(),
+  displayName: text("display_name").notNull(),
+  description: text("description"),
+  columns: text("columns").notNull(), // JSON string of column definitions
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Master Data Tables (dynamic structure)
+export const masterDataRecords = pgTable("master_data_records", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tableId: uuid("table_id").notNull(),
+  recordData: text("record_data").notNull(), // JSON string with dynamic fields
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  tableIdFk: foreignKey({
+    columns: [table.tableId],
+    foreignColumns: [masterTableConfigs.id],
+  }),
+}));
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   userRoles: many(userRoles),
@@ -148,6 +175,17 @@ export const permissionsRelations = relations(permissions, ({ one }) => ({
   }),
 }));
 
+export const masterTableConfigsRelations = relations(masterTableConfigs, ({ many }) => ({
+  records: many(masterDataRecords),
+}));
+
+export const masterDataRecordsRelations = relations(masterDataRecords, ({ one }) => ({
+  config: one(masterTableConfigs, {
+    fields: [masterDataRecords.tableId],
+    references: [masterTableConfigs.id],
+  }),
+}));
+
 // Schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -173,6 +211,18 @@ export const insertPermissionSchema = createInsertSchema(permissions).omit({
   id: true,
 });
 
+export const insertMasterTableConfigSchema = createInsertSchema(masterTableConfigs).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMasterDataRecordSchema = createInsertSchema(masterDataRecords).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -186,3 +236,7 @@ export type Permission = typeof permissions.$inferSelect;
 export type InsertPermission = z.infer<typeof insertPermissionSchema>;
 export type UserRole = typeof userRoles.$inferSelect;
 export type ModuleDocument = typeof moduleDocuments.$inferSelect;
+export type MasterTableConfig = typeof masterTableConfigs.$inferSelect;
+export type InsertMasterTableConfig = z.infer<typeof insertMasterTableConfigSchema>;
+export type MasterDataRecord = typeof masterDataRecords.$inferSelect;
+export type InsertMasterDataRecord = z.infer<typeof insertMasterDataRecordSchema>;
