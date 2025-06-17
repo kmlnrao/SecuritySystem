@@ -2,9 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Shield, Users, Settings } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Shield, Users, Settings, History } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { userService } from "@/lib/api-client";
+import { AuditLogViewer } from "@/components/audit-log-viewer";
 
 export default function RolesPage() {
   const { data: roles = [], isLoading } = useQuery({
@@ -40,9 +42,22 @@ export default function RolesPage() {
           Add Role
         </Button>
       </div>
-      
-      {/* Role Statistics */}
-      <div className="grid gap-4 md:grid-cols-3">
+
+      <Tabs defaultValue="management" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="management" className="flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            Role Management
+          </TabsTrigger>
+          <TabsTrigger value="audit" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            Audit Logs
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="management" className="space-y-6">
+          {/* Role Statistics */}
+          <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Roles</CardTitle>
@@ -118,6 +133,24 @@ export default function RolesPage() {
           </Table>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="audit" className="space-y-6">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold">Role Management Audit Logs</h3>
+              <p className="text-muted-foreground">
+                View all audit trails for role management operations
+              </p>
+            </div>
+            
+            <AuditLogViewer 
+              title="Role Management Audit Logs" 
+              tableName="roles"
+            />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
