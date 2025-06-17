@@ -72,6 +72,28 @@ export function MasterTableConfigurationPage() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, configData }: { id: string; configData: any }) => {
+      const response = await fetch(`/api/master-tables/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(configData),
+      });
+      if (!response.ok) throw new Error('Failed to update master table');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/master-tables"] });
+      toast({ title: "Success", description: "Master table configuration updated successfully" });
+      setEditingConfig(null);
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await fetch(`/api/master-tables/${id}`, {
@@ -116,6 +138,22 @@ export function MasterTableConfigurationPage() {
               onSubmit={(data) => createMutation.mutate(data)}
               isLoading={createMutation.isPending}
             />
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Dialog */}
+        <Dialog open={!!editingConfig} onOpenChange={(open) => !open && setEditingConfig(null)}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Edit Master Table Configuration</DialogTitle>
+            </DialogHeader>
+            {editingConfig && (
+              <EditMasterTableForm
+                config={editingConfig}
+                onSubmit={(data) => updateMutation.mutate({ id: editingConfig.id, configData: data })}
+                isLoading={updateMutation.isPending}
+              />
+            )}
           </DialogContent>
         </Dialog>
       </div>
@@ -305,6 +343,166 @@ function CreateMasterTableForm({
       <div className="flex justify-end gap-3">
         <Button type="submit" disabled={isLoading}>
           {isLoading ? "Creating..." : "Create Master Table"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function EditMasterTableForm({
+  config,
+  onSubmit,
+  isLoading
+}: {
+  config: MasterTableConfig;
+  onSubmit: (data: any) => void;
+  isLoading: boolean;
+}) {
+  const existingColumns = JSON.parse(config.columns) as ColumnDefinition[];
+  const [tableName, setTableName] = useState(config.tableName);
+  const [displayName, setDisplayName] = useState(config.displayName);
+  const [description, setDescription] = useState(config.description || "");
+  const [columns, setColumns] = useState<ColumnDefinition[]>(existingColumns);
+
+  const addColumn = () => {
+    setColumns([...columns, { name: "", type: "text", required: false }]);
+  };
+
+  const removeColumn = (index: number) => {
+    setColumns(columns.filter((_, i) => i !== index));
+  };
+
+  const updateColumn = (index: number, field: keyof ColumnDefinition, value: any) => {
+    const updatedColumns = [...columns];
+    updatedColumns[index] = { ...updatedColumns[index], [field]: value };
+    setColumns(updatedColumns);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!tableName || !displayName || columns.length === 0) {
+      return;
+    }
+
+    const validColumns = columns.filter(col => col.name.trim() !== "");
+    
+    onSubmit({
+      tableName: tableName.toLowerCase().replace(/\s+/g, '_'),
+      displayName,
+      description,
+      columns: JSON.stringify(validColumns)
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="tableName">Table Name</Label>
+          <Input
+            id="tableName"
+            value={tableName}
+            onChange={(e) => setTableName(e.target.value)}
+            placeholder="e.g., department"
+            required
+            disabled // Table name shouldn't be changed after creation
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            Table name cannot be changed after creation
+          </p>
+        </div>
+        <div>
+          <Label htmlFor="displayName">Display Name</Label>
+          <Input
+            id="displayName"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="e.g., Department Master"
+            required
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Brief description of this master table"
+          rows={2}
+        />
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <Label>Column Configuration</Label>
+          <Button type="button" variant="outline" size="sm" onClick={addColumn}>
+            <Plus className="mr-2 h-3 w-3" />
+            Add Column
+          </Button>
+        </div>
+        
+        <div className="space-y-3">
+          {columns.map((column, index) => (
+            <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+              <div className="flex-1">
+                <Input
+                  placeholder="Column name"
+                  value={column.name}
+                  onChange={(e) => updateColumn(index, 'name', e.target.value)}
+                />
+              </div>
+              <div className="w-32">
+                <Select
+                  value={column.type}
+                  onValueChange={(value) => updateColumn(index, 'type', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COLUMN_TYPES.map(type => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-20">
+                <Select
+                  value={column.required ? "yes" : "no"}
+                  onValueChange={(value) => updateColumn(index, 'required', value === "yes")}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Required</SelectItem>
+                    <SelectItem value="no">Optional</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {columns.length > 1 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => removeColumn(index)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-3">
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? "Updating..." : "Update Master Table"}
         </Button>
       </div>
     </form>
