@@ -36,8 +36,16 @@ export function registerRoutes(app: Express): Server {
         password: hashedPassword
       };
       
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
       console.log('User data with hashed password:', { ...userWithHashedPassword, password: '[HASHED]' });
-      const user = await storage.createUser(userWithHashedPassword);
+      const user = await storage.createUser(userWithHashedPassword, auditInfo);
       console.log('Created user:', { ...user, password: '[HIDDEN]' });
       res.status(201).json(user);
     } catch (error) {
@@ -76,7 +84,15 @@ export function registerRoutes(app: Express): Server {
         }
       }
 
-      const updatedUser = await storage.updateUser(id, { username, email });
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+
+      const updatedUser = await storage.updateUser(id, { username, email }, auditInfo);
       res.json(updatedUser);
     } catch (error) {
       console.error("Error updating user:", error);
@@ -105,8 +121,16 @@ export function registerRoutes(app: Express): Server {
       // Hash new password
       const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+
       // Update password
-      await storage.updateUser(id, { password: hashedNewPassword });
+      await storage.updateUser(id, { password: hashedNewPassword }, auditInfo);
       res.json({ message: "Password changed successfully" });
     } catch (error) {
       console.error("Error changing password:", error);
@@ -118,7 +142,16 @@ export function registerRoutes(app: Express): Server {
     try {
       const { id } = req.params;
       const userData = insertUserSchema.partial().parse(req.body);
-      const user = await storage.updateUser(id, userData);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const user = await storage.updateUser(id, userData, auditInfo);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -134,7 +167,16 @@ export function registerRoutes(app: Express): Server {
   app.delete("/api/users/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const deleted = await storage.deleteUser(id);
+      
+      // Get audit information
+      const auditInfo = {
+        userId: req.user?.id || 'system',
+        username: req.user?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent')
+      };
+      
+      const deleted = await storage.deleteUser(id, auditInfo);
       if (!deleted) {
         return res.status(404).json({ message: "User not found" });
       }

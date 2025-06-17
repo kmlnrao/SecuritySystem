@@ -571,9 +571,30 @@ export class DatabaseStorage implements IStorage {
     return permission || undefined;
   }
 
-  async deletePermission(id: string): Promise<boolean> {
+  async deletePermission(id: string, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<boolean> {
+    // Get old values for audit log
+    const oldPermission = await this.getPermission(id);
+    
     const result = await db.delete(permissions).where(eq(permissions.id, id));
-    return (result.rowCount || 0) > 0;
+    const deleted = (result.rowCount || 0) > 0;
+
+    // Log the deletion
+    if (deleted && oldPermission && auditInfo) {
+      await this.logMasterTableOperation(
+        'DELETE',
+        'PERMISSION',
+        'permissions',
+        id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        oldPermission,
+        undefined
+      );
+    }
+
+    return deleted;
   }
 
   async getAllPermissions(): Promise<any[]> {
