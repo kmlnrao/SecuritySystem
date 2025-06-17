@@ -1136,6 +1136,30 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Audit Log routes
+  app.get("/api/audit-logs", async (req, res) => {
+    try {
+      const { tableName, recordId } = req.query;
+      const logs = await storage.getAuditLogs(
+        tableName as string, 
+        recordId as string
+      );
+      res.json(logs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch audit logs" });
+    }
+  });
+
+  app.get("/api/master-tables/:id/audit-logs", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const logs = await storage.getAuditLogs("master_table_configs", id);
+      res.json(logs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch master table audit logs" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

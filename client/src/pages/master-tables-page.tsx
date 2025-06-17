@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings, Database, Table, Plus } from "lucide-react";
+import { Settings, Database, Table, Plus, History } from "lucide-react";
 import { MasterTableConfigurationPage } from "@/components/master-table-config";
 import { DynamicMasterTable } from "@/components/dynamic-master-table";
+import { AuditLogViewer } from "@/components/audit-log-viewer";
 
 interface MasterTableConfig {
   id: string;
