@@ -146,8 +146,18 @@ The system includes an optional microservices setup:
 - `SESSION_SECRET`: Secret for session management
 - Service-specific ports for microservices setup
 
+## Recent Changes
+- **Comprehensive Audit Logging System** (June 17, 2025): Implemented complete audit logging for all master table operations including:
+  - User tracking (user ID and username) for all CREATE/UPDATE/DELETE operations
+  - IP address logging for security and compliance tracking
+  - User agent capture for detailed request tracking
+  - Old values vs new values comparison for complete change history
+  - Dedicated audit_logs table with foreign key relationships
+  - API endpoints for viewing audit logs with filtering capabilities
+  - Client-side audit log viewer component with detailed change visualization
+
 ## Changelog
-- June 17, 2025. Initial setup
+- June 17, 2025. Initial setup with comprehensive audit logging implementation
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
