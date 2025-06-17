@@ -1,6 +1,6 @@
 import { users, roles, modules, documents, permissions, userRoles, moduleDocuments, masterTableConfigs, masterDataRecords, auditLogs, type User, type InsertUser, type Role, type InsertRole, type Module, type InsertModule, type Document, type InsertDocument, type Permission, type InsertPermission, type MasterTableConfig, type InsertMasterTableConfig, type MasterDataRecord, type InsertMasterDataRecord, type AuditLog, type InsertAuditLog } from "@shared/schema";
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
@@ -61,9 +61,9 @@ export interface IStorage {
   // Master Table Configuration operations
   getMasterTableConfig(id: string): Promise<MasterTableConfig | undefined>;
   getMasterTableConfigByName(tableName: string): Promise<MasterTableConfig | undefined>;
-  createMasterTableConfig(config: InsertMasterTableConfig): Promise<MasterTableConfig>;
-  updateMasterTableConfig(id: string, config: Partial<InsertMasterTableConfig>): Promise<MasterTableConfig | undefined>;
-  deleteMasterTableConfig(id: string): Promise<boolean>;
+  createMasterTableConfig(config: InsertMasterTableConfig, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<MasterTableConfig>;
+  updateMasterTableConfig(id: string, config: Partial<InsertMasterTableConfig>, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<MasterTableConfig | undefined>;
+  deleteMasterTableConfig(id: string, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<boolean>;
   getAllMasterTableConfigs(): Promise<MasterTableConfig[]>;
 
   // Master Data Record operations
@@ -436,18 +436,59 @@ export class DatabaseStorage implements IStorage {
     return config;
   }
 
-  async updateMasterTableConfig(id: string, updateData: Partial<InsertMasterTableConfig>): Promise<MasterTableConfig | undefined> {
+  async updateMasterTableConfig(id: string, updateData: Partial<InsertMasterTableConfig>, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<MasterTableConfig | undefined> {
+    // Get old values for audit log
+    const oldConfig = await this.getMasterTableConfig(id);
+    
     const [config] = await db
       .update(masterTableConfigs)
       .set({ ...updateData, updatedAt: new Date() })
       .where(eq(masterTableConfigs.id, id))
       .returning();
+
+    // Log the update
+    if (config && auditInfo) {
+      await this.logMasterTableOperation(
+        'UPDATE',
+        'MASTER_TABLE_CONFIG',
+        'master_table_configs',
+        config.id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        oldConfig,
+        config
+      );
+    }
+
     return config || undefined;
   }
 
-  async deleteMasterTableConfig(id: string): Promise<boolean> {
+  async deleteMasterTableConfig(id: string, auditInfo?: { userId: string; username: string; ipAddress: string; userAgent?: string }): Promise<boolean> {
+    // Get old values for audit log
+    const oldConfig = await this.getMasterTableConfig(id);
+    
     const result = await db.delete(masterTableConfigs).where(eq(masterTableConfigs.id, id));
-    return (result.rowCount || 0) > 0;
+    const deleted = (result.rowCount || 0) > 0;
+
+    // Log the deletion
+    if (deleted && oldConfig && auditInfo) {
+      await this.logMasterTableOperation(
+        'DELETE',
+        'MASTER_TABLE_CONFIG',
+        'master_table_configs',
+        id,
+        auditInfo.userId,
+        auditInfo.username,
+        auditInfo.ipAddress,
+        auditInfo.userAgent,
+        oldConfig,
+        undefined
+      );
+    }
+
+    return deleted;
   }
 
   async getAllMasterTableConfigs(): Promise<MasterTableConfig[]> {
@@ -505,17 +546,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAuditLogs(tableName?: string, recordId?: string): Promise<AuditLog[]> {
-    let query = db.select().from(auditLogs);
-    
     if (tableName && recordId) {
-      query = query.where(and(eq(auditLogs.tableName, tableName), eq(auditLogs.recordId, recordId)));
+      return await db.select().from(auditLogs)
+        .where(and(eq(auditLogs.tableName, tableName), eq(auditLogs.recordId, recordId)))
+        .orderBy(desc(auditLogs.timestamp));
     } else if (tableName) {
-      query = query.where(eq(auditLogs.tableName, tableName));
+      return await db.select().from(auditLogs)
+        .where(eq(auditLogs.tableName, tableName))
+        .orderBy(desc(auditLogs.timestamp));
     } else if (recordId) {
-      query = query.where(eq(auditLogs.recordId, recordId));
+      return await db.select().from(auditLogs)
+        .where(eq(auditLogs.recordId, recordId))
+        .orderBy(desc(auditLogs.timestamp));
     }
     
-    return await query.orderBy(auditLogs.timestamp);
+    return await db.select().from(auditLogs).orderBy(desc(auditLogs.timestamp));
   }
 
   // Helper function to create audit logs for master table operations

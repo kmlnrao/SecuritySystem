@@ -1004,7 +1004,14 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/master-tables", async (req, res) => {
     try {
-      const config = await storage.createMasterTableConfig(req.body);
+      const auditInfo = {
+        userId: (req.user as any)?.id || 'system',
+        username: (req.user as any)?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent') || undefined
+      };
+      
+      const config = await storage.createMasterTableConfig(req.body, auditInfo);
       res.status(201).json(config);
     } catch (error) {
       res.status(500).json({ message: "Failed to create master table configuration" });
@@ -1027,7 +1034,14 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/master-tables/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const config = await storage.updateMasterTableConfig(id, req.body);
+      const auditInfo = {
+        userId: (req.user as any)?.id || 'system',
+        username: (req.user as any)?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent') || undefined
+      };
+      
+      const config = await storage.updateMasterTableConfig(id, req.body, auditInfo);
       if (!config) {
         return res.status(404).json({ message: "Master table configuration not found" });
       }
@@ -1040,7 +1054,14 @@ export function registerRoutes(app: Express): Server {
   app.delete("/api/master-tables/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const deleted = await storage.deleteMasterTableConfig(id);
+      const auditInfo = {
+        userId: (req.user as any)?.id || 'system',
+        username: (req.user as any)?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent') || undefined
+      };
+      
+      const deleted = await storage.deleteMasterTableConfig(id, auditInfo);
       if (!deleted) {
         return res.status(404).json({ message: "Master table configuration not found" });
       }
