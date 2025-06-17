@@ -643,6 +643,10 @@ export function registerRoutes(app: Express): Server {
         name: "Inventory Report", 
         path: "/inventory/report" 
       });
+      const masterTablesDoc = await storage.createDocument({ 
+        name: "Master Tables", 
+        path: "/masters" 
+      });
 
       // Create module-document relationships
       await storage.assignModuleDocument(patientModule.id, patientRegDoc.id);
@@ -652,9 +656,10 @@ export function registerRoutes(app: Express): Server {
       await storage.assignModuleDocument(appointmentModule.id, appointmentDoc.id);
       await storage.assignModuleDocument(billingModule.id, billingDoc.id);
       await storage.assignModuleDocument(inventoryModule.id, inventoryDoc.id);
+      await storage.assignModuleDocument(mastersModule.id, masterTablesDoc.id);
 
       // Create permissions for Administrator role (full access)
-      const documents = [patientRegDoc, medicalHistoryDoc, prescriptionDoc, appointmentDoc, billingDoc, inventoryDoc];
+      const documents = [patientRegDoc, medicalHistoryDoc, prescriptionDoc, appointmentDoc, billingDoc, inventoryDoc, masterTablesDoc];
       for (const doc of documents) {
         await storage.createPermission({
           roleId: adminRole.id,
@@ -762,13 +767,69 @@ export function registerRoutes(app: Express): Server {
         canQuery: true,
       });
 
+      // Create sample master table configurations
+      const departmentConfig = await storage.createMasterTableConfig({
+        tableName: "department",
+        displayName: "Department Master",
+        description: "Manage hospital departments and their details",
+        columns: JSON.stringify([
+          { name: "name", type: "text", required: true, maxLength: 100 },
+          { name: "code", type: "text", required: true, maxLength: 10 },
+          { name: "description", type: "text", required: false, maxLength: 500 },
+          { name: "head_of_department", type: "text", required: false, maxLength: 100 },
+          { name: "phone", type: "text", required: false, maxLength: 20 },
+          { name: "email", type: "email", required: false },
+          { name: "is_active", type: "boolean", required: true }
+        ])
+      });
+
+      // Create sample department records
+      const sampleDepartments = [
+        {
+          name: "Cardiology",
+          code: "CARD",
+          description: "Heart and cardiovascular system treatment",
+          head_of_department: "Dr. Sarah Johnson",
+          phone: "555-0101",
+          email: "cardiology@hospital.com",
+          is_active: true
+        },
+        {
+          name: "Neurology",
+          code: "NEURO",
+          description: "Brain and nervous system treatment",
+          head_of_department: "Dr. Michael Chen",
+          phone: "555-0102",
+          email: "neurology@hospital.com",
+          is_active: true
+        },
+        {
+          name: "Pediatrics",
+          code: "PEDS",
+          description: "Children's healthcare services",
+          head_of_department: "Dr. Emily Davis",
+          phone: "555-0103",
+          email: "pediatrics@hospital.com",
+          is_active: true
+        }
+      ];
+
+      for (const dept of sampleDepartments) {
+        await storage.createMasterDataRecord({
+          tableId: departmentConfig.id,
+          recordData: JSON.stringify(dept)
+        });
+      }
+
       res.json({ 
         message: "Database seeded successfully",
         summary: {
           roles: 5,
-          modules: 5,
-          documents: 6,
-          permissions: 19
+          modules: 6,
+          documents: 7,
+          permissions: 21,
+          masterTables: 1,
+          masterRecords: 3
         }
       });
     } catch (error) {
