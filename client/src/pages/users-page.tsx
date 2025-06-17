@@ -1,9 +1,11 @@
 import { UserManagementTable } from "@/components/user-management-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Shield, Activity } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Users, Shield, Activity, History } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { userService } from "@/lib/api-client";
+import { AuditLogViewer } from "@/components/audit-log-viewer";
 
 export default function UsersPage() {
   const { data: users = [], isLoading } = useQuery({

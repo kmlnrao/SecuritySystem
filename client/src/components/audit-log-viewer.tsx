@@ -13,7 +13,7 @@ interface AuditLog {
   tableName: string;
   recordId: string;
   operation: 'CREATE' | 'UPDATE' | 'DELETE';
-  operationType: 'MASTER_TABLE_CONFIG' | 'MASTER_DATA_RECORD';
+  operationType: 'MASTER_TABLE_CONFIG' | 'MASTER_DATA_RECORD' | 'USER' | 'ROLE' | 'MODULE' | 'DOCUMENT' | 'PERMISSION' | 'MODULE_DOCUMENT';
   oldValues?: string;
   newValues?: string;
   userId: string;
@@ -95,7 +95,7 @@ export function AuditLogViewer({ tableName, recordId, title = "Audit Logs" }: Au
                     <TableCell>{getOperationBadge(log.operation)}</TableCell>
                     <TableCell>
                       <Badge variant="outline">
-                        {log.operationType.replace('_', ' ')}
+                        {log.operationType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                       </Badge>
                     </TableCell>
                     <TableCell>

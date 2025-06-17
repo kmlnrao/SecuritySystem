@@ -46,7 +46,7 @@ export default function MasterTablesPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <Database className="h-4 w-4" />
             Overview
@@ -58,6 +58,10 @@ export default function MasterTablesPage() {
           <TabsTrigger value="configuration" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Configuration
+          </TabsTrigger>
+          <TabsTrigger value="audit" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            Audit Logs
           </TabsTrigger>
         </TabsList>
 
@@ -223,6 +227,27 @@ export default function MasterTablesPage() {
 
         <TabsContent value="configuration">
           <MasterTableConfigurationPage />
+        </TabsContent>
+
+        <TabsContent value="audit" className="space-y-6">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold">Master Table Audit Logs</h3>
+              <p className="text-muted-foreground">
+                View all audit trails for master table configurations and data operations
+              </p>
+            </div>
+            
+            <AuditLogViewer 
+              title="Master Table Configuration Audit Logs" 
+              tableName="master_table_configs"
+            />
+            
+            <AuditLogViewer 
+              title="Master Data Records Audit Logs" 
+              tableName="master_data_records"
+            />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
