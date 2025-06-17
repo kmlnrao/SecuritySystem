@@ -1,4 +1,4 @@
-import { users, roles, modules, documents, permissions, userRoles, moduleDocuments, type User, type InsertUser, type Role, type InsertRole, type Module, type InsertModule, type Document, type InsertDocument, type Permission, type InsertPermission } from "@shared/schema";
+import { users, roles, modules, documents, permissions, userRoles, moduleDocuments, masterTableConfigs, masterDataRecords, type User, type InsertUser, type Role, type InsertRole, type Module, type InsertModule, type Document, type InsertDocument, type Permission, type InsertPermission, type MasterTableConfig, type InsertMasterTableConfig, type MasterDataRecord, type InsertMasterDataRecord } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
 import session from "express-session";
@@ -57,6 +57,21 @@ export interface IStorage {
   assignModuleDocument(moduleId: string, documentId: string): Promise<boolean>;
   removeModuleDocument(moduleId: string, documentId: string): Promise<boolean>;
   getModuleDocuments(moduleId: string): Promise<string[]>;
+
+  // Master Table Configuration operations
+  getMasterTableConfig(id: string): Promise<MasterTableConfig | undefined>;
+  getMasterTableConfigByName(tableName: string): Promise<MasterTableConfig | undefined>;
+  createMasterTableConfig(config: InsertMasterTableConfig): Promise<MasterTableConfig>;
+  updateMasterTableConfig(id: string, config: Partial<InsertMasterTableConfig>): Promise<MasterTableConfig | undefined>;
+  deleteMasterTableConfig(id: string): Promise<boolean>;
+  getAllMasterTableConfigs(): Promise<MasterTableConfig[]>;
+
+  // Master Data Record operations
+  getMasterDataRecord(id: string): Promise<MasterDataRecord | undefined>;
+  createMasterDataRecord(record: InsertMasterDataRecord): Promise<MasterDataRecord>;
+  updateMasterDataRecord(id: string, record: Partial<InsertMasterDataRecord>): Promise<MasterDataRecord | undefined>;
+  deleteMasterDataRecord(id: string): Promise<boolean>;
+  getMasterDataRecordsByTableId(tableId: string): Promise<MasterDataRecord[]>;
 
   sessionStore: any;
 }
@@ -375,6 +390,84 @@ export class DatabaseStorage implements IStorage {
       .from(moduleDocuments)
       .where(eq(moduleDocuments.moduleId, moduleId));
     return results.map(r => r.documentId);
+  }
+
+  // Master Table Configuration operations
+  async getMasterTableConfig(id: string): Promise<MasterTableConfig | undefined> {
+    const [config] = await db.select().from(masterTableConfigs).where(eq(masterTableConfigs.id, id));
+    return config || undefined;
+  }
+
+  async getMasterTableConfigByName(tableName: string): Promise<MasterTableConfig | undefined> {
+    const [config] = await db.select().from(masterTableConfigs).where(eq(masterTableConfigs.tableName, tableName));
+    return config || undefined;
+  }
+
+  async createMasterTableConfig(insertConfig: InsertMasterTableConfig): Promise<MasterTableConfig> {
+    const { randomUUID } = await import('crypto');
+    const [config] = await db
+      .insert(masterTableConfigs)
+      .values({ 
+        id: randomUUID(),
+        ...insertConfig 
+      })
+      .returning();
+    return config;
+  }
+
+  async updateMasterTableConfig(id: string, updateData: Partial<InsertMasterTableConfig>): Promise<MasterTableConfig | undefined> {
+    const [config] = await db
+      .update(masterTableConfigs)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(masterTableConfigs.id, id))
+      .returning();
+    return config || undefined;
+  }
+
+  async deleteMasterTableConfig(id: string): Promise<boolean> {
+    const result = await db.delete(masterTableConfigs).where(eq(masterTableConfigs.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async getAllMasterTableConfigs(): Promise<MasterTableConfig[]> {
+    return await db.select().from(masterTableConfigs).where(eq(masterTableConfigs.isActive, true));
+  }
+
+  // Master Data Record operations
+  async getMasterDataRecord(id: string): Promise<MasterDataRecord | undefined> {
+    const [record] = await db.select().from(masterDataRecords).where(eq(masterDataRecords.id, id));
+    return record || undefined;
+  }
+
+  async createMasterDataRecord(insertRecord: InsertMasterDataRecord): Promise<MasterDataRecord> {
+    const { randomUUID } = await import('crypto');
+    const [record] = await db
+      .insert(masterDataRecords)
+      .values({ 
+        id: randomUUID(),
+        ...insertRecord 
+      })
+      .returning();
+    return record;
+  }
+
+  async updateMasterDataRecord(id: string, updateData: Partial<InsertMasterDataRecord>): Promise<MasterDataRecord | undefined> {
+    const [record] = await db
+      .update(masterDataRecords)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(masterDataRecords.id, id))
+      .returning();
+    return record || undefined;
+  }
+
+  async deleteMasterDataRecord(id: string): Promise<boolean> {
+    const result = await db.delete(masterDataRecords).where(eq(masterDataRecords.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async getMasterDataRecordsByTableId(tableId: string): Promise<MasterDataRecord[]> {
+    return await db.select().from(masterDataRecords)
+      .where(and(eq(masterDataRecords.tableId, tableId), eq(masterDataRecords.isActive, true)));
   }
 }
 

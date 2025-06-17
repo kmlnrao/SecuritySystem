@@ -930,6 +930,129 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Master Table Configuration routes
+  app.get("/api/master-tables", async (req, res) => {
+    try {
+      const configs = await storage.getAllMasterTableConfigs();
+      res.json(configs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch master table configurations" });
+    }
+  });
+
+  app.post("/api/master-tables", async (req, res) => {
+    try {
+      const config = await storage.createMasterTableConfig(req.body);
+      res.status(201).json(config);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create master table configuration" });
+    }
+  });
+
+  app.get("/api/master-tables/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const config = await storage.getMasterTableConfig(id);
+      if (!config) {
+        return res.status(404).json({ message: "Master table configuration not found" });
+      }
+      res.json(config);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch master table configuration" });
+    }
+  });
+
+  app.put("/api/master-tables/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const config = await storage.updateMasterTableConfig(id, req.body);
+      if (!config) {
+        return res.status(404).json({ message: "Master table configuration not found" });
+      }
+      res.json(config);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update master table configuration" });
+    }
+  });
+
+  app.delete("/api/master-tables/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteMasterTableConfig(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Master table configuration not found" });
+      }
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete master table configuration" });
+    }
+  });
+
+  // Master Data Records routes
+  app.get("/api/master-tables/:tableId/records", async (req, res) => {
+    try {
+      const { tableId } = req.params;
+      const records = await storage.getMasterDataRecordsByTableId(tableId);
+      res.json(records);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch master data records" });
+    }
+  });
+
+  app.post("/api/master-tables/:tableId/records", async (req, res) => {
+    try {
+      const { tableId } = req.params;
+      const record = await storage.createMasterDataRecord({
+        tableId,
+        recordData: JSON.stringify(req.body),
+      });
+      res.status(201).json(record);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create master data record" });
+    }
+  });
+
+  app.get("/api/master-data-records/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const record = await storage.getMasterDataRecord(id);
+      if (!record) {
+        return res.status(404).json({ message: "Master data record not found" });
+      }
+      res.json(record);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch master data record" });
+    }
+  });
+
+  app.put("/api/master-data-records/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const record = await storage.updateMasterDataRecord(id, {
+        recordData: JSON.stringify(req.body),
+      });
+      if (!record) {
+        return res.status(404).json({ message: "Master data record not found" });
+      }
+      res.json(record);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update master data record" });
+    }
+  });
+
+  app.delete("/api/master-data-records/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteMasterDataRecord(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Master data record not found" });
+      }
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete master data record" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
