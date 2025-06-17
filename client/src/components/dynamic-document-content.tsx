@@ -1,4 +1,5 @@
 import { ComingSoonPage } from "@/components/coming-soon-page";
+import MasterTablesPage from "@/pages/master-tables-page";
 
 interface DynamicDocumentContentProps {
   documentName: string;
@@ -21,9 +22,15 @@ const documentDescriptions: Record<string, string> = {
   'Medicine Inventory': 'Manage pharmaceutical stock levels and inventory tracking.',
   'System Settings': 'Configure system-wide settings and administrative preferences.',
   'Test Documnet': 'Test document functionality and system integration features.',
+  'Master Tables': 'Configure and manage dynamic master tables for hospital data management.',
 };
 
 export function DynamicDocumentContent({ documentName, documentPath }: DynamicDocumentContentProps) {
+  // Route to specific components based on document path
+  if (documentPath === '/masters' || documentName === 'Master Tables') {
+    return <MasterTablesPage />;
+  }
+  
   const description = documentDescriptions[documentName] || `The ${documentName} module provides essential functionality for hospital management operations.`;
   
   return (
