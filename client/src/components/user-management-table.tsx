@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, Eye, Trash2, Search, Plus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Edit, Eye, Trash2, Search, Plus, History, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { userService } from "@/lib/api-client";
 import { queryClient } from "@/lib/queryClient";
 import { AddUserDialog, EditUserDialog, ViewUserDialog } from "./user-dialogs";
+import { AuditLogViewer } from "./audit-log-viewer";
 
 interface User {
   id: string;
@@ -124,123 +126,153 @@ export function UserManagementTable() {
 
   return (
     <div className="space-y-6">
+      <Tabs defaultValue="management" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="management" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            User Management
+          </TabsTrigger>
+          <TabsTrigger value="audit" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            Audit Logs
+          </TabsTrigger>
+        </TabsList>
 
-      <div className="bg-white rounded-lg border border-slate-200">
-        <div className="px-6 py-4 border-b border-slate-200">
-          <div className="flex items-center justify-between">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-              <Input
-                placeholder="Search users..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+        <TabsContent value="management" className="space-y-6">
+          <div className="bg-white rounded-lg border border-slate-200">
+            <div className="px-6 py-4 border-b border-slate-200">
+              <div className="flex items-center justify-between">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                  <Input
+                    placeholder="Search users..."
+                    className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <Select value={roleFilter} onValueChange={setRoleFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="All Roles" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Roles</SelectItem>
+                    <SelectItem value="admin">Administrator</SelectItem>
+                    <SelectItem value="doctor">Doctor</SelectItem>
+                    <SelectItem value="nurse">Nurse</SelectItem>
+                    <SelectItem value="staff">Staff</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="All Roles" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="admin">Administrator</SelectItem>
-                <SelectItem value="doctor">Doctor</SelectItem>
-                <SelectItem value="nurse">Nurse</SelectItem>
-                <SelectItem value="staff">Staff</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
 
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-slate-50">
-                <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">User</TableHead>
-                <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">Status</TableHead>
-                <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">Created</TableHead>
-                <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredUsers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-slate-500">
-                    {users.length === 0 ? "No users found" : `No users match your search. Total users: ${users.length}`}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredUsers.map((user: any) => (
-                  <TableRow key={user.id} className="hover:bg-slate-50">
-                    <TableCell>
-                      <div className="flex items-center">
-                        <div className={`w-8 h-8 ${getRandomColor(user.email)} rounded-full flex items-center justify-center mr-3`}>
-                          <span className="text-white text-sm font-medium">
-                            {getInitials(user.email)}
-                          </span>
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-slate-900">{user.username}</div>
-                          <div className="text-sm text-slate-500">{user.email}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={user.isActive ? "default" : "secondary"}
-                        className={user.isActive ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}
-                      >
-                        <div className={`w-2 h-2 rounded-full mr-1 ${user.isActive ? "bg-green-500" : "bg-yellow-500"}`} />
-                        {user.isActive ? "Active" : "Inactive"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-500">
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="text-accent hover:text-blue-600"
-                          onClick={() => handleEdit(user)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="text-slate-400 hover:text-slate-600"
-                          onClick={() => handleView(user)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="text-red-400 hover:text-red-600"
-                          onClick={() => handleDelete(user.id)}
-                          disabled={deleteMutation.isPending}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-50">
+                    <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">User</TableHead>
+                    <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">Status</TableHead>
+                    <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">Created</TableHead>
+                    <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        
-        <div className="px-6 py-4 border-t border-slate-200">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-slate-500">
-              Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredUsers.length}</span> of <span className="font-medium">{users.length}</span> results
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8 text-slate-500">
+                        {users.length === 0 ? "No users found" : `No users match your search. Total users: ${users.length}`}
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredUsers.map((user: any) => (
+                      <TableRow key={user.id} className="hover:bg-slate-50">
+                        <TableCell>
+                          <div className="flex items-center">
+                            <div className={`w-8 h-8 ${getRandomColor(user.email)} rounded-full flex items-center justify-center mr-3`}>
+                              <span className="text-white text-sm font-medium">
+                                {getInitials(user.email)}
+                              </span>
+                            </div>
+                            <div>
+                              <div className="text-sm font-medium text-slate-900">{user.username}</div>
+                              <div className="text-sm text-slate-500">{user.email}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant={user.isActive ? "default" : "secondary"}
+                            className={user.isActive ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}
+                          >
+                            <div className={`w-2 h-2 rounded-full mr-1 ${user.isActive ? "bg-green-500" : "bg-yellow-500"}`} />
+                            {user.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm text-slate-500">
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-accent hover:text-blue-600"
+                              onClick={() => handleEdit(user)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-slate-400 hover:text-slate-600"
+                              onClick={() => handleView(user)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-red-400 hover:text-red-600"
+                              onClick={() => handleDelete(user.id)}
+                              disabled={deleteMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+            
+            <div className="px-6 py-4 border-t border-slate-200">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-slate-500">
+                  Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredUsers.length}</span> of <span className="font-medium">{users.length}</span> results
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </TabsContent>
+
+        <TabsContent value="audit" className="space-y-6">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold">User Management Audit Logs</h3>
+              <p className="text-muted-foreground">
+                View all audit trails for user management operations
+              </p>
+            </div>
+            
+            <AuditLogViewer 
+              title="User Management Audit Logs" 
+              tableName="users"
+            />
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Dialogs */}
       <AddUserDialog open={addUserOpen} onOpenChange={setAddUserOpen} />
