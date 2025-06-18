@@ -24,30 +24,13 @@ interface Permission {
 
 export function PermissionManagementTableWithAudit() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPermission, setSelectedPermission] = useState<Permission | null>(null);
+  const [editPermissionOpen, setEditPermissionOpen] = useState(false);
+  const [viewPermissionOpen, setViewPermissionOpen] = useState(false);
   const { toast } = useToast();
 
   const { data: permissions = [], isLoading } = useQuery({ 
-    queryKey: ["permissions"],
-    queryFn: async () => {
-      try {
-        const response = await fetch('/api/permissions', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Permissions fetch failed: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error('Permissions fetch error:', error);
-        return [];
-      }
-    }
+    queryKey: ["permissions"]
   });
 
   const deleteMutation = useMutation({

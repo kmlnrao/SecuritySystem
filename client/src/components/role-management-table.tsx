@@ -9,6 +9,7 @@ import { Edit, Eye, Trash2, Search, Plus, History, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { AuditLogViewer } from "./audit-log-viewer";
+import { EditRoleDialog, ViewRoleDialog } from "./role-dialogs";
 
 interface Role {
   id: string;
@@ -20,6 +21,9 @@ interface Role {
 
 export function RoleManagementTable() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [editRoleOpen, setEditRoleOpen] = useState(false);
+  const [viewRoleOpen, setViewRoleOpen] = useState(false);
   const { toast } = useToast();
 
   const { data: roles = [], isLoading } = useQuery({ 
@@ -87,6 +91,16 @@ export function RoleManagementTable() {
     if (confirm("Are you sure you want to delete this role?")) {
       deleteMutation.mutate(roleId);
     }
+  };
+
+  const handleEdit = (role: Role) => {
+    setSelectedRole(role);
+    setEditRoleOpen(true);
+  };
+
+  const handleView = (role: Role) => {
+    setSelectedRole(role);
+    setViewRoleOpen(true);
   };
 
   if (isLoading) {
@@ -164,6 +178,7 @@ export function RoleManagementTable() {
                               variant="ghost" 
                               size="sm" 
                               className="text-accent hover:text-blue-600"
+                              onClick={() => handleEdit(role)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -171,6 +186,7 @@ export function RoleManagementTable() {
                               variant="ghost" 
                               size="sm" 
                               className="text-slate-400 hover:text-slate-600"
+                              onClick={() => handleView(role)}
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -218,6 +234,18 @@ export function RoleManagementTable() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Role Management Dialogs */}
+      <EditRoleDialog 
+        role={selectedRole} 
+        open={editRoleOpen} 
+        onOpenChange={setEditRoleOpen} 
+      />
+      <ViewRoleDialog 
+        role={selectedRole} 
+        open={viewRoleOpen} 
+        onOpenChange={setViewRoleOpen} 
+      />
     </div>
   );
 }
