@@ -244,6 +244,8 @@ export function EditModuleDialog({ module, open, onOpenChange }: EditModuleDialo
       });
       // Also invalidate to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["modules"] });
+      // Invalidate audit logs to show the module update
+      queryClient.invalidateQueries({ queryKey: ["/api/audit-logs"] });
       toast({
         title: "Success",
         description: "Module updated successfully",

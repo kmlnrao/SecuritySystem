@@ -43,6 +43,7 @@ export function AuditLogViewer({ tableName, recordId, title = "Audit Logs" }: Au
       if (!response.ok) throw new Error('Failed to fetch audit logs');
       return response.json();
     },
+    staleTime: 0 // Always fetch fresh data
   });
 
   const getOperationBadge = (operation: string) => {
