@@ -411,100 +411,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // User navigation based on permissions
-  app.get("/api/users/:userId/navigation", async (req, res) => {
-    try {
-      const { userId } = req.params;
-      console.log(`🔍 NAVIGATION REQUEST for user: ${userId}`);
-      
-      // Get user and roles
-      const user = await storage.getUser(userId);
-      const userRoles = await storage.getUserRoles(userId);
-      
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      
-      // Get all modules
-      const allModules = await storage.getAllModules();
-      
-      // Get user permissions (direct + role-based)
-      const userPermissions = await storage.getUserPermissions(userId);
-      let allPermissions = [...userPermissions];
-      
-      // Add role-based permissions
-      for (const role of userRoles) {
-        const rolePermissions = await storage.getRolePermissions(role.id);
-        allPermissions = [...allPermissions, ...rolePermissions];
-      }
-      
-      // Build navigation based on user permissions and module-document relationships
-      const navigation = [];
-      
-      for (const module of allModules) {
-        const moduleDocsList = [];
-        
-        // Get documents that belong to this specific module using storage method
-        const moduleDocumentLinks = await storage.getModuleDocuments(module.id);
-        
-        for (const documentId of moduleDocumentLinks) {
-          const document = await storage.getDocument(documentId);
-          if (!document) continue;
-          
-          // Check if user is superadmin first
-          const isSuperAdmin = user.username === 'superadmin' || userRoles.some(role => role.name === 'Super Admin');
-          
-          // Check if user has permissions for this document (direct or role-based)
-          const documentPermissions = allPermissions.filter(p => p.documentId === document.id);
-          
-          // If user is superadmin, grant access to all documents
-          if (isSuperAdmin) {
-            const docPermission = documentPermissions.length > 0 ? documentPermissions[0] : null;
-            moduleDocsList.push({
-              id: document.id,
-              name: document.name,
-              path: document.path,
-              permissions: {
-                canAdd: docPermission?.canAdd ?? true,
-                canModify: docPermission?.canModify ?? true,
-                canDelete: docPermission?.canDelete ?? true,
-                canQuery: docPermission?.canQuery ?? true
-              }
-            });
-          }
-          // Check if user has explicit permissions for this document
-          else if (documentPermissions.length > 0) {
-            const docPermission = documentPermissions[0];
-            moduleDocsList.push({
-              id: document.id,
-              name: document.name,
-              path: document.path,
-              permissions: {
-                canAdd: docPermission.canAdd || false,
-                canModify: docPermission.canModify || false,
-                canDelete: docPermission.canDelete || false,
-                canQuery: docPermission.canQuery || false
-              }
-            });
-          }
-        }
-        
-        // Only include module if it has accessible documents
-        if (moduleDocsList.length > 0) {
-          navigation.push({
-            id: module.id,
-            name: module.name,
-            documents: moduleDocsList
-          });
-        }
-      }
-      
-      res.json(navigation);
-    } catch (error) {
-      console.error("Error fetching user navigation:", error);
-      res.status(500).json({ message: "Failed to fetch navigation" });
-    }
-  });
+
 
   app.post("/api/documents", async (req, res) => {
     try {
@@ -1087,6 +994,7 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/users/:userId/navigation", async (req, res) => {
     try {
       const { userId } = req.params;
+      console.log(`🔍 NAVIGATION ROUTE 2 for user: ${userId}`);
       
       // Get user with roles
       const user = await storage.getUser(userId);
@@ -1096,6 +1004,7 @@ export function registerRoutes(app: Express): Server {
 
       const userRoles = await storage.getUserRoles(userId);
       const isSuperAdmin = userRoles.some(role => role.name === 'Super Admin');
+      console.log(`🔍 Super Admin status: ${isSuperAdmin}`);
       
       // Get all modules ordered by display_order
       const modules = await storage.getAllModules();
