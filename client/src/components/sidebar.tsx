@@ -208,8 +208,52 @@ export function Sidebar() {
             );
           })}
         </div>
-      </nav>
 
+        {/* Direct Admin Navigation */}
+        {!isCollapsed && (
+          <div className="px-6 mt-8 mb-4">
+            <h3 className="text-slate-400 text-xs uppercase tracking-wider font-medium">Administration</h3>
+          </div>
+        )}
+        
+        <div className={`${isCollapsed ? 'px-2' : 'px-6'} space-y-1`}>
+          <Link href="/users">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`w-full ${isCollapsed ? 'justify-center px-2' : 'justify-start'} text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50 ${location === '/users' ? 'bg-slate-700 text-white' : ''}`}
+              title={isCollapsed ? "User Management with Audit Logs" : undefined}
+            >
+              <Users className={`h-4 w-4 ${isCollapsed ? '' : 'mr-2'}`} />
+              {!isCollapsed && 'User Management'}
+            </Button>
+          </Link>
+          
+          <Link href="/roles">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`w-full ${isCollapsed ? 'justify-center px-2' : 'justify-start'} text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50 ${location === '/roles' ? 'bg-slate-700 text-white' : ''}`}
+              title={isCollapsed ? "Role Management with Audit Logs" : undefined}
+            >
+              <Shield className={`h-4 w-4 ${isCollapsed ? '' : 'mr-2'}`} />
+              {!isCollapsed && 'Role Management'}
+            </Button>
+          </Link>
+          
+          <Link href="/masters">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`w-full ${isCollapsed ? 'justify-center px-2' : 'justify-start'} text-xs transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50 ${location === '/masters' ? 'bg-slate-700 text-white' : ''}`}
+              title={isCollapsed ? "Master Tables" : undefined}
+            >
+              <Database className={`h-4 w-4 ${isCollapsed ? '' : 'mr-2'}`} />
+              {!isCollapsed && 'Master Tables'}
+            </Button>
+          </Link>
+        </div>
+      </nav>
 
     </div>
   );
