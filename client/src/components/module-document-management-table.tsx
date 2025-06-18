@@ -110,6 +110,16 @@ export function ModuleDocumentManagementTable() {
     }
   };
 
+  const handleEdit = (moduleDocument: any) => {
+    setSelectedModuleDocument(moduleDocument);
+    setEditModuleDocumentOpen(true);
+  };
+
+  const handleView = (moduleDocument: any) => {
+    setSelectedModuleDocument(moduleDocument);
+    setViewModuleDocumentOpen(true);
+  };
+
   if (isLoading) {
     return <div className="text-center py-8">Loading module-document mappings...</div>;
   }
@@ -175,6 +185,7 @@ export function ModuleDocumentManagementTable() {
                               variant="ghost" 
                               size="sm" 
                               className="text-accent hover:text-blue-600"
+                              onClick={() => handleEdit(md)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -182,6 +193,7 @@ export function ModuleDocumentManagementTable() {
                               variant="ghost" 
                               size="sm" 
                               className="text-slate-400 hover:text-slate-600"
+                              onClick={() => handleView(md)}
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
