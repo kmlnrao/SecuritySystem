@@ -1122,6 +1122,11 @@ export function registerRoutes(app: Express): Server {
           const allDocumentPermissions = await storage.getAllPermissions();
           const documentHasPermissions = allDocumentPermissions.some(p => p.documentId === document.id);
           
+          console.log(`DEBUG: Processing document "${document.name}" (${document.id})`);
+          console.log(`DEBUG: - documentHasPermissions: ${documentHasPermissions}`);
+          console.log(`DEBUG: - isSuperAdmin: ${isSuperAdmin}`);
+          console.log(`DEBUG: - permissions for this doc:`, allDocumentPermissions.filter(p => p.documentId === document.id).length);
+          
 
           
           if (isSuperAdmin) {
