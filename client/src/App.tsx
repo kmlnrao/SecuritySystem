@@ -26,6 +26,8 @@ import MedicineInventoryPage from "@/pages/medicine-inventory-page";
 import SystemSettingsPage from "@/pages/system-settings-page";
 import TestDocumentPage from "@/pages/test-document-page";
 import MasterTablesPage from "@/pages/master-tables-page";
+import UsersPage from "@/pages/users-page";
+import RolesPage from "@/pages/roles-page";
 
 function Router() {
   return (
@@ -62,6 +64,10 @@ function Router() {
       {/* Master Tables Routes */}
       <ProtectedRoute path="/masters" component={MasterTablesPage} />
       <ProtectedRoute path="/masters/tables" component={MasterTablesPage} />
+      
+      {/* User Management Routes */}
+      <ProtectedRoute path="/users" component={UsersPage} />
+      <ProtectedRoute path="/roles" component={RolesPage} />
       
       {/* Auth Route */}
       <Route path="/auth" component={AuthPage} />
