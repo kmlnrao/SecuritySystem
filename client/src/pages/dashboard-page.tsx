@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/sidebar";
 import { DashboardStats } from "@/components/dashboard-stats";
 import { RoleBasedDashboard } from "@/components/role-based-dashboard";
 import { UserManagementTable } from "@/components/user-management-table";
+import { RoleManagementTable } from "@/components/role-management-table";
 import { PermissionManagementTable } from "@/components/permission-management-table";
 import { AddUserDialog, EditUserDialog, ViewUserDialog } from "@/components/user-dialogs";
 import { AddRoleDialog, EditRoleDialog, ViewRoleDialog } from "@/components/role-dialogs";
@@ -392,64 +393,7 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            <Card>
-              <CardContent className="pt-6">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Role Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {roles.map((role: any) => (
-                      <TableRow key={role.id}>
-                        <TableCell className="font-medium">{role.name}</TableCell>
-                        <TableCell>{role.description || 'No description'}</TableCell>
-                        <TableCell>
-                          <Badge variant={role.isActive ? "default" : "secondary"}>
-                            {role.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{new Date(role.createdAt).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-accent hover:text-blue-600"
-                              onClick={() => handleEditRole(role)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-slate-400 hover:text-slate-600"
-                              onClick={() => handleViewRole(role)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-red-400 hover:text-red-600"
-                              onClick={() => handleDeleteRole(role.id)}
-                              disabled={deleteRoleMutation.isPending}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <RoleManagementTable />
           </div>
         );
 
