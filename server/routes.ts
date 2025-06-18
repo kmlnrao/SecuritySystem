@@ -1127,7 +1127,8 @@ export function registerRoutes(app: Express): Server {
             const userPermission = userPermissions.find(p => p.documentId === document.id);
             
             if (userPermission) {
-              hasPermission = userPermission.canQuery;
+              // User has permission if they have ANY permission (not just canQuery)
+              hasPermission = userPermission.canAdd || userPermission.canModify || userPermission.canDelete || userPermission.canQuery;
               permissions = {
                 canAdd: userPermission.canAdd,
                 canModify: userPermission.canModify,
@@ -1141,14 +1142,18 @@ export function registerRoutes(app: Express): Server {
               const rolePermissions = await storage.getRolePermissions(role.id);
               const rolePermission = rolePermissions.find(p => p.documentId === document.id);
               
-              if (rolePermission && rolePermission.canQuery) {
-                hasPermission = true;
-                permissions = {
-                  canAdd: permissions.canAdd || rolePermission.canAdd,
-                  canModify: permissions.canModify || rolePermission.canModify,
-                  canDelete: permissions.canDelete || rolePermission.canDelete,
-                  canQuery: permissions.canQuery || rolePermission.canQuery
-                };
+              if (rolePermission) {
+                // Check if role has ANY permission
+                const roleHasAnyPermission = rolePermission.canAdd || rolePermission.canModify || rolePermission.canDelete || rolePermission.canQuery;
+                if (roleHasAnyPermission) {
+                  hasPermission = true;
+                  permissions = {
+                    canAdd: permissions.canAdd || rolePermission.canAdd,
+                    canModify: permissions.canModify || rolePermission.canModify,
+                    canDelete: permissions.canDelete || rolePermission.canDelete,
+                    canQuery: permissions.canQuery || rolePermission.canQuery
+                  };
+                }
               }
             }
           }

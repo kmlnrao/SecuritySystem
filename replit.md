@@ -148,11 +148,11 @@ The system includes an optional microservices setup:
 
 ## Recent Changes
 - **Sidebar Navigation Permission Filtering Fixed** (June 18, 2025): Resolved critical navigation filtering to properly respect user/role permissions:
-  - **Permission-Based Filtering**: Navigation now correctly shows only documents where users have "canQuery" permission
+  - **Any Permission Logic**: Navigation shows documents where users have at least one permission (canAdd, canModify, canDelete, OR canQuery)
   - **Cache Invalidation**: Added navigation cache invalidation to all permission create/update/delete operations
   - **Super Admin Behavior**: Super Admins continue to see all mapped documents (intended system behavior)
   - **Real-Time Updates**: Permission changes immediately update sidebar navigation without requiring page refresh
-  - **Module-Document Integration**: Documents only appear in navigation when both mapped to modules AND user has permissions
+  - **Module-Document Integration**: Documents only appear in navigation when both mapped to modules AND user has any permission
 
 - **Audit Logs Integrated into All Management Screens** (June 18, 2025): Successfully integrated comprehensive audit logging directly into the existing database-driven navigation system:
   - **User Management**: Added audit logs tab within existing User Management component showing complete user operation history
