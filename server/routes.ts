@@ -1096,8 +1096,6 @@ export function registerRoutes(app: Express): Server {
       const userRoles = await storage.getUserRoles(userId);
       const isSuperAdmin = userRoles.some(role => role.name === 'Super Admin');
       
-      console.log(`Navigation request - User: ${user.username}, Roles: ${userRoles.map(r => r.name).join(', ')}, Is Super Admin: ${isSuperAdmin}`);
-      
       // Get all modules ordered by display_order
       const modules = await storage.getAllModules();
       
@@ -1123,7 +1121,6 @@ export function registerRoutes(app: Express): Server {
           if (isSuperAdmin) {
             hasPermission = true;
             permissions = { canAdd: true, canModify: true, canDelete: true, canQuery: true };
-            console.log(`  Document ${document.name}: SUPER ADMIN - showing all documents`);
           } else {
             // Check user permissions
             const userPermissions = await storage.getUserPermissions(userId);
@@ -1137,7 +1134,6 @@ export function registerRoutes(app: Express): Server {
                 canDelete: userPermission.canDelete,
                 canQuery: userPermission.canQuery
               };
-              console.log(`  Document ${document.name}: USER PERMISSION - canQuery: ${userPermission.canQuery}`);
             }
             
             // Also check role permissions (even if user has direct permissions)
@@ -1153,12 +1149,7 @@ export function registerRoutes(app: Express): Server {
                   canDelete: permissions.canDelete || rolePermission.canDelete,
                   canQuery: permissions.canQuery || rolePermission.canQuery
                 };
-                console.log(`  Document ${document.name}: ROLE PERMISSION (${role.name}) - canQuery: ${rolePermission.canQuery}`);
               }
-            }
-            
-            if (!hasPermission) {
-              console.log(`  Document ${document.name}: NO PERMISSION - hiding from navigation`);
             }
           }
           
