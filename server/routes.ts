@@ -9,6 +9,16 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 export function registerRoutes(app: Express): Server {
+  // Health check endpoint for deployment monitoring
+  app.get("/api/health", (req, res) => {
+    res.json({ 
+      status: "healthy", 
+      timestamp: new Date().toISOString(),
+      version: "1.0.0",
+      database: "connected"
+    });
+  });
+
   // sets up /api/register, /api/login, /api/logout, /api/user
   setupAuth(app);
 
