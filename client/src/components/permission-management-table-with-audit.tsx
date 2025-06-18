@@ -13,13 +13,16 @@ import { ViewPermissionDialog } from "./permission-dialogs";
 
 interface Permission {
   id: string;
-  entityType: string;
-  entityId: string;
+  userId?: string;
+  roleId?: string;
   documentId: string;
   canAdd: boolean;
   canModify: boolean;
   canDelete: boolean;
   canQuery: boolean;
+  userName?: string;
+  roleName?: string;
+  documentName: string;
   createdAt: string;
 }
 
@@ -86,8 +89,9 @@ export function PermissionManagementTableWithAudit() {
   });
 
   const filteredPermissions = permissions.filter((permission: Permission) => {
-    const matchesSearch = permission.entityType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         permission.entityId?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = permission.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         permission.roleName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         permission.documentName?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesSearch;
   });
 
@@ -154,8 +158,7 @@ export function PermissionManagementTableWithAudit() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50">
-                    <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">Entity Type</TableHead>
-                    <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">Entity ID</TableHead>
+                    <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">User/Role</TableHead>
                     <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">Document</TableHead>
                     <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">Permissions</TableHead>
                     <TableHead className="text-xs font-medium text-slate-500 uppercase tracking-wider">Created</TableHead>
@@ -165,16 +168,17 @@ export function PermissionManagementTableWithAudit() {
                 <TableBody>
                   {filteredPermissions.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                      <TableCell colSpan={5} className="text-center py-8 text-slate-500">
                         {permissions.length === 0 ? "No permissions found" : `No permissions match your search. Total permissions: ${permissions.length}`}
                       </TableCell>
                     </TableRow>
                   ) : (
                     filteredPermissions.map((permission: any) => (
                       <TableRow key={permission.id} className="hover:bg-slate-50">
-                        <TableCell className="font-medium">{permission.entityType}</TableCell>
-                        <TableCell className="text-sm text-slate-500">{permission.entityId}</TableCell>
-                        <TableCell className="text-sm text-slate-500">{permission.documentId}</TableCell>
+                        <TableCell className="font-medium">
+                          {permission.userName ? `User: ${permission.userName}` : `Role: ${permission.roleName}`}
+                        </TableCell>
+                        <TableCell className="text-sm text-slate-500">{permission.documentName}</TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {permission.canAdd && <Badge variant="outline" className="text-xs">Add</Badge>}
