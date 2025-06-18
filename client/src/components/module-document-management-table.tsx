@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Edit, Eye, Trash2, Search, Plus, History, Link } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
@@ -22,6 +24,9 @@ export function ModuleDocumentManagementTable() {
   const [selectedModuleDocument, setSelectedModuleDocument] = useState<ModuleDocument | null>(null);
   const [editModuleDocumentOpen, setEditModuleDocumentOpen] = useState(false);
   const [viewModuleDocumentOpen, setViewModuleDocumentOpen] = useState(false);
+  const [addModuleDocumentOpen, setAddModuleDocumentOpen] = useState(false);
+  const [selectedModuleId, setSelectedModuleId] = useState("");
+  const [selectedDocumentId, setSelectedDocumentId] = useState("");
   const { toast } = useToast();
 
   const { data: moduleDocuments = [], isLoading } = useQuery({ 
@@ -56,6 +61,42 @@ export function ModuleDocumentManagementTable() {
     queryKey: ["documents"]
   });
 
+  const createMutation = useMutation({
+    mutationFn: async ({ moduleId, documentId }: { moduleId: string, documentId: string }) => {
+      const response = await fetch('/api/module-documents', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ moduleId, documentId }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create module-document mapping');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["module-documents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/audit-logs"] });
+      toast({
+        title: "Success",
+        description: "Module-document mapping created successfully",
+      });
+      setAddModuleDocumentOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async ({ moduleId, documentId }: { moduleId: string, documentId: string }) => {
       const response = await fetch(`/api/module-documents/${moduleId}/${documentId}`, {
@@ -73,6 +114,7 @@ export function ModuleDocumentManagementTable() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["module-documents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/audit-logs"] });
       toast({
         title: "Success",
         description: "Module-document mapping removed successfully",
@@ -120,6 +162,22 @@ export function ModuleDocumentManagementTable() {
     setViewModuleDocumentOpen(true);
   };
 
+  const handleAddMapping = () => {
+    if (!selectedModuleId || !selectedDocumentId) {
+      toast({
+        title: "Error",
+        description: "Please select both module and document",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createMutation.mutate({ 
+      moduleId: selectedModuleId, 
+      documentId: selectedDocumentId 
+    });
+  };
+
   if (isLoading) {
     return <div className="text-center py-8">Loading module-document mappings...</div>;
   }
@@ -151,6 +209,13 @@ export function ModuleDocumentManagementTable() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
+                <Button 
+                  className="bg-accent hover:bg-blue-600 text-white"
+                  onClick={() => setAddModuleDocumentOpen(true)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Map Module-Document
+                </Button>
               </div>
             </div>
 
@@ -241,6 +306,69 @@ export function ModuleDocumentManagementTable() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Add Module-Document Mapping Dialog */}
+      <Dialog open={addModuleDocumentOpen} onOpenChange={setAddModuleDocumentOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Map Module to Document</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Select Module</label>
+              <Select value={selectedModuleId} onValueChange={setSelectedModuleId}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Choose a module" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(modules as any[]).map((module: any) => (
+                    <SelectItem key={module.id} value={module.id}>
+                      {module.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Select Document</label>
+              <Select value={selectedDocumentId} onValueChange={setSelectedDocumentId}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Choose a document" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(documents as any[]).map((document: any) => (
+                    <SelectItem key={document.id} value={document.id}>
+                      {document.name} ({document.path})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setAddModuleDocumentOpen(false);
+                setSelectedModuleId("");
+                setSelectedDocumentId("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleAddMapping}
+              disabled={createMutation.isPending}
+            >
+              {createMutation.isPending ? "Creating..." : "Create Mapping"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
