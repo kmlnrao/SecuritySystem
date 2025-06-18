@@ -1275,12 +1275,46 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/master-tables/:tableId/records", async (req, res) => {
     try {
       const { tableId } = req.params;
+      
+      // Get audit information
+      const auditInfo = {
+        userId: (req.user as any)?.id || 'system',
+        username: (req.user as any)?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent') || undefined
+      };
+
+      // Get table config for audit context
+      const tableConfig = await storage.getMasterTableConfig(tableId);
+      const tableName = tableConfig?.tableName || 'unknown_table';
+      
       const record = await storage.createMasterDataRecord({
         tableId,
         recordData: JSON.stringify(req.body),
       });
+
+      // Create audit log for master data record creation
+      await storage.createAuditLog({
+        tableName: `master_data_${tableName}`,
+        recordId: record.id,
+        operation: 'CREATE',
+        operationType: 'MASTER_DATA_RECORD',
+        oldValues: null,
+        newValues: JSON.stringify({
+          id: record.id,
+          tableId: record.tableId,
+          recordData: req.body,
+          tableName: tableName
+        }),
+        userId: auditInfo.userId,
+        username: auditInfo.username,
+        ipAddress: auditInfo.ipAddress,
+        userAgent: auditInfo.userAgent
+      });
+
       res.status(201).json(record);
     } catch (error) {
+      console.error('Error creating master data record:', error);
       res.status(500).json({ message: "Failed to create master data record" });
     }
   });
@@ -1301,14 +1335,60 @@ export function registerRoutes(app: Express): Server {
   app.put("/api/master-data-records/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      
+      // Get audit information
+      const auditInfo = {
+        userId: (req.user as any)?.id || 'system',
+        username: (req.user as any)?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent') || undefined
+      };
+
+      // Get old record for audit trail
+      const oldRecord = await storage.getMasterDataRecord(id);
+      if (!oldRecord) {
+        return res.status(404).json({ message: "Master data record not found" });
+      }
+
+      // Get table config for audit context
+      const tableConfig = await storage.getMasterTableConfig(oldRecord.tableId);
+      const tableName = tableConfig?.tableName || 'unknown_table';
+      
       const record = await storage.updateMasterDataRecord(id, {
         recordData: JSON.stringify(req.body),
       });
+
       if (!record) {
         return res.status(404).json({ message: "Master data record not found" });
       }
+
+      // Create audit log for master data record update
+      await storage.createAuditLog({
+        tableName: `master_data_${tableName}`,
+        recordId: record.id,
+        operation: 'UPDATE',
+        operationType: 'MASTER_DATA_RECORD',
+        oldValues: JSON.stringify({
+          id: oldRecord.id,
+          tableId: oldRecord.tableId,
+          recordData: JSON.parse(oldRecord.recordData),
+          tableName: tableName
+        }),
+        newValues: JSON.stringify({
+          id: record.id,
+          tableId: record.tableId,
+          recordData: req.body,
+          tableName: tableName
+        }),
+        userId: auditInfo.userId,
+        username: auditInfo.username,
+        ipAddress: auditInfo.ipAddress,
+        userAgent: auditInfo.userAgent
+      });
+
       res.json(record);
     } catch (error) {
+      console.error('Error updating master data record:', error);
       res.status(500).json({ message: "Failed to update master data record" });
     }
   });
@@ -1316,12 +1396,52 @@ export function registerRoutes(app: Express): Server {
   app.delete("/api/master-data-records/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      
+      // Get audit information
+      const auditInfo = {
+        userId: (req.user as any)?.id || 'system',
+        username: (req.user as any)?.username || 'system',
+        ipAddress: req.ip || req.connection.remoteAddress || 'unknown',
+        userAgent: req.get('User-Agent') || undefined
+      };
+
+      // Get old record for audit trail before deletion
+      const oldRecord = await storage.getMasterDataRecord(id);
+      if (!oldRecord) {
+        return res.status(404).json({ message: "Master data record not found" });
+      }
+
+      // Get table config for audit context
+      const tableConfig = await storage.getMasterTableConfig(oldRecord.tableId);
+      const tableName = tableConfig?.tableName || 'unknown_table';
+      
       const deleted = await storage.deleteMasterDataRecord(id);
       if (!deleted) {
         return res.status(404).json({ message: "Master data record not found" });
       }
+
+      // Create audit log for master data record deletion
+      await storage.createAuditLog({
+        tableName: `master_data_${tableName}`,
+        recordId: id,
+        operation: 'DELETE',
+        operationType: 'MASTER_DATA_RECORD',
+        oldValues: JSON.stringify({
+          id: oldRecord.id,
+          tableId: oldRecord.tableId,
+          recordData: JSON.parse(oldRecord.recordData),
+          tableName: tableName
+        }),
+        newValues: null,
+        userId: auditInfo.userId,
+        username: auditInfo.username,
+        ipAddress: auditInfo.ipAddress,
+        userAgent: auditInfo.userAgent
+      });
+
       res.status(204).end();
     } catch (error) {
+      console.error('Error deleting master data record:', error);
       res.status(500).json({ message: "Failed to delete master data record" });
     }
   });
@@ -1340,13 +1460,42 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.get("/api/master-tables/:id/audit-logs", async (req, res) => {
+  // Get audit logs for specific master table data
+  app.get("/api/master-tables/:tableId/audit-logs", async (req, res) => {
+    try {
+      const { tableId } = req.params;
+      
+      // Get table config to determine table name
+      const tableConfig = await storage.getMasterTableConfig(tableId);
+      if (!tableConfig) {
+        return res.status(404).json({ message: "Master table configuration not found" });
+      }
+      
+      const tableName = `master_data_${tableConfig.tableName}`;
+      const logs = await storage.getAuditLogs(tableName);
+      
+      // Enhance logs with table display name for better readability
+      const enhancedLogs = logs.map(log => ({
+        ...log,
+        tableDisplayName: tableConfig.displayName,
+        masterTableName: tableConfig.tableName
+      }));
+      
+      res.json(enhancedLogs);
+    } catch (error) {
+      console.error('Error fetching master table audit logs:', error);
+      res.status(500).json({ message: "Failed to fetch master table audit logs" });
+    }
+  });
+
+  // Get audit logs for master table configuration changes
+  app.get("/api/master-tables/:id/config-audit-logs", async (req, res) => {
     try {
       const { id } = req.params;
       const logs = await storage.getAuditLogs("master_table_configs", id);
       res.json(logs);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch master table audit logs" });
+      res.status(500).json({ message: "Failed to fetch master table configuration audit logs" });
     }
   });
 
