@@ -11,6 +11,7 @@ import { queryClient } from "@/lib/queryClient";
 import { AuditLogViewer } from "./audit-log-viewer";
 import { EditRoleDialog, ViewRoleDialog } from "./role-dialogs";
 
+
 interface Role {
   id: string;
   name: string;
@@ -26,28 +27,8 @@ export function RoleManagementTable() {
   const [viewRoleOpen, setViewRoleOpen] = useState(false);
   const { toast } = useToast();
 
-  const { data: roles = [], isLoading } = useQuery({ 
-    queryKey: ["roles"],
-    queryFn: async () => {
-      try {
-        const response = await fetch('/api/roles', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Roles fetch failed: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error('Roles fetch error:', error);
-        return [];
-      }
-    }
+  const { data: roles = [], isLoading } = useQuery<Role[]>({ 
+    queryKey: ["roles"]
   });
 
   const deleteMutation = useMutation({

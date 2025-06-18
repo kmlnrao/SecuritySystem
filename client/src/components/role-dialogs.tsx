@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -32,11 +32,22 @@ interface ViewRoleDialogProps {
 
 export function EditRoleDialog({ role, open, onOpenChange }: EditRoleDialogProps) {
   const [formData, setFormData] = useState({
-    name: role?.name || "",
-    description: role?.description || "",
-    isActive: role?.isActive || true
+    name: "",
+    description: "",
+    isActive: true
   });
   const { toast } = useToast();
+
+  // Update form data when role changes
+  React.useEffect(() => {
+    if (role) {
+      setFormData({
+        name: role.name || "",
+        description: role.description || "",
+        isActive: role.isActive
+      });
+    }
+  }, [role]);
 
   const updateMutation = useMutation({
     mutationFn: async (data: any) => {
