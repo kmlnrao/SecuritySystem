@@ -19,30 +19,13 @@ interface ModuleDocument {
 
 export function ModuleDocumentManagementTable() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedModuleDocument, setSelectedModuleDocument] = useState<ModuleDocument | null>(null);
+  const [editModuleDocumentOpen, setEditModuleDocumentOpen] = useState(false);
+  const [viewModuleDocumentOpen, setViewModuleDocumentOpen] = useState(false);
   const { toast } = useToast();
 
-  const { data: moduleDocuments = [], isLoading } = useQuery({ 
-    queryKey: ["module-documents"],
-    queryFn: async () => {
-      try {
-        const response = await fetch('/api/module-documents', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Module-Documents fetch failed: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error('Module-Documents fetch error:', error);
-        return [];
-      }
-    }
+  const { data: moduleDocuments = [], isLoading } = useQuery<ModuleDocument[]>({ 
+    queryKey: ["module-documents"]
   });
 
   const { data: modules = [] } = useQuery({ 

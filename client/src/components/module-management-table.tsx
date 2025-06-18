@@ -73,6 +73,16 @@ export function ModuleManagementTable() {
     }
   };
 
+  const handleEdit = (module: Module) => {
+    setSelectedModule(module);
+    setEditModuleOpen(true);
+  };
+
+  const handleView = (module: Module) => {
+    setSelectedModule(module);
+    setViewModuleOpen(true);
+  };
+
   if (isLoading) {
     return <div className="text-center py-8">Loading modules...</div>;
   }
@@ -150,6 +160,7 @@ export function ModuleManagementTable() {
                               variant="ghost" 
                               size="sm" 
                               className="text-accent hover:text-blue-600"
+                              onClick={() => handleEdit(module)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -157,6 +168,7 @@ export function ModuleManagementTable() {
                               variant="ghost" 
                               size="sm" 
                               className="text-slate-400 hover:text-slate-600"
+                              onClick={() => handleView(module)}
                             >
                               <Eye className="h-4 w-4" />
                             </Button>

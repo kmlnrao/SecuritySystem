@@ -1,163 +1,21 @@
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { z } from "zod";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { queryClient } from "@/lib/queryClient";
-
-const createRoleSchema = z.object({
-  name: z.string().min(2, "Role name must be at least 2 characters"),
-  description: z.string().min(5, "Description must be at least 5 characters"),
-});
-
-const editRoleSchema = z.object({
-  name: z.string().min(2, "Role name must be at least 2 characters"),
-  description: z.string().min(5, "Description must be at least 5 characters"),
-});
-
-type CreateRoleData = z.infer<typeof createRoleSchema>;
-type EditRoleData = z.infer<typeof editRoleSchema>;
+import { queryClient, apiRequest } from "@/lib/queryClient";
 
 interface Role {
   id: string;
   name: string;
   description: string;
+  isActive: boolean;
   createdAt: string;
-}
-
-interface AddRoleDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export function AddRoleDialog({ open, onOpenChange }: AddRoleDialogProps) {
-  const { toast } = useToast();
-  const form = useForm<CreateRoleData>({
-    resolver: zodResolver(createRoleSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-    },
-  });
-
-  const createMutation = useMutation({
-    mutationFn: async (roleData: CreateRoleData) => {
-      const response = await fetch('/api/roles', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(roleData),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to create role');
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["roles"] });
-      toast({
-        title: "Success",
-        description: "Role created successfully",
-      });
-      form.reset();
-      onOpenChange(false);
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const onSubmit = (data: CreateRoleData) => {
-    createMutation.mutate(data);
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Add New Role</DialogTitle>
-          <DialogDescription>
-            Create a new role for the hospital system.
-          </DialogDescription>
-        </DialogHeader>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Role Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter role name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Enter role description" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={createMutation.isPending}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? "Creating..." : "Create Role"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  );
 }
 
 interface EditRoleDialogProps {
@@ -166,140 +24,193 @@ interface EditRoleDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function EditRoleDialog({ role, open, onOpenChange }: EditRoleDialogProps) {
-  const { toast } = useToast();
-  const form = useForm<EditRoleData>({
-    resolver: zodResolver(editRoleSchema),
-    defaultValues: {
-      name: role?.name || "",
-      description: role?.description || "",
-    },
-  });
+interface ViewRoleDialogProps {
+  role: Role | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 
-  useEffect(() => {
-    if (role) {
-      form.reset({
-        name: role.name || "",
-        description: role.description || "",
-      });
-    }
-  }, [role, form]);
+export function EditRoleDialog({ role, open, onOpenChange }: EditRoleDialogProps) {
+  const [formData, setFormData] = useState({
+    name: role?.name || "",
+    description: role?.description || "",
+    isActive: role?.isActive || true
+  });
+  const { toast } = useToast();
 
   const updateMutation = useMutation({
-    mutationFn: async (roleData: EditRoleData) => {
-      if (!role) throw new Error("No role selected");
-      
-      const response = await fetch(`/api/roles/${role.id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(roleData),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to update role');
-      }
-
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("PUT", `/api/roles/${role?.id}`, data);
       return response.json();
     },
-    onSuccess: (updatedRole) => {
-      // Update the cache directly with the new data
-      queryClient.setQueryData(["roles"], (oldData: any) => {
-        if (!oldData) return [updatedRole];
-        return oldData.map((role: any) => 
-          role.id === updatedRole.id ? updatedRole : role
-        );
-      });
-      // Also invalidate to ensure fresh data
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["roles"] });
       toast({
-        title: "Success",
-        description: "Role updated successfully",
+        title: "Role updated",
+        description: "Role has been updated successfully."
       });
       onOpenChange(false);
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
+        title: "Update failed",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
-    },
+    }
   });
 
-  const onSubmit = (data: EditRoleData) => {
-    updateMutation.mutate(data);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateMutation.mutate(formData);
   };
 
-  if (!role) return null;
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Role</DialogTitle>
-          <DialogDescription>
-            Update role information.
-          </DialogDescription>
         </DialogHeader>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Role Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter role name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Role Name</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+              placeholder="Enter role name"
+              required
             />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Enter role description" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              placeholder="Enter role description"
+              rows={3}
             />
+          </div>
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={updateMutation.isPending}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={updateMutation.isPending}>
-                {updateMutation.isPending ? "Updating..." : "Update Role"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="isActive"
+              checked={formData.isActive}
+              onCheckedChange={(checked) => handleInputChange("isActive", checked)}
+            />
+            <Label htmlFor="isActive">Active Role</Label>
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={updateMutation.isPending}>
+              {updateMutation.isPending ? "Updating..." : "Update Role"}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
 }
 
-interface ViewRoleDialogProps {
-  role: Role | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+export function AddRoleDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    isActive: true
+  });
+  const { toast } = useToast();
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("POST", "/api/roles", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
+      toast({
+        title: "Role created",
+        description: "Role has been created successfully."
+      });
+      onOpenChange(false);
+      setFormData({ name: "", description: "", isActive: true });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Creation failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createMutation.mutate(formData);
+  };
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Add New Role</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Role Name</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+              placeholder="Enter role name"
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              placeholder="Enter role description"
+              rows={3}
+            />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="isActive"
+              checked={formData.isActive}
+              onCheckedChange={(checked) => handleInputChange("isActive", checked)}
+            />
+            <Label htmlFor="isActive">Active Role</Label>
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={createMutation.isPending}>
+              {createMutation.isPending ? "Creating..." : "Create Role"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 export function ViewRoleDialog({ role, open, onOpenChange }: ViewRoleDialogProps) {
@@ -307,39 +218,57 @@ export function ViewRoleDialog({ role, open, onOpenChange }: ViewRoleDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Role Details</DialogTitle>
-          <DialogDescription>
-            View role information.
-          </DialogDescription>
         </DialogHeader>
-
         <div className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-gray-500">Role Name</label>
-            <p className="text-sm font-semibold">{role.name}</p>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-slate-700">Role Name</Label>
+            <div className="p-2 bg-slate-50 rounded border text-sm">
+              {role.name}
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-slate-700">Description</Label>
+            <div className="p-2 bg-slate-50 rounded border text-sm min-h-[60px]">
+              {role.description || 'No description provided'}
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-500">Description</label>
-            <p className="text-sm">{role.description}</p>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-slate-700">Status</Label>
+            <div>
+              <Badge 
+                variant={role.isActive ? "default" : "secondary"}
+                className={role.isActive ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}
+              >
+                <div className={`w-2 h-2 rounded-full mr-1 ${role.isActive ? "bg-green-500" : "bg-yellow-500"}`} />
+                {role.isActive ? "Active" : "Inactive"}
+              </Badge>
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-500">Created</label>
-            <p className="text-sm">{new Date(role.createdAt).toLocaleDateString()}</p>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-slate-700">Created Date</Label>
+            <div className="p-2 bg-slate-50 rounded border text-sm">
+              {new Date(role.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-500">Role ID</label>
-            <p className="text-sm font-mono text-xs bg-gray-100 p-2 rounded">{role.id}</p>
+          <div className="flex justify-end pt-4">
+            <Button onClick={() => onOpenChange(false)}>
+              Close
+            </Button>
           </div>
         </div>
-
-        <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>Close</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

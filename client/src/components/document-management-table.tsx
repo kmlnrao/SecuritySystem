@@ -73,6 +73,16 @@ export function DocumentManagementTable() {
     }
   };
 
+  const handleEdit = (document: Document) => {
+    setSelectedDocument(document);
+    setEditDocumentOpen(true);
+  };
+
+  const handleView = (document: Document) => {
+    setSelectedDocument(document);
+    setViewDocumentOpen(true);
+  };
+
   if (isLoading) {
     return <div className="text-center py-8">Loading documents...</div>;
   }
@@ -150,6 +160,7 @@ export function DocumentManagementTable() {
                               variant="ghost" 
                               size="sm" 
                               className="text-accent hover:text-blue-600"
+                              onClick={() => handleEdit(document)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -157,6 +168,7 @@ export function DocumentManagementTable() {
                               variant="ghost" 
                               size="sm" 
                               className="text-slate-400 hover:text-slate-600"
+                              onClick={() => handleView(document)}
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
