@@ -1118,9 +1118,19 @@ export function registerRoutes(app: Express): Server {
           let hasPermission = false;
           let permissions = { canAdd: false, canModify: false, canDelete: false, canQuery: false };
           
+          // Check if document has any permissions assigned (to any user or role)
+          const allDocumentPermissions = await storage.getAllPermissions();
+          const documentHasPermissions = allDocumentPermissions.some(p => p.documentId === document.id);
+          
           if (isSuperAdmin) {
-            hasPermission = true;
-            permissions = { canAdd: true, canModify: true, canDelete: true, canQuery: true };
+            if (documentHasPermissions) {
+              // Super Admin sees documents only if they have permissions assigned to someone
+              hasPermission = true;
+              permissions = { canAdd: true, canModify: true, canDelete: true, canQuery: true };
+            } else {
+              // Document has no permissions - hide from Super Admin too
+              hasPermission = false;
+            }
           } else {
             // Check user permissions
             const userPermissions = await storage.getUserPermissions(userId);
