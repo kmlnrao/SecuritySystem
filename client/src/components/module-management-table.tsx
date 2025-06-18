@@ -9,6 +9,7 @@ import { Edit, Eye, Trash2, Search, Plus, History, Puzzle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { AuditLogViewer } from "./audit-log-viewer";
+import { EditModuleDialog, ViewModuleDialog } from "./module-dialogs";
 
 interface Module {
   id: string;
@@ -216,6 +217,18 @@ export function ModuleManagementTable() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Module Management Dialogs */}
+      <EditModuleDialog 
+        module={selectedModule} 
+        open={editModuleOpen} 
+        onOpenChange={setEditModuleOpen} 
+      />
+      <ViewModuleDialog 
+        module={selectedModule} 
+        open={viewModuleOpen} 
+        onOpenChange={setViewModuleOpen} 
+      />
     </div>
   );
 }

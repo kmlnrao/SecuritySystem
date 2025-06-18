@@ -9,6 +9,7 @@ import { Edit, Eye, Trash2, Search, Plus, History, FileText } from "lucide-react
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { AuditLogViewer } from "./audit-log-viewer";
+import { EditDocumentDialog, ViewDocumentDialog } from "./document-dialogs";
 
 interface Document {
   id: string;
@@ -216,6 +217,18 @@ export function DocumentManagementTable() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Document Management Dialogs */}
+      <EditDocumentDialog 
+        document={selectedDocument} 
+        open={editDocumentOpen} 
+        onOpenChange={setEditDocumentOpen} 
+      />
+      <ViewDocumentDialog 
+        document={selectedDocument} 
+        open={viewDocumentOpen} 
+        onOpenChange={setViewDocumentOpen} 
+      />
     </div>
   );
 }

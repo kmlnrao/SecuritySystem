@@ -9,6 +9,7 @@ import { Edit, Eye, Trash2, Search, Plus, History, Settings } from "lucide-react
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { AuditLogViewer } from "./audit-log-viewer";
+import { ViewPermissionDialog } from "./permission-dialogs";
 
 interface Permission {
   id: string;
@@ -227,6 +228,13 @@ export function PermissionManagementTableWithAudit() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Permission Management Dialogs */}
+      <ViewPermissionDialog 
+        permission={selectedPermission} 
+        open={viewPermissionOpen} 
+        onOpenChange={setViewPermissionOpen} 
+      />
     </div>
   );
 }
