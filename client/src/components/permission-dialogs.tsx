@@ -90,6 +90,8 @@ export function AddPermissionDialog({ open, onOpenChange }: AddPermissionDialogP
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/permissions"] });
+      queryClient.invalidateQueries({ queryKey: ["navigation"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/audit-logs"] });
       toast({ title: "Permission created successfully" });
       onOpenChange(false);
       form.reset();
@@ -375,6 +377,8 @@ export function EditPermissionDialog({ permission, open, onOpenChange }: EditPer
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/permissions"] });
+      queryClient.invalidateQueries({ queryKey: ["navigation"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/audit-logs"] });
       toast({ title: "Permission updated successfully" });
       onOpenChange(false);
     },

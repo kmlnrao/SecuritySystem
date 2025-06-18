@@ -1134,22 +1134,21 @@ export function registerRoutes(app: Express): Server {
                 canDelete: userPermission.canDelete,
                 canQuery: userPermission.canQuery
               };
-            } else {
-              // Check role permissions
-              for (const role of userRoles) {
-                const rolePermissions = await storage.getRolePermissions(role.id);
-                const rolePermission = rolePermissions.find(p => p.documentId === document.id);
-                
-                if (rolePermission && rolePermission.canQuery) {
-                  hasPermission = true;
-                  permissions = {
-                    canAdd: permissions.canAdd || rolePermission.canAdd,
-                    canModify: permissions.canModify || rolePermission.canModify,
-                    canDelete: permissions.canDelete || rolePermission.canDelete,
-                    canQuery: permissions.canQuery || rolePermission.canQuery
-                  };
-                  break;
-                }
+            }
+            
+            // Also check role permissions (even if user has direct permissions)
+            for (const role of userRoles) {
+              const rolePermissions = await storage.getRolePermissions(role.id);
+              const rolePermission = rolePermissions.find(p => p.documentId === document.id);
+              
+              if (rolePermission && rolePermission.canQuery) {
+                hasPermission = true;
+                permissions = {
+                  canAdd: permissions.canAdd || rolePermission.canAdd,
+                  canModify: permissions.canModify || rolePermission.canModify,
+                  canDelete: permissions.canDelete || rolePermission.canDelete,
+                  canQuery: permissions.canQuery || rolePermission.canQuery
+                };
               }
             }
           }

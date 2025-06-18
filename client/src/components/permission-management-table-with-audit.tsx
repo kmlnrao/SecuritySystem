@@ -74,6 +74,8 @@ export function PermissionManagementTableWithAudit() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["permissions"] });
+      queryClient.invalidateQueries({ queryKey: ["navigation"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/audit-logs"] });
       toast({
         title: "Success",
         description: "Permission deleted successfully",
