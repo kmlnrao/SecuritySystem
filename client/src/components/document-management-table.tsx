@@ -21,30 +21,13 @@ interface Document {
 
 export function DocumentManagementTable() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [editDocumentOpen, setEditDocumentOpen] = useState(false);
+  const [viewDocumentOpen, setViewDocumentOpen] = useState(false);
   const { toast } = useToast();
 
-  const { data: documents = [], isLoading } = useQuery({ 
-    queryKey: ["documents"],
-    queryFn: async () => {
-      try {
-        const response = await fetch('/api/documents', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Documents fetch failed: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error('Documents fetch error:', error);
-        return [];
-      }
-    }
+  const { data: documents = [], isLoading } = useQuery<Document[]>({ 
+    queryKey: ["documents"]
   });
 
   const deleteMutation = useMutation({

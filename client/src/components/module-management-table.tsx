@@ -21,30 +21,13 @@ interface Module {
 
 export function ModuleManagementTable() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+  const [editModuleOpen, setEditModuleOpen] = useState(false);
+  const [viewModuleOpen, setViewModuleOpen] = useState(false);
   const { toast } = useToast();
 
-  const { data: modules = [], isLoading } = useQuery({ 
-    queryKey: ["modules"],
-    queryFn: async () => {
-      try {
-        const response = await fetch('/api/modules', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Modules fetch failed: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error('Modules fetch error:', error);
-        return [];
-      }
-    }
+  const { data: modules = [], isLoading } = useQuery<Module[]>({ 
+    queryKey: ["modules"]
   });
 
   const deleteMutation = useMutation({

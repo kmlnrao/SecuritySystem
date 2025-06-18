@@ -29,7 +29,7 @@ export function PermissionManagementTableWithAudit() {
   const [viewPermissionOpen, setViewPermissionOpen] = useState(false);
   const { toast } = useToast();
 
-  const { data: permissions = [], isLoading } = useQuery({ 
+  const { data: permissions = [], isLoading } = useQuery<Permission[]>({ 
     queryKey: ["permissions"]
   });
 
@@ -64,7 +64,7 @@ export function PermissionManagementTableWithAudit() {
     },
   });
 
-  const filteredPermissions = permissions.filter((permission: any) => {
+  const filteredPermissions = permissions.filter((permission: Permission) => {
     const matchesSearch = permission.entityType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          permission.entityId?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesSearch;
@@ -74,6 +74,16 @@ export function PermissionManagementTableWithAudit() {
     if (confirm("Are you sure you want to delete this permission?")) {
       deleteMutation.mutate(permissionId);
     }
+  };
+
+  const handleEdit = (permission: Permission) => {
+    setSelectedPermission(permission);
+    setEditPermissionOpen(true);
+  };
+
+  const handleView = (permission: Permission) => {
+    setSelectedPermission(permission);
+    setViewPermissionOpen(true);
   };
 
   const getPermissionLevel = (permission: any) => {
@@ -161,6 +171,7 @@ export function PermissionManagementTableWithAudit() {
                               variant="ghost" 
                               size="sm" 
                               className="text-accent hover:text-blue-600"
+                              onClick={() => handleEdit(permission)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -168,6 +179,7 @@ export function PermissionManagementTableWithAudit() {
                               variant="ghost" 
                               size="sm" 
                               className="text-slate-400 hover:text-slate-600"
+                              onClick={() => handleView(permission)}
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
