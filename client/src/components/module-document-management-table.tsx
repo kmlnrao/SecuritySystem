@@ -369,6 +369,88 @@ export function ModuleDocumentManagementTable() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* View Module-Document Dialog */}
+      <Dialog open={viewModuleDocumentOpen} onOpenChange={setViewModuleDocumentOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Module-Document Mapping Details</DialogTitle>
+          </DialogHeader>
+          
+          {selectedModuleDocument && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-slate-600">Module</label>
+                <p className="text-sm mt-1">{selectedModuleDocument.moduleName}</p>
+                <p className="text-xs text-slate-500 font-mono">{selectedModuleDocument.moduleId}</p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-600">Document</label>
+                <p className="text-sm mt-1">{selectedModuleDocument.documentName}</p>
+                <p className="text-xs text-slate-500 font-mono">{selectedModuleDocument.documentId}</p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button onClick={() => setViewModuleDocumentOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Module-Document Dialog */}
+      <Dialog open={editModuleDocumentOpen} onOpenChange={setEditModuleDocumentOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Module-Document Mapping</DialogTitle>
+          </DialogHeader>
+          
+          {selectedModuleDocument && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Current Module</label>
+                <p className="text-sm mt-1 p-2 bg-slate-50 rounded">
+                  {selectedModuleDocument.moduleName}
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Current Document</label>
+                <p className="text-sm mt-1 p-2 bg-slate-50 rounded">
+                  {selectedModuleDocument.documentName}
+                </p>
+              </div>
+
+              <div className="text-sm text-slate-600 bg-blue-50 p-3 rounded">
+                <strong>Note:</strong> To modify this mapping, please delete the current mapping and create a new one with the desired module-document combination.
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditModuleDocumentOpen(false)}
+            >
+              Close
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (selectedModuleDocument) {
+                  handleDelete(selectedModuleDocument.moduleId, selectedModuleDocument.documentId);
+                  setEditModuleDocumentOpen(false);
+                }
+              }}
+            >
+              Delete Mapping
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
