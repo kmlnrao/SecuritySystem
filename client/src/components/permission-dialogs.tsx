@@ -154,7 +154,7 @@ export function AddPermissionDialog({ open, onOpenChange }: AddPermissionDialogP
                       </FormControl>
                       <SelectContent>
                         {users.map((user) => (
-                          <SelectItem key={user.id} value={user.id || ""}>
+                          <SelectItem key={user.id} value={user.id || "unknown"}>
                             {user.username} ({user.email})
                           </SelectItem>
                         ))}
@@ -179,7 +179,7 @@ export function AddPermissionDialog({ open, onOpenChange }: AddPermissionDialogP
                       </FormControl>
                       <SelectContent>
                         {roles.map((role) => (
-                          <SelectItem key={role.id} value={role.id || ""}>
+                          <SelectItem key={role.id} value={role.id || "unknown"}>
                             {role.name}
                           </SelectItem>
                         ))}
@@ -205,7 +205,7 @@ export function AddPermissionDialog({ open, onOpenChange }: AddPermissionDialogP
                     </FormControl>
                     <SelectContent>
                       {documents.map((document) => (
-                        <SelectItem key={document.id} value={document.id || ""}>
+                        <SelectItem key={document.id} value={document.id || "unknown"}>
                           {document.name} ({document.path})
                         </SelectItem>
                       ))}
@@ -423,7 +423,7 @@ export function EditPermissionDialog({ permission, open, onOpenChange }: EditPer
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                           {users.map((user) => (
                             <SelectItem key={user.id} value={user.id}>
                               {user.username}
@@ -451,7 +451,7 @@ export function EditPermissionDialog({ permission, open, onOpenChange }: EditPer
                         <SelectContent>
                           <SelectItem value="none">None</SelectItem>
                           {roles.map((role) => (
-                            <SelectItem key={role.id} value={role.id || ""}>
+                            <SelectItem key={role.id} value={role.id || "unknown"}>
                               {role.name}
                             </SelectItem>
                           ))}
@@ -477,7 +477,7 @@ export function EditPermissionDialog({ permission, open, onOpenChange }: EditPer
                       </FormControl>
                       <SelectContent>
                         {documents.map((document) => (
-                          <SelectItem key={document.id} value={document.id || ""}>
+                          <SelectItem key={document.id} value={document.id || "unknown"}>
                             {document.name} ({document.path})
                           </SelectItem>
                         ))}
