@@ -356,8 +356,8 @@ export function EditPermissionDialog({ permission, open, onOpenChange }: EditPer
   React.useEffect(() => {
     if (permission) {
       form.reset({
-        userId: permission.userId || "",
-        roleId: permission.roleId || "",
+        userId: permission.userId || "none",
+        roleId: permission.roleId || "none",
         documentId: permission.documentId,
         canAdd: permission.canAdd,
         canModify: permission.canModify,
@@ -388,7 +388,13 @@ export function EditPermissionDialog({ permission, open, onOpenChange }: EditPer
   });
 
   const onSubmit = (data: EditPermissionData) => {
-    updateMutation.mutate(data);
+    // Clean the data to handle "none" values
+    const cleanedData = {
+      ...data,
+      userId: data.userId === "none" ? undefined : data.userId,
+      roleId: data.roleId === "none" ? undefined : data.roleId,
+    };
+    updateMutation.mutate(cleanedData);
   };
 
   if (!permission) return null;
