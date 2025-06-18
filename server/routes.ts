@@ -994,8 +994,6 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/users/:userId/navigation", async (req, res) => {
     try {
       const { userId } = req.params;
-      console.log(`🔍 NAVIGATION ROUTE 2 for user: ${userId}`);
-      
       // Get user with roles
       const user = await storage.getUser(userId);
       if (!user) {
@@ -1004,7 +1002,6 @@ export function registerRoutes(app: Express): Server {
 
       const userRoles = await storage.getUserRoles(userId);
       const isSuperAdmin = userRoles.some(role => role.name === 'Super Admin');
-      console.log(`🔍 Super Admin status: ${isSuperAdmin}`);
       
       // Get all modules ordered by display_order
       const modules = await storage.getAllModules();
@@ -1032,11 +1029,7 @@ export function registerRoutes(app: Express): Server {
           const allDocumentPermissions = await storage.getAllPermissions();
           const documentHasPermissions = allDocumentPermissions.some(p => p.documentId === document.id);
           
-          // Debug t doc specifically
-          if (document.name === "t doc") {
-            console.log(`🔍 T DOC DEBUG: hasPermissions=${documentHasPermissions}, isSuperAdmin=${isSuperAdmin}`);
-            console.log(`🔍 T DOC PERMS:`, allDocumentPermissions.filter(p => p.documentId === document.id));
-          }
+
           
 
           
