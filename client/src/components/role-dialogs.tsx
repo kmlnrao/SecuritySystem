@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ export function EditRoleDialog({ role, open, onOpenChange }: EditRoleDialogProps
   const { toast } = useToast();
 
   // Update form data when role changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (role) {
       setFormData({
         name: role.name || "",
