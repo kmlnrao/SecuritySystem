@@ -8,6 +8,7 @@ import { Settings, Database, Table, Plus, History } from "lucide-react";
 import { MasterTableConfigurationPage } from "@/components/master-table-config";
 import { DynamicMasterTable } from "@/components/dynamic-master-table";
 import { AuditLogViewer } from "@/components/audit-log-viewer";
+import { MasterTableAuditViewer } from "@/components/master-table-audit-viewer";
 
 interface MasterTableConfig {
   id: string;
@@ -185,7 +186,41 @@ export default function MasterTablesPage() {
 
         <TabsContent value="data" className="space-y-6">
           {selectedTable ? (
-            <DynamicMasterTable tableConfig={selectedTable} />
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">{selectedTable.displayName}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Manage data records and view audit trails
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedTable(null)}
+                >
+                  ← Back to Tables
+                </Button>
+              </div>
+              
+              <Tabs defaultValue="records" className="space-y-4">
+                <TabsList>
+                  <TabsTrigger value="records">Data Records</TabsTrigger>
+                  <TabsTrigger value="audit">Data Audit Logs</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="records">
+                  <DynamicMasterTable tableConfig={selectedTable} />
+                </TabsContent>
+                
+                <TabsContent value="audit">
+                  <MasterTableAuditViewer 
+                    tableId={selectedTable.id}
+                    tableName={selectedTable.tableName}
+                    displayName={selectedTable.displayName}
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
           ) : activeConfigs.length > 0 ? (
             <div>
               <h3 className="text-lg font-semibold mb-4">Select a Master Table</h3>

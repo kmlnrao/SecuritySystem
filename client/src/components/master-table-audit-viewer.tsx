@@ -14,8 +14,8 @@ interface MasterTableAuditLog {
   recordId: string;
   operation: 'CREATE' | 'UPDATE' | 'DELETE';
   operationType: 'MASTER_DATA_RECORD';
-  oldValues?: string;
-  newValues?: string;
+  oldValues?: string | null;
+  newValues?: string | null;
   userId: string;
   username: string;
   ipAddress: string;
@@ -61,7 +61,7 @@ export function MasterTableAuditViewer({ tableId, tableName, displayName }: Mast
     }
   };
 
-  const formatRecordData = (jsonString: string | null) => {
+  const formatRecordData = (jsonString: string | null | undefined) => {
     if (!jsonString) return null;
     try {
       const data = JSON.parse(jsonString);
@@ -74,9 +74,9 @@ export function MasterTableAuditViewer({ tableId, tableName, displayName }: Mast
     }
   };
 
-  const renderValueComparison = (oldValues: string | null, newValues: string | null) => {
-    const oldData = formatRecordData(oldValues);
-    const newData = formatRecordData(newValues);
+  const renderValueComparison = (oldValues: string | null | undefined, newValues: string | null | undefined) => {
+    const oldData = formatRecordData(oldValues || null);
+    const newData = formatRecordData(newValues || null);
 
     return (
       <div className="space-y-4">
