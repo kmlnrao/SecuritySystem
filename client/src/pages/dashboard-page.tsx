@@ -448,64 +448,7 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            <Card>
-              <CardContent className="pt-6">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Module Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {modules.map((module: any) => (
-                      <TableRow key={module.id}>
-                        <TableCell className="font-medium">{module.name}</TableCell>
-                        <TableCell>{module.description || 'No description'}</TableCell>
-                        <TableCell>
-                          <Badge variant={module.isActive ? "default" : "secondary"}>
-                            {module.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{new Date(module.createdAt).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-accent hover:text-blue-600"
-                              onClick={() => handleEditModule(module)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-slate-400 hover:text-slate-600"
-                              onClick={() => handleViewModule(module)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-red-400 hover:text-red-600"
-                              onClick={() => handleDeleteModule(module.id)}
-                              disabled={deleteModuleMutation.isPending}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <ModuleManagementTable />
           </div>
         );
 
@@ -556,66 +499,7 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            <Card>
-              <CardContent className="pt-6">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Document Name</TableHead>
-                      <TableHead>Path</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {documents.map((document: any) => (
-                      <TableRow key={document.id}>
-                        <TableCell className="font-medium">{document.name}</TableCell>
-                        <TableCell className="font-mono text-sm">{document.path}</TableCell>
-                        <TableCell>{document.type || 'Screen'}</TableCell>
-                        <TableCell>
-                          <Badge variant={document.isActive ? "default" : "secondary"}>
-                            {document.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{new Date(document.createdAt).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-accent hover:text-blue-600"
-                              onClick={() => handleEditDocument(document)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-slate-400 hover:text-slate-600"
-                              onClick={() => handleViewDocument(document)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-red-400 hover:text-red-600"
-                              onClick={() => handleDeleteDocument(document.id)}
-                              disabled={deleteDocumentMutation.isPending}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <DocumentManagementTable />
           </div>
         );
 
@@ -632,7 +516,7 @@ export default function DashboardPage() {
                 Add Permission
               </Button>
             </div>
-            <PermissionManagementTable />
+            <PermissionManagementTableWithAudit />
           </div>
         );
 
@@ -645,7 +529,7 @@ export default function DashboardPage() {
                 <p className="text-muted-foreground">Control which documents appear in which modules and their display order</p>
               </div>
             </div>
-            <ModuleDocumentTable />
+            <ModuleDocumentManagementTable />
           </div>
         );
 
