@@ -24,36 +24,36 @@ export function ModuleDocumentManagementTable() {
   const [viewModuleDocumentOpen, setViewModuleDocumentOpen] = useState(false);
   const { toast } = useToast();
 
-  const { data: moduleDocuments = [], isLoading } = useQuery<ModuleDocument[]>({ 
-    queryKey: ["module-documents"]
+  const { data: moduleDocuments = [], isLoading } = useQuery({ 
+    queryKey: ["module-documents"],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/module-documents', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Module-Documents fetch failed: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error('Module-Documents fetch error:', error);
+        return [];
+      }
+    }
   });
 
   const { data: modules = [] } = useQuery({ 
-    queryKey: ["modules"],
-    queryFn: async () => {
-      try {
-        const response = await fetch('/api/modules');
-        if (!response.ok) throw new Error('Failed to fetch modules');
-        return response.json();
-      } catch (error) {
-        console.error('Modules fetch error:', error);
-        return [];
-      }
-    }
+    queryKey: ["modules"]
   });
 
   const { data: documents = [] } = useQuery({ 
-    queryKey: ["documents"],
-    queryFn: async () => {
-      try {
-        const response = await fetch('/api/documents');
-        if (!response.ok) throw new Error('Failed to fetch documents');
-        return response.json();
-      } catch (error) {
-        console.error('Documents fetch error:', error);
-        return [];
-      }
-    }
+    queryKey: ["documents"]
   });
 
   const deleteMutation = useMutation({

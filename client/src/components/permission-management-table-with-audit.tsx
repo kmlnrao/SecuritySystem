@@ -30,8 +30,28 @@ export function PermissionManagementTableWithAudit() {
   const [viewPermissionOpen, setViewPermissionOpen] = useState(false);
   const { toast } = useToast();
 
-  const { data: permissions = [], isLoading } = useQuery<Permission[]>({ 
-    queryKey: ["permissions"]
+  const { data: permissions = [], isLoading } = useQuery({ 
+    queryKey: ["permissions"],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/permissions', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Permissions fetch failed: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error('Permissions fetch error:', error);
+        return [];
+      }
+    }
   });
 
   const deleteMutation = useMutation({
