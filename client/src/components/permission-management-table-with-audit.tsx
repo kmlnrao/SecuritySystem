@@ -9,7 +9,7 @@ import { Edit, Eye, Trash2, Search, Plus, History, Settings } from "lucide-react
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { AuditLogViewer } from "./audit-log-viewer";
-import { ViewPermissionDialog } from "./permission-dialogs";
+import { ViewPermissionDialog, EditPermissionDialog } from "./permission-dialogs";
 
 interface Permission {
   id: string;
@@ -188,7 +188,7 @@ export function PermissionManagementTableWithAudit() {
                           </div>
                         </TableCell>
                         <TableCell className="text-sm text-slate-500">
-                          {new Date(permission.createdAt).toLocaleDateString()}
+                          {permission.createdAt ? new Date(permission.createdAt).toLocaleDateString() : 'N/A'}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
@@ -258,6 +258,11 @@ export function PermissionManagementTableWithAudit() {
         permission={selectedPermission} 
         open={viewPermissionOpen} 
         onOpenChange={setViewPermissionOpen} 
+      />
+      <EditPermissionDialog 
+        permission={selectedPermission} 
+        open={editPermissionOpen} 
+        onOpenChange={setEditPermissionOpen} 
       />
     </div>
   );
