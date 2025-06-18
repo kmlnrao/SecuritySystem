@@ -1122,6 +1122,8 @@ export function registerRoutes(app: Express): Server {
           const allDocumentPermissions = await storage.getAllPermissions();
           const documentHasPermissions = allDocumentPermissions.some(p => p.documentId === document.id);
           
+
+          
           if (isSuperAdmin) {
             if (documentHasPermissions) {
               // Super Admin sees documents only if they have permissions assigned to someone
