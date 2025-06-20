@@ -20,6 +20,8 @@ interface ColumnDefinition {
   displayInFrontend: boolean;
   maxLength?: number;
   defaultValue?: string;
+  referenceTable?: string;
+  referenceDisplayField?: string;
 }
 
 interface MasterTableConfig {
@@ -39,7 +41,8 @@ const COLUMN_TYPES = [
   { value: "email", label: "Email" },
   { value: "date", label: "Date" },
   { value: "boolean", label: "Yes/No" },
-  { value: "select", label: "Dropdown" }
+  { value: "select", label: "Dropdown" },
+  { value: "reference", label: "Reference (Link to another table)" }
 ];
 
 export function MasterTableConfigurationPage() {
@@ -394,10 +397,12 @@ function CreateMasterTableForm({
 
 function EditMasterTableForm({
   config,
+  configs,
   onSubmit,
   isLoading
 }: {
   config: MasterTableConfig;
+  configs: MasterTableConfig[];
   onSubmit: (data: any) => void;
   isLoading: boolean;
 }) {
