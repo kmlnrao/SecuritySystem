@@ -274,7 +274,7 @@ export function DynamicMasterTable({ tableConfig }: DynamicMasterTableProps) {
             <DialogHeader>
               <DialogTitle>Edit {tableConfig.displayName} Record</DialogTitle>
             </DialogHeader>
-            <DynamicRecordForm
+            <HierarchicalMasterForm
               columns={columns}
               initialData={JSON.parse(editingRecord.recordData)}
               onSubmit={(data) => updateMutation.mutate({ id: editingRecord.id, data })}
