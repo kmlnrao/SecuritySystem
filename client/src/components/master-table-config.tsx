@@ -17,6 +17,7 @@ interface ColumnDefinition {
   name: string;
   type: string;
   required: boolean;
+  displayInFrontend: boolean;
   maxLength?: number;
   defaultValue?: string;
 }
@@ -202,11 +203,11 @@ function CreateMasterTableForm({
   const [displayName, setDisplayName] = useState("");
   const [description, setDescription] = useState("");
   const [columns, setColumns] = useState<ColumnDefinition[]>([
-    { name: "name", type: "text", required: true, maxLength: 100 }
+    { name: "name", type: "text", required: true, displayInFrontend: true, maxLength: 100 }
   ]);
 
   const addColumn = () => {
-    setColumns([...columns, { name: "", type: "text", required: false }]);
+    setColumns([...columns, { name: "", type: "text", required: false, displayInFrontend: true }]);
   };
 
   const removeColumn = (index: number) => {
@@ -359,13 +360,18 @@ function EditMasterTableForm({
   isLoading: boolean;
 }) {
   const existingColumns = JSON.parse(config.columns) as ColumnDefinition[];
+  // Migrate existing columns to include displayInFrontend if missing
+  const migratedColumns = existingColumns.map(col => ({
+    ...col,
+    displayInFrontend: col.displayInFrontend !== undefined ? col.displayInFrontend : true
+  }));
   const [tableName, setTableName] = useState(config.tableName);
   const [displayName, setDisplayName] = useState(config.displayName);
   const [description, setDescription] = useState(config.description || "");
-  const [columns, setColumns] = useState<ColumnDefinition[]>(existingColumns);
+  const [columns, setColumns] = useState<ColumnDefinition[]>(migratedColumns);
 
   const addColumn = () => {
-    setColumns([...columns, { name: "", type: "text", required: false }]);
+    setColumns([...columns, { name: "", type: "text", required: false, displayInFrontend: true }]);
   };
 
   const removeColumn = (index: number) => {
