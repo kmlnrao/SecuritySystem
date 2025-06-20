@@ -154,6 +154,7 @@ export function MasterTableConfigurationPage() {
             {editingConfig && (
               <EditMasterTableForm
                 config={editingConfig}
+                configs={configs}
                 onSubmit={(data) => updateMutation.mutate({ id: editingConfig.id, configData: data })}
                 isLoading={updateMutation.isPending}
               />

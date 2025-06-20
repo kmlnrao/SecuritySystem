@@ -14,6 +14,7 @@ import { Plus, Edit, Trash2, Search, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { format } from "date-fns";
+import { HierarchicalMasterForm } from "./hierarchical-master-form";
 
 interface ColumnDefinition {
   name: string;
@@ -22,6 +23,8 @@ interface ColumnDefinition {
   displayInFrontend: boolean;
   maxLength?: number;
   defaultValue?: string;
+  referenceTable?: string;
+  referenceDisplayField?: string;
 }
 
 interface MasterTableConfig {
@@ -164,7 +167,7 @@ export function DynamicMasterTable({ tableConfig }: DynamicMasterTableProps) {
             <DialogHeader>
               <DialogTitle>Create New {tableConfig.displayName} Record</DialogTitle>
             </DialogHeader>
-            <DynamicRecordForm
+            <HierarchicalMasterForm
               columns={columns}
               onSubmit={(data) => createMutation.mutate(data)}
               isLoading={createMutation.isPending}
