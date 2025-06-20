@@ -46,6 +46,91 @@ export function AuditLogViewer({ tableName, recordId, title = "Audit Logs" }: Au
     staleTime: 0 // Always fetch fresh data
   });
 
+  // Fetch reference data for lookups
+  const { data: users = [] } = useQuery({
+    queryKey: ["/api/users"],
+    queryFn: async () => {
+      const response = await fetch('/api/users');
+      if (!response.ok) throw new Error('Failed to fetch users');
+      return response.json();
+    }
+  });
+
+  const { data: roles = [] } = useQuery({
+    queryKey: ["/api/roles"],
+    queryFn: async () => {
+      const response = await fetch('/api/roles');
+      if (!response.ok) throw new Error('Failed to fetch roles');
+      return response.json();
+    }
+  });
+
+  const { data: documents = [] } = useQuery({
+    queryKey: ["/api/documents"],
+    queryFn: async () => {
+      const response = await fetch('/api/documents');
+      if (!response.ok) throw new Error('Failed to fetch documents');
+      return response.json();
+    }
+  });
+
+  const { data: modules = [] } = useQuery({
+    queryKey: ["/api/modules"],
+    queryFn: async () => {
+      const response = await fetch('/api/modules');
+      if (!response.ok) throw new Error('Failed to fetch modules');
+      return response.json();
+    }
+  });
+
+  // Helper functions to resolve IDs to readable names
+  const resolveUserName = (userId: string) => {
+    const user = users.find((u: any) => u.id === userId);
+    return user ? `${user.username} (${user.email})` : userId;
+  };
+
+  const resolveRoleName = (roleId: string) => {
+    const role = roles.find((r: any) => r.id === roleId);
+    return role ? role.name : roleId;
+  };
+
+  const resolveDocumentName = (documentId: string) => {
+    const document = documents.find((d: any) => d.id === documentId);
+    return document ? document.name : documentId;
+  };
+
+  const resolveModuleName = (moduleId: string) => {
+    const module = modules.find((m: any) => m.id === moduleId);
+    return module ? module.name : moduleId;
+  };
+
+  const formatAuditValues = (valuesString: string | null) => {
+    if (!valuesString) return null;
+    
+    try {
+      const values = JSON.parse(valuesString);
+      const formatted = { ...values };
+      
+      // Replace IDs with readable names
+      if (formatted.userId) {
+        formatted.userName = resolveUserName(formatted.userId);
+      }
+      if (formatted.roleId) {
+        formatted.roleName = resolveRoleName(formatted.roleId);
+      }
+      if (formatted.documentId) {
+        formatted.documentName = resolveDocumentName(formatted.documentId);
+      }
+      if (formatted.moduleId) {
+        formatted.moduleName = resolveModuleName(formatted.moduleId);
+      }
+      
+      return formatted;
+    } catch {
+      return valuesString;
+    }
+  };
+
   const getOperationBadge = (operation: string) => {
     const variants = {
       CREATE: "default" as const,
@@ -132,7 +217,13 @@ export function AuditLogViewer({ tableName, recordId, title = "Audit Logs" }: Au
                           <DialogHeader>
                             <DialogTitle>Audit Log Details</DialogTitle>
                           </DialogHeader>
-                          <AuditLogDetails log={log} />
+                          <AuditLogDetails 
+                            log={log} 
+                            users={users}
+                            roles={roles}
+                            documents={documents}
+                            modules={modules}
+                          />
                         </DialogContent>
                       </Dialog>
                     </TableCell>
@@ -147,9 +238,63 @@ export function AuditLogViewer({ tableName, recordId, title = "Audit Logs" }: Au
   );
 }
 
-function AuditLogDetails({ log }: { log: AuditLog }) {
-  const oldValues = log.oldValues ? JSON.parse(log.oldValues) : null;
-  const newValues = log.newValues ? JSON.parse(log.newValues) : null;
+function AuditLogDetails({ log, users, roles, documents, modules }: { 
+  log: AuditLog; 
+  users: any[]; 
+  roles: any[]; 
+  documents: any[]; 
+  modules: any[]; 
+}) {
+  // Helper functions to resolve IDs to readable names
+  const resolveUserName = (userId: string) => {
+    const user = users.find((u: any) => u.id === userId);
+    return user ? `${user.username} (${user.email})` : userId;
+  };
+
+  const resolveRoleName = (roleId: string) => {
+    const role = roles.find((r: any) => r.id === roleId);
+    return role ? role.name : roleId;
+  };
+
+  const resolveDocumentName = (documentId: string) => {
+    const document = documents.find((d: any) => d.id === documentId);
+    return document ? document.name : documentId;
+  };
+
+  const resolveModuleName = (moduleId: string) => {
+    const module = modules.find((m: any) => m.id === moduleId);
+    return module ? module.name : moduleId;
+  };
+
+  const formatAuditValues = (valuesString: string | undefined | null) => {
+    if (!valuesString) return null;
+    
+    try {
+      const values = JSON.parse(valuesString);
+      const formatted = { ...values };
+      
+      // Replace IDs with readable names
+      if (formatted.userId) {
+        formatted.userName = resolveUserName(formatted.userId);
+      }
+      if (formatted.roleId) {
+        formatted.roleName = resolveRoleName(formatted.roleId);
+      }
+      if (formatted.documentId) {
+        formatted.documentName = resolveDocumentName(formatted.documentId);
+      }
+      if (formatted.moduleId) {
+        formatted.moduleName = resolveModuleName(formatted.moduleId);
+      }
+      
+      return formatted;
+    } catch {
+      return valuesString;
+    }
+  };
+
+  const oldValues = formatAuditValues(log.oldValues);
+  const newValues = formatAuditValues(log.newValues);
 
   return (
     <div className="space-y-6">
