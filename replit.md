@@ -147,6 +147,12 @@ The system includes an optional microservices setup:
 - Service-specific ports for microservices setup
 
 ## Recent Changes
+- **Dashboard Display Fixed** (June 21, 2025): Resolved empty dashboard issue affecting all user logins:
+  - **Authentication Simplified**: Removed complex token validation that was blocking dashboard stats API calls
+  - **Role Filtering Corrected**: Changed from restrictive role-based display to universal access for authenticated users
+  - **Error Handling Added**: Implemented loading states and error messages for better user experience
+  - **Statistics Restored**: Dashboard now displays all key metrics (users, roles, documents, modules, patients, appointments, tasks)
+
 - **Permission Management Access Granted to Super Admin** (June 21, 2025): Added full permissions for Super Admin role to access Permission Management screen in Security module:
   - **Direct Permission Assignment**: Created permission entry for Super Admin role with full access (canAdd, canModify, canDelete, canQuery)
   - **Navigation Integration**: Permission Management now appears in Security module sidebar for Super Admin users
