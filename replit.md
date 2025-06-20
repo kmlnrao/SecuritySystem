@@ -147,6 +147,13 @@ The system includes an optional microservices setup:
 - Service-specific ports for microservices setup
 
 ## Recent Changes
+- **Audit Logs Enhanced with Readable Names** (June 21, 2025): Fixed audit logs across all management screens to display meaningful names instead of raw IDs:
+  - **Reference Data Integration**: Audit log viewer now fetches users, roles, documents, and modules for name resolution
+  - **Readable Display**: Shows "superadmin (admin@hospital.com)" instead of raw user IDs, "Super Admin" instead of role IDs
+  - **Enhanced Details**: Audit log details include both original IDs and readable names (userInfo, roleInfo, documentInfo, moduleInfo)
+  - **Universal Application**: Applied to all management screens - User, Role, Module, Document, Permission, Module-Document
+  - **Preserved Functionality**: Maintains all existing audit trail capabilities while improving readability
+
 - **Dashboard Display Fixed** (June 21, 2025): Resolved empty dashboard issue affecting all user logins:
   - **Authentication Simplified**: Removed complex token validation that was blocking dashboard stats API calls
   - **Role Filtering Corrected**: Changed from restrictive role-based display to universal access for authenticated users

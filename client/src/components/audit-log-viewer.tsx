@@ -104,33 +104,6 @@ export function AuditLogViewer({ tableName, recordId, title = "Audit Logs" }: Au
     return module ? module.name : moduleId;
   };
 
-  const formatAuditValues = (valuesString: string | null) => {
-    if (!valuesString) return null;
-    
-    try {
-      const values = JSON.parse(valuesString);
-      const formatted = { ...values };
-      
-      // Replace IDs with readable names
-      if (formatted.userId) {
-        formatted.userName = resolveUserName(formatted.userId);
-      }
-      if (formatted.roleId) {
-        formatted.roleName = resolveRoleName(formatted.roleId);
-      }
-      if (formatted.documentId) {
-        formatted.documentName = resolveDocumentName(formatted.documentId);
-      }
-      if (formatted.moduleId) {
-        formatted.moduleName = resolveModuleName(formatted.moduleId);
-      }
-      
-      return formatted;
-    } catch {
-      return valuesString;
-    }
-  };
-
   const getOperationBadge = (operation: string) => {
     const variants = {
       CREATE: "default" as const,
@@ -219,10 +192,10 @@ export function AuditLogViewer({ tableName, recordId, title = "Audit Logs" }: Au
                           </DialogHeader>
                           <AuditLogDetails 
                             log={log} 
-                            users={users}
-                            roles={roles}
-                            documents={documents}
-                            modules={modules}
+                            resolveUserName={resolveUserName}
+                            resolveRoleName={resolveRoleName}
+                            resolveDocumentName={resolveDocumentName}
+                            resolveModuleName={resolveModuleName}
                           />
                         </DialogContent>
                       </Dialog>
@@ -238,34 +211,13 @@ export function AuditLogViewer({ tableName, recordId, title = "Audit Logs" }: Au
   );
 }
 
-function AuditLogDetails({ log, users, roles, documents, modules }: { 
+function AuditLogDetails({ log, resolveUserName, resolveRoleName, resolveDocumentName, resolveModuleName }: { 
   log: AuditLog; 
-  users: any[]; 
-  roles: any[]; 
-  documents: any[]; 
-  modules: any[]; 
+  resolveUserName: (userId: string) => string;
+  resolveRoleName: (roleId: string) => string;
+  resolveDocumentName: (documentId: string) => string;
+  resolveModuleName: (moduleId: string) => string;
 }) {
-  // Helper functions to resolve IDs to readable names
-  const resolveUserName = (userId: string) => {
-    const user = users.find((u: any) => u.id === userId);
-    return user ? `${user.username} (${user.email})` : userId;
-  };
-
-  const resolveRoleName = (roleId: string) => {
-    const role = roles.find((r: any) => r.id === roleId);
-    return role ? role.name : roleId;
-  };
-
-  const resolveDocumentName = (documentId: string) => {
-    const document = documents.find((d: any) => d.id === documentId);
-    return document ? document.name : documentId;
-  };
-
-  const resolveModuleName = (moduleId: string) => {
-    const module = modules.find((m: any) => m.id === moduleId);
-    return module ? module.name : moduleId;
-  };
-
   const formatAuditValues = (valuesString: string | undefined | null) => {
     if (!valuesString) return null;
     
@@ -273,18 +225,18 @@ function AuditLogDetails({ log, users, roles, documents, modules }: {
       const values = JSON.parse(valuesString);
       const formatted = { ...values };
       
-      // Replace IDs with readable names
+      // Replace IDs with readable names while keeping original IDs
       if (formatted.userId) {
-        formatted.userName = resolveUserName(formatted.userId);
+        formatted.userInfo = resolveUserName(formatted.userId);
       }
       if (formatted.roleId) {
-        formatted.roleName = resolveRoleName(formatted.roleId);
+        formatted.roleInfo = resolveRoleName(formatted.roleId);
       }
       if (formatted.documentId) {
-        formatted.documentName = resolveDocumentName(formatted.documentId);
+        formatted.documentInfo = resolveDocumentName(formatted.documentId);
       }
       if (formatted.moduleId) {
-        formatted.moduleName = resolveModuleName(formatted.moduleId);
+        formatted.moduleInfo = resolveModuleName(formatted.moduleId);
       }
       
       return formatted;
@@ -295,6 +247,10 @@ function AuditLogDetails({ log, users, roles, documents, modules }: {
 
   const oldValues = formatAuditValues(log.oldValues);
   const newValues = formatAuditValues(log.newValues);
+
+  const formatTimestamp = (timestamp: string) => {
+    return format(new Date(timestamp), "PPpp");
+  };
 
   return (
     <div className="space-y-6">
@@ -342,7 +298,7 @@ function AuditLogDetails({ log, users, roles, documents, modules }: {
                 <CardTitle className="text-destructive">Previous Values</CardTitle>
               </CardHeader>
               <CardContent>
-                <pre className="text-sm bg-muted p-3 rounded overflow-auto">
+                <pre className="text-sm bg-muted p-3 rounded overflow-auto whitespace-pre-wrap">
                   {JSON.stringify(oldValues, null, 2)}
                 </pre>
               </CardContent>
@@ -355,7 +311,7 @@ function AuditLogDetails({ log, users, roles, documents, modules }: {
                 <CardTitle className="text-green-600">New Values</CardTitle>
               </CardHeader>
               <CardContent>
-                <pre className="text-sm bg-muted p-3 rounded overflow-auto">
+                <pre className="text-sm bg-muted p-3 rounded overflow-auto whitespace-pre-wrap">
                   {JSON.stringify(newValues, null, 2)}
                 </pre>
               </CardContent>
@@ -365,8 +321,4 @@ function AuditLogDetails({ log, users, roles, documents, modules }: {
       )}
     </div>
   );
-}
-
-function formatTimestamp(timestamp: string) {
-  return format(new Date(timestamp), "PPpp");
 }
