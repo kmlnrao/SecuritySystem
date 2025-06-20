@@ -227,16 +227,17 @@ export function RoleBasedDashboard() {
     enabled: !!user?.id
   });
 
-  const { data: generalStats } = useQuery({
+  const { data: generalStats, isLoading: statsLoading, error: statsError } = useQuery({
     queryKey: ["/api/dashboard/stats"],
     queryFn: async () => {
-      const response = await fetch('/api/dashboard/stats', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-        }
-      });
-      if (!response.ok) return {};
-      return await response.json();
+      const response = await fetch('/api/dashboard/stats');
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch dashboard stats: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data;
     }
   });
 
@@ -318,8 +319,12 @@ export function RoleBasedDashboard() {
         })}
       </div>
 
-      {/* General Statistics - if user has appropriate permissions */}
-      {userRoles.some((role: any) => ['Super Admin', 'Administrator'].includes(role.name)) && (
+      {/* Debug Information */}
+      {statsLoading && <div className="text-center py-4">Loading dashboard statistics...</div>}
+      {statsError && <div className="text-red-500 py-4">Error loading dashboard: {statsError.message}</div>}
+      
+      {/* General Statistics - Always show for all users */}
+      {generalStats && (
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
