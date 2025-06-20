@@ -147,6 +147,15 @@ The system includes an optional microservices setup:
 - Service-specific ports for microservices setup
 
 ## Recent Changes
+- **Master Table Frontend Display Control Added** (June 21, 2025): Implemented "Display in Frontend" option for Master Table Configuration column management:
+  - **Column Visibility Control**: Added `displayInFrontend` boolean field to control which columns appear in frontend interfaces
+  - **Enhanced Configuration UI**: New grid-based column configuration with clear headers (Column Name, Type, Required, Frontend Display, Actions)
+  - **Visual Indicators**: Uses Eye/EyeOff icons to clearly show column visibility status
+  - **Frontend Filtering**: Dynamic master tables now only display columns marked for frontend visibility
+  - **Backend Access Maintained**: Hidden columns remain accessible through API calls for backend operations
+  - **Migration Support**: Automatically handles existing columns (defaults to visible for backward compatibility)
+  - **Improved Documentation**: Added explanatory help text about backend-only column usage for system fields and tracking data
+
 - **Audit Logs Enhanced with Readable Names** (June 21, 2025): Fixed audit logs across all management screens to display meaningful names instead of raw IDs:
   - **Reference Data Integration**: Audit log viewer now fetches users, roles, documents, and modules for name resolution
   - **Readable Display**: Shows "superadmin (admin@hospital.com)" instead of raw user IDs, "Super Admin" instead of role IDs

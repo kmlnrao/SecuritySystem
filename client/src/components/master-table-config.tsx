@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Settings, Database } from "lucide-react";
+import { Plus, Edit, Trash2, Settings, Database, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 
@@ -131,7 +131,7 @@ export function MasterTableConfigurationPage() {
               Create Master Table
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create Master Table Configuration</DialogTitle>
             </DialogHeader>
@@ -144,7 +144,7 @@ export function MasterTableConfigurationPage() {
 
         {/* Edit Dialog */}
         <Dialog open={!!editingConfig} onOpenChange={(open) => !open && setEditingConfig(null)}>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit Master Table Configuration</DialogTitle>
             </DialogHeader>
@@ -285,17 +285,26 @@ function CreateMasterTableForm({
           </Button>
         </div>
         
+        {/* Column Headers */}
+        <div className="grid grid-cols-12 gap-3 px-3 py-2 bg-muted rounded-lg text-sm font-medium mb-3">
+          <div className="col-span-4">Column Name</div>
+          <div className="col-span-2">Type</div>
+          <div className="col-span-2">Required</div>
+          <div className="col-span-2">Frontend Display</div>
+          <div className="col-span-2">Actions</div>
+        </div>
+        
         <div className="space-y-3">
           {columns.map((column, index) => (
-            <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
-              <div className="flex-1">
+            <div key={index} className="grid grid-cols-12 gap-3 items-center p-3 border rounded-lg">
+              <div className="col-span-4">
                 <Input
                   placeholder="Column name"
                   value={column.name}
                   onChange={(e) => updateColumn(index, 'name', e.target.value)}
                 />
               </div>
-              <div className="w-32">
+              <div className="col-span-2">
                 <Select
                   value={column.type}
                   onValueChange={(value) => updateColumn(index, 'type', value)}
@@ -312,7 +321,7 @@ function CreateMasterTableForm({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="w-20">
+              <div className="col-span-2">
                 <Select
                   value={column.required ? "yes" : "no"}
                   onValueChange={(value) => updateColumn(index, 'required', value === "yes")}
@@ -326,18 +335,51 @@ function CreateMasterTableForm({
                   </SelectContent>
                 </Select>
               </div>
-              {columns.length > 1 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => removeColumn(index)}
+              <div className="col-span-2">
+                <Select
+                  value={column.displayInFrontend ? "yes" : "no"}
+                  onValueChange={(value) => updateColumn(index, 'displayInFrontend', value === "yes")}
                 >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              )}
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">
+                      <div className="flex items-center gap-2">
+                        <Eye className="h-3 w-3" />
+                        Show
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="no">
+                      <div className="flex items-center gap-2">
+                        <EyeOff className="h-3 w-3" />
+                        Hide
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="col-span-2">
+                {columns.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeColumn(index)}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
             </div>
           ))}
+        </div>
+        
+        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>Frontend Display:</strong> Columns set to "Hide" will not be visible in the frontend interface but can be updated through API calls or backend operations. 
+            This is useful for system fields, tracking data, or technical columns that shouldn't be exposed to end users.
+          </p>
         </div>
       </div>
 
@@ -412,7 +454,7 @@ function EditMasterTableForm({
             onChange={(e) => setTableName(e.target.value)}
             placeholder="e.g., department"
             required
-            disabled // Table name shouldn't be changed after creation
+            disabled
           />
           <p className="text-xs text-muted-foreground mt-1">
             Table name cannot be changed after creation
@@ -450,17 +492,26 @@ function EditMasterTableForm({
           </Button>
         </div>
         
+        {/* Column Headers */}
+        <div className="grid grid-cols-12 gap-3 px-3 py-2 bg-muted rounded-lg text-sm font-medium mb-3">
+          <div className="col-span-4">Column Name</div>
+          <div className="col-span-2">Type</div>
+          <div className="col-span-2">Required</div>
+          <div className="col-span-2">Frontend Display</div>
+          <div className="col-span-2">Actions</div>
+        </div>
+        
         <div className="space-y-3">
           {columns.map((column, index) => (
-            <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
-              <div className="flex-1">
+            <div key={index} className="grid grid-cols-12 gap-3 items-center p-3 border rounded-lg">
+              <div className="col-span-4">
                 <Input
                   placeholder="Column name"
                   value={column.name}
                   onChange={(e) => updateColumn(index, 'name', e.target.value)}
                 />
               </div>
-              <div className="w-32">
+              <div className="col-span-2">
                 <Select
                   value={column.type}
                   onValueChange={(value) => updateColumn(index, 'type', value)}
@@ -477,7 +528,7 @@ function EditMasterTableForm({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="w-20">
+              <div className="col-span-2">
                 <Select
                   value={column.required ? "yes" : "no"}
                   onValueChange={(value) => updateColumn(index, 'required', value === "yes")}
@@ -491,18 +542,50 @@ function EditMasterTableForm({
                   </SelectContent>
                 </Select>
               </div>
-              {columns.length > 1 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => removeColumn(index)}
+              <div className="col-span-2">
+                <Select
+                  value={column.displayInFrontend ? "yes" : "no"}
+                  onValueChange={(value) => updateColumn(index, 'displayInFrontend', value === "yes")}
                 >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              )}
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">
+                      <div className="flex items-center gap-2">
+                        <Eye className="h-3 w-3" />
+                        Show
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="no">
+                      <div className="flex items-center gap-2">
+                        <EyeOff className="h-3 w-3" />
+                        Hide
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="col-span-2">
+                {columns.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeColumn(index)}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
             </div>
           ))}
+        </div>
+        
+        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>Frontend Display:</strong> Columns set to "Hide" will not be visible in the frontend interface but can be updated through API calls or backend operations.
+          </p>
         </div>
       </div>
 
@@ -527,6 +610,8 @@ function MasterTableConfigCard({
   isDeleting: boolean;
 }) {
   const columns = JSON.parse(config.columns) as ColumnDefinition[];
+  const frontendColumns = columns.filter(col => col.displayInFrontend !== false);
+  const hiddenColumns = columns.filter(col => col.displayInFrontend === false);
 
   return (
     <Card>
@@ -534,22 +619,26 @@ function MasterTableConfigCard({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
+              <Database className="h-5 w-5" />
               {config.displayName}
               <Badge variant={config.isActive ? "default" : "secondary"}>
                 {config.isActive ? "Active" : "Inactive"}
               </Badge>
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mt-1">
               Table: {config.tableName} • {columns.length} columns
             </p>
+            {config.description && (
+              <p className="text-sm text-muted-foreground mt-1">{config.description}</p>
+            )}
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={onEdit}>
               <Edit className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={onDelete}
               disabled={isDeleting}
             >
@@ -559,27 +648,56 @@ function MasterTableConfigCard({
         </div>
       </CardHeader>
       <CardContent>
-        {config.description && (
-          <p className="text-sm text-muted-foreground mb-4">{config.description}</p>
-        )}
-        
-        <div>
-          <h4 className="font-medium mb-2">Column Structure</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-            {columns.map((column, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm">
-                <span className="font-medium">{column.name}</span>
-                <Badge variant="outline" className="text-xs">
-                  {column.type}
-                </Badge>
-                {column.required && (
-                  <Badge variant="destructive" className="text-xs">
-                    Required
-                  </Badge>
-                )}
-              </div>
-            ))}
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+              <Eye className="h-4 w-4" />
+              Frontend Visible Columns ({frontendColumns.length})
+            </h4>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Column</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Required</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {frontendColumns.map((column) => (
+                  <TableRow key={column.name}>
+                    <TableCell className="font-medium">{column.name}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{column.type}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={column.required ? "destructive" : "secondary"}>
+                        {column.required ? "Required" : "Optional"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
+          
+          {hiddenColumns.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                <EyeOff className="h-4 w-4" />
+                Hidden Columns ({hiddenColumns.length})
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {hiddenColumns.map((column) => (
+                  <Badge key={column.name} variant="outline" className="text-muted-foreground">
+                    {column.name} ({column.type})
+                  </Badge>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                These columns are not displayed in the frontend but can be managed through API calls
+              </p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -19,6 +19,7 @@ interface ColumnDefinition {
   name: string;
   type: string;
   required: boolean;
+  displayInFrontend: boolean;
   maxLength?: number;
   defaultValue?: string;
 }
@@ -53,7 +54,14 @@ export function DynamicMasterTable({ tableConfig }: DynamicMasterTableProps) {
   const [editingRecord, setEditingRecord] = useState<MasterDataRecord | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const columns = JSON.parse(tableConfig.columns) as ColumnDefinition[];
+  const allColumns = JSON.parse(tableConfig.columns) as ColumnDefinition[];
+  // Migrate existing columns to include displayInFrontend if missing
+  const migratedColumns = allColumns.map(col => ({
+    ...col,
+    displayInFrontend: col.displayInFrontend !== undefined ? col.displayInFrontend : true
+  }));
+  // Only show columns marked for frontend display
+  const columns = migratedColumns.filter(col => col.displayInFrontend !== false);
 
   const { data: records = [], isLoading } = useQuery<MasterDataRecord[]>({
     queryKey: [`/api/master-tables/${tableConfig.id}/records`],
