@@ -6,16 +6,16 @@ services:
     container_name: hospital_postgres
     environment:
       POSTGRES_DB: hospital_management
-      POSTGRES_USER: hospital_admin
-      POSTGRES_PASSWORD: hospital_password
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database_backup.sql:/docker-entrypoint-initdb.d/restore.sql
+      - ./database_backup_20250621_132917.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U hospital_admin -d hospital_management"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
       timeout: 5s
       retries: 5
 
@@ -25,17 +25,17 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://hospital_admin:hospital_password@postgres:5432/hospital_management
-      - JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters-long
-      - SESSION_SECRET=your-super-secret-session-key-minimum-32-characters-long
-      - PORT=5000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/hospital_management
+      JWT_SECRET: hospital-management-jwt-secret-key-2025
+      SESSION_SECRET: hospital-management-session-secret-key-2025
+      NODE_ENV: development
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
       - .:/app
       - /app/node_modules
+    command: npm run dev
 
 volumes:
   postgres_data:
