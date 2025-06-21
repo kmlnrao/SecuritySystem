@@ -402,85 +402,64 @@ function CreateMasterTableForm({
                       <Label className="text-sm font-medium text-blue-700">Reference Table</Label>
                       <p className="text-xs text-blue-600 mb-2">Select which master table this field should reference</p>
                       <p className="text-xs text-gray-500 mb-2">Available tables: {allConfigs.length}</p>
-                      <Select
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         value={column.referenceTable || ""}
-                        onValueChange={(value) => {
-                          console.log('Reference table selected:', value);
-                          updateColumn(index, 'referenceTable', value);
+                        onChange={(e) => {
+                          console.log('Reference table selected:', e.target.value);
+                          updateColumn(index, 'referenceTable', e.target.value);
                           // Reset display and value fields when table changes
                           updateColumn(index, 'referenceDisplayField', '');
                           updateColumn(index, 'referenceValueField', '');
                         }}
                       >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Choose a table to reference" />
-                        </SelectTrigger>
-                        <SelectContent 
-                          className="z-[100] max-h-48 overflow-y-auto"
-                          position="popper"
-                          sideOffset={4}
-                        >
-                          {allConfigs.length > 0 ? (
-                            allConfigs.map(table => (
-                              <SelectItem key={table.id} value={table.id}>
-                                {table.displayName} ({table.tableName})
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <SelectItem value="no-tables" disabled>
-                              No master tables available
-                            </SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
+                        <option value="">Choose a table to reference</option>
+                        {allConfigs.length > 0 ? (
+                          allConfigs.map(table => (
+                            <option key={table.id} value={table.id}>
+                              {table.displayName} ({table.tableName})
+                            </option>
+                          ))
+                        ) : (
+                          <option value="" disabled>
+                            No master tables available
+                          </option>
+                        )}
+                      </select>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-blue-700">Display Field</Label>
                       <p className="text-xs text-blue-600 mb-2">Which field to show in dropdown</p>
-                      <Select
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         value={column.referenceDisplayField || ""}
-                        onValueChange={(value) => updateColumn(index, 'referenceDisplayField', value)}
+                        onChange={(e) => updateColumn(index, 'referenceDisplayField', e.target.value)}
                         disabled={!column.referenceTable}
                       >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select display field" />
-                        </SelectTrigger>
-                        <SelectContent 
-                          className="z-[100] max-h-48 overflow-y-auto"
-                          position="popper"
-                          sideOffset={4}
-                        >
-                          {getColumnNamesFromTable(column.referenceTable || "", allConfigs).map(columnName => (
-                            <SelectItem key={columnName} value={columnName}>
-                              {columnName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        <option value="">Select display field</option>
+                        {getColumnNamesFromTable(column.referenceTable || "", allConfigs).map(columnName => (
+                          <option key={columnName} value={columnName}>
+                            {columnName}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-blue-700">Value Field</Label>
                       <p className="text-xs text-blue-600 mb-2">Which field to use as stored value</p>
-                      <Select
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         value={column.referenceValueField || ""}
-                        onValueChange={(value) => updateColumn(index, 'referenceValueField', value)}
+                        onChange={(e) => updateColumn(index, 'referenceValueField', e.target.value)}
                         disabled={!column.referenceTable}
                       >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select value field" />
-                        </SelectTrigger>
-                        <SelectContent 
-                          className="z-[100] max-h-48 overflow-y-auto"
-                          position="popper"
-                          sideOffset={4}
-                        >
-                          {getColumnNamesFromTable(column.referenceTable || "", allConfigs).map(columnName => (
-                            <SelectItem key={columnName} value={columnName}>
-                              {columnName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        <option value="">Select value field</option>
+                        {getColumnNamesFromTable(column.referenceTable || "", allConfigs).map(columnName => (
+                          <option key={columnName} value={columnName}>
+                            {columnName}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -703,84 +682,63 @@ function EditMasterTableForm({
                     <div>
                       <Label className="text-sm font-medium text-blue-700">Reference Table</Label>
                       <p className="text-xs text-blue-600 mb-2">Select which master table this field should reference</p>
-                      <Select
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         value={column.referenceTable || ""}
-                        onValueChange={(value) => {
-                          updateColumn(index, 'referenceTable', value);
+                        onChange={(e) => {
+                          updateColumn(index, 'referenceTable', e.target.value);
                           // Reset display and value fields when table changes
                           updateColumn(index, 'referenceDisplayField', '');
                           updateColumn(index, 'referenceValueField', '');
                         }}
                       >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose a table to reference" />
-                        </SelectTrigger>
-                        <SelectContent 
-                          className="z-[100] max-h-48 overflow-y-auto"
-                          position="popper"
-                          sideOffset={4}
-                        >
-                          {configs.filter(c => c.id !== config.id).length > 0 ? (
-                            configs.filter(c => c.id !== config.id).map(table => (
-                              <SelectItem key={table.id} value={table.id}>
-                                {table.displayName} ({table.tableName})
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <SelectItem value="no-tables" disabled>
-                              No other master tables available
-                            </SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
+                        <option value="">Choose a table to reference</option>
+                        {configs.filter(c => c.id !== config.id).length > 0 ? (
+                          configs.filter(c => c.id !== config.id).map(table => (
+                            <option key={table.id} value={table.id}>
+                              {table.displayName} ({table.tableName})
+                            </option>
+                          ))
+                        ) : (
+                          <option value="" disabled>
+                            No other master tables available
+                          </option>
+                        )}
+                      </select>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-blue-700">Display Field</Label>
                       <p className="text-xs text-blue-600 mb-2">Which field to show in dropdown</p>
-                      <Select
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         value={column.referenceDisplayField || ""}
-                        onValueChange={(value) => updateColumn(index, 'referenceDisplayField', value)}
+                        onChange={(e) => updateColumn(index, 'referenceDisplayField', e.target.value)}
                         disabled={!column.referenceTable}
                       >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select display field" />
-                        </SelectTrigger>
-                        <SelectContent 
-                          className="z-[100] max-h-48 overflow-y-auto"
-                          position="popper"
-                          sideOffset={4}
-                        >
-                          {getColumnNamesFromTable(column.referenceTable || "", configs).map(columnName => (
-                            <SelectItem key={columnName} value={columnName}>
-                              {columnName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        <option value="">Select display field</option>
+                        {getColumnNamesFromTable(column.referenceTable || "", configs).map(columnName => (
+                          <option key={columnName} value={columnName}>
+                            {columnName}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-blue-700">Value Field</Label>
                       <p className="text-xs text-blue-600 mb-2">Which field to use as stored value</p>
-                      <Select
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         value={column.referenceValueField || ""}
-                        onValueChange={(value) => updateColumn(index, 'referenceValueField', value)}
+                        onChange={(e) => updateColumn(index, 'referenceValueField', e.target.value)}
                         disabled={!column.referenceTable}
                       >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select value field" />
-                        </SelectTrigger>
-                        <SelectContent 
-                          className="z-[100] max-h-48 overflow-y-auto"
-                          position="popper"
-                          sideOffset={4}
-                        >
-                          {getColumnNamesFromTable(column.referenceTable || "", configs).map(columnName => (
-                            <SelectItem key={columnName} value={columnName}>
-                              {columnName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        <option value="">Select value field</option>
+                        {getColumnNamesFromTable(column.referenceTable || "", configs).map(columnName => (
+                          <option key={columnName} value={columnName}>
+                            {columnName}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
