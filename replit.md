@@ -147,6 +147,22 @@ The system includes an optional microservices setup:
 - Service-specific ports for microservices setup
 
 ## Recent Changes
+- **Hierarchical Master Table Reference System Completed** (June 21, 2025): Successfully implemented complete hierarchical master table functionality with dynamic dropdown population:
+  - **Dynamic Reference Dropdowns**: Reference Table, Display Field, and Value Field dropdowns auto-populate based on selections
+  - **Native HTML Select Elements**: Resolved modal z-index issues by converting from shadcn Select to native HTML select elements
+  - **State Management Fix**: Implemented direct state updates using functional setState pattern to ensure proper re-rendering
+  - **Reference Configuration UI**: Clean 3-column layout with clear labeling for Reference Table, Display Field, and Value Field
+  - **Hierarchical Data Support**: Full Country → State → City style relationships with cascading dropdown functionality
+  - **Database Integration**: All reference configurations stored in JSON format with referenceTable, referenceDisplayField, and referenceValueField properties
+  - **Form Integration**: Both Create and Edit master table forms support the complete reference configuration workflow
+
+- **Local Deployment Package Created** (June 21, 2025): Comprehensive local environment setup with multiple deployment options:
+  - **Fresh PostgreSQL Backup**: 79KB backup file (database_backup_20250621_132917.sql) with complete schema and hierarchical master table data
+  - **Automated Setup Script**: Interactive bash script (setup-local.sh) with colored output and error handling
+  - **Docker Deployment**: Both development (docker-compose.yml) and production (docker-compose.prod.yml) configurations
+  - **Documentation**: Complete LOCAL_DEPLOYMENT_GUIDE.md with troubleshooting and multiple setup options
+  - **Environment Templates**: Automated .env file generation with secure secret key generation
+
 - **Master Table Frontend Display Control Added** (June 21, 2025): Implemented "Display in Frontend" option for Master Table Configuration column management:
   - **Column Visibility Control**: Added `displayInFrontend` boolean field to control which columns appear in frontend interfaces
   - **Enhanced Configuration UI**: New grid-based column configuration with clear headers (Column Name, Type, Required, Frontend Display, Actions)
