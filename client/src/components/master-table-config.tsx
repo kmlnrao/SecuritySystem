@@ -401,24 +401,36 @@ function CreateMasterTableForm({
                     <div>
                       <Label className="text-sm font-medium text-blue-700">Reference Table</Label>
                       <p className="text-xs text-blue-600 mb-2">Select which master table this field should reference</p>
+                      <p className="text-xs text-gray-500 mb-2">Available tables: {allConfigs.length}</p>
                       <Select
                         value={column.referenceTable || ""}
                         onValueChange={(value) => {
+                          console.log('Reference table selected:', value);
                           updateColumn(index, 'referenceTable', value);
                           // Reset display and value fields when table changes
                           updateColumn(index, 'referenceDisplayField', '');
                           updateColumn(index, 'referenceValueField', '');
                         }}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Choose a table to reference" />
                         </SelectTrigger>
-                        <SelectContent>
-                          {allConfigs.map(table => (
-                            <SelectItem key={table.id} value={table.id}>
-                              {table.displayName} ({table.tableName})
+                        <SelectContent 
+                          className="z-[100] max-h-48 overflow-y-auto"
+                          position="popper"
+                          sideOffset={4}
+                        >
+                          {allConfigs.length > 0 ? (
+                            allConfigs.map(table => (
+                              <SelectItem key={table.id} value={table.id}>
+                                {table.displayName} ({table.tableName})
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="no-tables" disabled>
+                              No master tables available
                             </SelectItem>
-                          ))}
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -695,12 +707,18 @@ function EditMasterTableForm({
                         <SelectTrigger>
                           <SelectValue placeholder="Choose a table to reference" />
                         </SelectTrigger>
-                        <SelectContent>
-                          {configs.filter(c => c.id !== config.id).map(table => (
-                            <SelectItem key={table.id} value={table.id}>
-                              {table.displayName} ({table.tableName})
+                        <SelectContent className="z-50">
+                          {configs.filter(c => c.id !== config.id).length > 0 ? (
+                            configs.filter(c => c.id !== config.id).map(table => (
+                              <SelectItem key={table.id} value={table.id}>
+                                {table.displayName} ({table.tableName})
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="no-tables" disabled>
+                              No other master tables available
                             </SelectItem>
-                          ))}
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
