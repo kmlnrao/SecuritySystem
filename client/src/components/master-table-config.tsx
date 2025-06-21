@@ -402,15 +402,25 @@ function CreateMasterTableForm({
                       <Label className="text-sm font-medium text-blue-700">Reference Table</Label>
                       <p className="text-xs text-blue-600 mb-2">Select which master table this field should reference</p>
                       <p className="text-xs text-gray-500 mb-2">Available tables: {allConfigs.length}</p>
+                      <p className="text-xs text-gray-500 mb-2">Current value: "{column.referenceTable || 'empty'}"</p>
                       <select
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         value={column.referenceTable || ""}
                         onChange={(e) => {
-                          console.log('Reference table selected:', e.target.value);
-                          updateColumn(index, 'referenceTable', e.target.value);
-                          // Reset display and value fields when table changes
-                          updateColumn(index, 'referenceDisplayField', '');
-                          updateColumn(index, 'referenceValueField', '');
+                          const selectedTableId = e.target.value;
+                          console.log('Reference table selected:', selectedTableId);
+                          
+                          setColumns(prevColumns => {
+                            const updatedColumns = [...prevColumns];
+                            updatedColumns[index] = { 
+                              ...updatedColumns[index], 
+                              referenceTable: selectedTableId,
+                              referenceDisplayField: '',
+                              referenceValueField: ''
+                            };
+                            console.log('Updated column:', updatedColumns[index]);
+                            return updatedColumns;
+                          });
                         }}
                       >
                         <option value="">Choose a table to reference</option>
