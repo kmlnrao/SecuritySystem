@@ -442,10 +442,14 @@ function CreateMasterTableForm({
                         onValueChange={(value) => updateColumn(index, 'referenceDisplayField', value)}
                         disabled={!column.referenceTable}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select display field" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent 
+                          className="z-[100] max-h-48 overflow-y-auto"
+                          position="popper"
+                          sideOffset={4}
+                        >
                           {getColumnNamesFromTable(column.referenceTable || "", allConfigs).map(columnName => (
                             <SelectItem key={columnName} value={columnName}>
                               {columnName}
@@ -462,10 +466,14 @@ function CreateMasterTableForm({
                         onValueChange={(value) => updateColumn(index, 'referenceValueField', value)}
                         disabled={!column.referenceTable}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select value field" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent 
+                          className="z-[100] max-h-48 overflow-y-auto"
+                          position="popper"
+                          sideOffset={4}
+                        >
                           {getColumnNamesFromTable(column.referenceTable || "", allConfigs).map(columnName => (
                             <SelectItem key={columnName} value={columnName}>
                               {columnName}
@@ -707,7 +715,11 @@ function EditMasterTableForm({
                         <SelectTrigger>
                           <SelectValue placeholder="Choose a table to reference" />
                         </SelectTrigger>
-                        <SelectContent className="z-50">
+                        <SelectContent 
+                          className="z-[100] max-h-48 overflow-y-auto"
+                          position="popper"
+                          sideOffset={4}
+                        >
                           {configs.filter(c => c.id !== config.id).length > 0 ? (
                             configs.filter(c => c.id !== config.id).map(table => (
                               <SelectItem key={table.id} value={table.id}>
@@ -730,10 +742,14 @@ function EditMasterTableForm({
                         onValueChange={(value) => updateColumn(index, 'referenceDisplayField', value)}
                         disabled={!column.referenceTable}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select display field" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent 
+                          className="z-[100] max-h-48 overflow-y-auto"
+                          position="popper"
+                          sideOffset={4}
+                        >
                           {getColumnNamesFromTable(column.referenceTable || "", configs).map(columnName => (
                             <SelectItem key={columnName} value={columnName}>
                               {columnName}
@@ -750,10 +766,14 @@ function EditMasterTableForm({
                         onValueChange={(value) => updateColumn(index, 'referenceValueField', value)}
                         disabled={!column.referenceTable}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select value field" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent 
+                          className="z-[100] max-h-48 overflow-y-auto"
+                          position="popper"
+                          sideOffset={4}
+                        >
                           {getColumnNamesFromTable(column.referenceTable || "", configs).map(columnName => (
                             <SelectItem key={columnName} value={columnName}>
                               {columnName}
