@@ -25,6 +25,7 @@ interface ColumnDefinition {
   defaultValue?: string;
   referenceTable?: string;
   referenceDisplayField?: string;
+  referenceValueField?: string;
 }
 
 interface MasterTableConfig {

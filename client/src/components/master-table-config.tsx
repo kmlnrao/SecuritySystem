@@ -22,6 +22,7 @@ interface ColumnDefinition {
   defaultValue?: string;
   referenceTable?: string;
   referenceDisplayField?: string;
+  referenceValueField?: string;
 }
 
 interface MasterTableConfig {
@@ -44,6 +45,19 @@ const COLUMN_TYPES = [
   { value: "select", label: "Dropdown" },
   { value: "reference", label: "Reference (Link to another table)" }
 ];
+
+// Helper function to get column names from a table configuration
+const getColumnNamesFromTable = (tableId: string, configs: MasterTableConfig[]): string[] => {
+  const table = configs.find(c => c.id === tableId);
+  if (!table) return [];
+  
+  try {
+    const columns = JSON.parse(table.columns) as ColumnDefinition[];
+    return columns.map(col => col.name);
+  } catch {
+    return [];
+  }
+};
 
 export function MasterTableConfigurationPage() {
   const { toast } = useToast();
@@ -383,13 +397,18 @@ function CreateMasterTableForm({
               {column.type === 'reference' && (
                 <div className="col-span-12 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <h4 className="text-sm font-semibold text-blue-800 mb-3">Reference Configuration</h4>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div>
                       <Label className="text-sm font-medium text-blue-700">Reference Table</Label>
                       <p className="text-xs text-blue-600 mb-2">Select which master table this field should reference</p>
                       <Select
                         value={column.referenceTable || ""}
-                        onValueChange={(value) => updateColumn(index, 'referenceTable', value)}
+                        onValueChange={(value) => {
+                          updateColumn(index, 'referenceTable', value);
+                          // Reset display and value fields when table changes
+                          updateColumn(index, 'referenceDisplayField', '');
+                          updateColumn(index, 'referenceValueField', '');
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose a table to reference" />
@@ -405,12 +424,43 @@ function CreateMasterTableForm({
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-blue-700">Display Field</Label>
-                      <p className="text-xs text-blue-600 mb-2">Which field from the referenced table to show in dropdown</p>
-                      <Input
-                        placeholder="e.g., Country Name, State Name"
+                      <p className="text-xs text-blue-600 mb-2">Which field to show in dropdown</p>
+                      <Select
                         value={column.referenceDisplayField || ""}
-                        onChange={(e) => updateColumn(index, 'referenceDisplayField', e.target.value)}
-                      />
+                        onValueChange={(value) => updateColumn(index, 'referenceDisplayField', value)}
+                        disabled={!column.referenceTable}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select display field" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getColumnNamesFromTable(column.referenceTable || "", allConfigs).map(columnName => (
+                            <SelectItem key={columnName} value={columnName}>
+                              {columnName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-blue-700">Value Field</Label>
+                      <p className="text-xs text-blue-600 mb-2">Which field to use as stored value</p>
+                      <Select
+                        value={column.referenceValueField || ""}
+                        onValueChange={(value) => updateColumn(index, 'referenceValueField', value)}
+                        disabled={!column.referenceTable}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select value field" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getColumnNamesFromTable(column.referenceTable || "", allConfigs).map(columnName => (
+                            <SelectItem key={columnName} value={columnName}>
+                              {columnName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
@@ -629,13 +679,18 @@ function EditMasterTableForm({
               {column.type === 'reference' && (
                 <div className="col-span-12 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <h4 className="text-sm font-semibold text-blue-800 mb-3">Reference Configuration</h4>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div>
                       <Label className="text-sm font-medium text-blue-700">Reference Table</Label>
                       <p className="text-xs text-blue-600 mb-2">Select which master table this field should reference</p>
                       <Select
                         value={column.referenceTable || ""}
-                        onValueChange={(value) => updateColumn(index, 'referenceTable', value)}
+                        onValueChange={(value) => {
+                          updateColumn(index, 'referenceTable', value);
+                          // Reset display and value fields when table changes
+                          updateColumn(index, 'referenceDisplayField', '');
+                          updateColumn(index, 'referenceValueField', '');
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Choose a table to reference" />
@@ -651,12 +706,43 @@ function EditMasterTableForm({
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-blue-700">Display Field</Label>
-                      <p className="text-xs text-blue-600 mb-2">Which field from the referenced table to show in dropdown</p>
-                      <Input
-                        placeholder="e.g., Country Name, State Name"
+                      <p className="text-xs text-blue-600 mb-2">Which field to show in dropdown</p>
+                      <Select
                         value={column.referenceDisplayField || ""}
-                        onChange={(e) => updateColumn(index, 'referenceDisplayField', e.target.value)}
-                      />
+                        onValueChange={(value) => updateColumn(index, 'referenceDisplayField', value)}
+                        disabled={!column.referenceTable}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select display field" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getColumnNamesFromTable(column.referenceTable || "", configs).map(columnName => (
+                            <SelectItem key={columnName} value={columnName}>
+                              {columnName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-blue-700">Value Field</Label>
+                      <p className="text-xs text-blue-600 mb-2">Which field to use as stored value</p>
+                      <Select
+                        value={column.referenceValueField || ""}
+                        onValueChange={(value) => updateColumn(index, 'referenceValueField', value)}
+                        disabled={!column.referenceTable}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select value field" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getColumnNamesFromTable(column.referenceTable || "", configs).map(columnName => (
+                            <SelectItem key={columnName} value={columnName}>
+                              {columnName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
