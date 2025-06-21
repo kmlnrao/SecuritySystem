@@ -203,6 +203,9 @@ function CreateMasterTableForm({
   onSubmit: (data: any) => void;
   isLoading: boolean;
 }) {
+  const { data: allConfigs = [] } = useQuery<MasterTableConfig[]>({
+    queryKey: ["/api/master-tables"],
+  });
   const [tableName, setTableName] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [description, setDescription] = useState("");
@@ -375,6 +378,43 @@ function CreateMasterTableForm({
                   </Button>
                 )}
               </div>
+              
+              {/* Reference table configuration for CreateMasterTableForm */}
+              {column.type === 'reference' && (
+                <div className="col-span-12 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="text-sm font-semibold text-blue-800 mb-3">Reference Configuration</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium text-blue-700">Reference Table</Label>
+                      <p className="text-xs text-blue-600 mb-2">Select which master table this field should reference</p>
+                      <Select
+                        value={column.referenceTable || ""}
+                        onValueChange={(value) => updateColumn(index, 'referenceTable', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a table to reference" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {allConfigs.map(table => (
+                            <SelectItem key={table.id} value={table.id}>
+                              {table.displayName} ({table.tableName})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-blue-700">Display Field</Label>
+                      <p className="text-xs text-blue-600 mb-2">Which field from the referenced table to show in dropdown</p>
+                      <Input
+                        placeholder="e.g., Country Name, State Name"
+                        value={column.referenceDisplayField || ""}
+                        onChange={(e) => updateColumn(index, 'referenceDisplayField', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
